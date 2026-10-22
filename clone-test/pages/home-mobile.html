@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<style>
+  body, html { margin: 0; padding: 0; background: #ffffff; }
+  
+  .mobile-loading { 
+    width: 100vw;
+    height: 100vh;
+    background: #ffffff;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mobile-loading svg {
+    height: 100vh;
+    width: auto;
+    min-width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .mobile-loading svg path {
+    stroke: black;
+    stroke-width: 25;
+    fill: none;
+  }
+
+  /* fade-out */
+  .fade-out {
+    animation: fadeOut 0.8s forwards;
+  }
+
+  @keyframes fadeOut {
+    to { opacity: 0; }
+  }
+
+  .loading-text {
+    position: absolute;
+    bottom: 40%; /* 원하는 위치로 조절 */
+    left: 49%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0;        /* 처음에 숨김 */
+    font-weight: 500;
+    color: black;
+  }
+</style>
+</head>
+  
+<body>
+
+<div class="mobile-loading" id="loadingWrap">
+
+  <!-- ⭐ 순서 뒤집은 SVG (morphTarget이 처음 상태) -->
+  <svg id="logo" viewBox="0 0 1200 2600">
+
+    <!-- ⭐ morph 전(처음 보이는 모습) = morphTarget -->
+    <path id="baseShape" d="
+M237,0v1613.63
+M419.5,1568.63h195
+M-240,1706.13H347
+M214.5,1768.63h270
+M457,1898.63h137.5
+M814.5,1756.13H1300
+M564.5,2038.63H843
+M457,1831.13v377.5
+M1039.5,1756.13v197.5
+M843,2038.63H1400
+M334.5,1553.63v152.5
+M739.51,2556v-382.38
+" />
+
+    <!-- ⭐ morph 후(애니메이션 목적지) = 이전 baseShape -->
+    <path id="morphTarget" style="opacity:0;" d="
+M494.5,1163v230
+M482,1175.5h82.5
+M452,1265.5h25
+M512,1265.5h40
+M552,1265.5h40
+M627,1265.5h40
+M677,1163v85
+M609.5,1163v230
+M677,1283v110
+M667,1265.5h60
+M552,1283v110
+M659.5,1380.5h-62.5
+" />
+  </svg>
+</div>
+
+<!-- GSAP -->
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
+
+<script>
+gsap.registerPlugin(MorphSVGPlugin);
+
+const base   = document.querySelector("#baseShape");
+const target = document.querySelector("#morphTarget");
+const svg    = document.querySelector("#logo");
+const wrap   = document.querySelector("#loadingWrap");
+
+const NEXT_URL = "/works_list";
+let hasNavigated = false;
+
+// ✅ (1번 기준) "모바일 레이아웃"에서만 이동
+function isMobileLayout() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
+
+function goNext() {
+  // ✅ 데스크탑이면 이동 금지
+  if (!isMobileLayout()) return;
+
+  if (hasNavigated) return;
+  hasNavigated = true;
+
+  // (선택) 페이드아웃 후 이동
+  wrap.classList.add("fade-out");
+  setTimeout(() => {
+    window.location.href = NEXT_URL;
+  }, 500); // fadeOut 0.5s와 맞춤(원 코드 유지)
+}
+
+// 1) 로드 후 SVG fade-in
+window.addEventListener("load", () => {
+  gsap.to(svg, { opacity: 1, duration: 0.3, ease: "power2.out" });
+
+  // 2) 0.5초 대기 후 morph 시작
+  setTimeout(animateMorph, 300);
+});
+
+function animateMorph() {
+  // 시작 형태와 도착 형태를 선별로 분리
+  const startLines = base.getAttribute("d")
+    .match(/[Mm][^Mm]*/g);
+
+  const endLines = target.getAttribute("d")
+    .match(/[Mm][^Mm]*/g);
+
+  if (!startLines || !endLines ||
+      startLines.length !== endLines.length) {
+    return;
+  }
+
+  // 현재 시작 형태를 그대로 개별 선으로 복제
+  const paths = startLines.map((line) => {
+    const path = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "path"
+    );
+
+    path.setAttribute("d", line.trim());
+    path.style.strokeLinecap = "butt";
+    svg.appendChild(path);
+
+    return path;
+  });
+
+  // 원본은 숨겨서 선이 중복되지 않도록 처리
+  base.style.display = "none";
+
+  const timeline = gsap.timeline({
+    defaults: {
+      duration: 1.8,
+      ease: "power2.inOut"
+    },
+    onComplete: goNext
+  });
+
+  // 7번째 → 7번째, 10번째 → 10번째로 명시적으로 연결
+  paths.forEach((path, index) => {
+    timeline.to(path, {
+      morphSVG: {
+        shape: endLines[index].trim(),
+        shapeIndex: 0
+      }
+    }, 0);
+  });
+}
+
+// ✅ (선택) 사용자가 탭하면 즉시 이동(스킵)도 "모바일에서만"
+svg.addEventListener("click", goNext);
+
+// ✅ 리사이즈로 조건이 바뀌는 경우(예: 창 크기 조절) 대비: 데스크탑으로 커지면 잠금 해제
+// (원하지 않으면 이 블록은 삭제해도 됨)
+window.addEventListener("resize", () => {
+  if (!isMobileLayout()) {
+    // 데스크탑으로 바뀌면 이동 플래그를 풀어두기(상황에 따라 선택)
+    // hasNavigated = false;  // 필요 없으면 주석 유지
+  }
+});
+</script>
+
+</body>
+</html>
+
