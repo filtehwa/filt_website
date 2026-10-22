@@ -1,0 +1,650 @@
+
+
+:root {
+	--accent: #BD005E;
+	--bg-color: #fff;
+}  
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: none;
+}
+  
+html, body {
+  font-family: 'SUIT', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
+  font-weight: 300;
+  letter-spacing: 0px;
+  color: #000;
+  background: #fff;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+}  
+
+  /* 전체 페이지 스크롤바 숨기기 */
+
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}  
+
+/****************************************
+
+           📌 상단바
+
+*****************************************/
+
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 0.5px solid #000;
+  z-index: 5;
+  background: transparent;
+  box-sizing: border-box;
+}  
+
+.header-logo { /* 홈버튼 */
+  display: flex;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+}
+
+.header-logo svg {
+  display: block; 
+  height: 24px; /* 40px 바 안에서 적절한 크기로 조정 */
+  width: auto;
+}
+
+.mobile-header .header-menu-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.mobile-header .header-menu-btn .btn-dot {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  flex: 0 0 12px;
+  background-color: #000 !important;
+  border-radius: 50%;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+  
+
+/****************************************
+
+       📌 우측 메뉴 패널
+
+*****************************************/
+
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 45%;
+  height: 100vh;  /* 지원 안 하는 브라우저용 */
+  height: 100dvh; /* 최신 브라우저용 */
+  background: #fff;
+  border-left: 0.5px solid #000;
+  transition: right 0.35s ease;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-panel.open {
+  right: 0;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* 배경을 살짝 어둡게 (완전 투명을 원하면 0으로) */
+  z-index: 6; /* 패널보다는 낮고 본문보다는 높게 */
+  display: none; /* 평소에는 숨김 */
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+.menu-middle {
+  flex-grow: 1; /* 남는 공간을 모두 차지 */
+  margin-top: 150px;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  border-bottom: 0.5px solid #000;
+  border-top: 0.5px solid #000;
+}
+
+.menu-middle a {
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+  display: block;
+  text-decoration: none;
+  transition: color 0.35s;
+}
+
+.menu-bottom {
+  flex-shrink: 0;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: right;
+  padding: 5px 5px;
+  background: color: #000;
+  box-sizing: border-box;
+}
+
+.menu-bottom a {
+  text-decoration: none;
+  color: #ffff;
+  font-size: 1.2rem;
+  font-weight: 400;
+}  
+
+/****************************************
+
+           📌 메인 페이지
+
+*****************************************/  
+
+.mobile-page {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 40px; /* 상단바에 본문이 가려지지 않게 여백 */
+  z-index: 4;
+}
+
+/****************************************
+
+        1. 이미지 슬라이드
+
+*****************************************/
+
+.slider-wrapper {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  padding: 0;
+  margin: 0;
+} 
+
+.detail-slider {
+  position: relative;
+  width: 100%;
+  height: 66.5vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  touch-action: pan-y; /* 세로 스크롤은 허용하되 가로 스크롤 간섭 방지 */
+  /* 만약 스와이프 중에 아예 화면이 위아래로도 안 움직이게 하려면 'none'으로 설정 */
+}
+
+.slides {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+  /* 이미지 설정*/
+
+.slides img {
+  flex: 0 0 100%;
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
+  box-sizing: border-box;
+  /* 조작 방지 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}  
+
+.landscape {
+  width: 100% !important;
+  height: 100% !important; /* 높이를 슬라이더 전체에 맞춤 */
+  object-fit: contain;      /* 이미지 비율을 유지하며 빈 공간은 여백으로 남김 */
+  object-position: center;   /* 이미지를 가로/세로 중앙에 배치 */
+}
+  
+.portrait {
+  width: auto;
+  height: 100%;
+}
+
+.click-zone {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 50;
+  /* 조작 방지 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.click-zone.left { left: 0; }
+.click-zone.right { right: 0; }
+
+/****************************************
+
+    2. 표, 텍스트
+
+*****************************************/
+
+.content-wrapper {
+  width: 100%;
+  background: #fff;
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid #000;
+}  
+
+  /* 설명 텍스트 */
+
+.text-content {
+  display: block;          /* ✅ 보이게 */
+  padding: 12px 12px 12px; /* 표 아래 여백 */
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+  
+/* 설명 문단 */
+.text-content .desc{
+  margin: 10px 0 14px;
+}
+  
+/* 소제목 (설명용 헤딩) */
+.text-content .desc-heading{
+  margin: 18px 0 8px;
+  font-size: 1.35rem;
+  font-weight: 500;          /* ✅ 본문(300~400)보다 한 단계만 두껍게 */
+  line-height: 1.3;
+  letter-spacing: 0.25px;
+  text-align: left;
+}
+
+/* 첫 소제목이 바로 나올 경우 위 여백 조정 */
+.text-content .desc-heading:first-child{
+  margin-top: 6px;
+}
+
+/* 두 이미지를 양옆으로 배치 */
+.desc-figures-row {
+  width: 100%;
+  display: flex;
+  gap: 12px;              /* 두 이미지 사이 여백 */
+  align-items: flex-start;
+}
+
+.desc-figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.desc-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.desc-caption {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  opacity: 0.75;
+  text-align: left;
+  white-space: normal;
+}
+
+/* 개요 표 */
+
+.fixed-table {
+  width: 100% !important;
+  background: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.4px;
+  position: relative;
+  margin-top: 0;
+
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+
+  /* 표 맨 위 선 */
+  border-top: 0.5px solid #000;
+}
+
+
+/* 셀 기본 */
+
+.fixed-table th,
+.fixed-table td {
+  height: 20px;
+  padding: 3px 5px;
+
+  border: none !important;
+
+  /* 모든 셀의 하단 가로선 */
+  box-shadow: inset 0 -0.5px 0 #000;
+
+  box-sizing: border-box;
+}
+
+
+/* 텍스트 */
+
+.fixed-table th {
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  vertical-align: top;
+}
+
+.fixed-table td {
+  font-weight: 400;
+  text-align: right;
+  vertical-align: bottom;
+}
+
+
+/****************************************
+
+    중앙 50% 세로선
+    가로선과 동일하게 box-shadow 사용
+
+*****************************************/
+
+
+/* 첫 번째 행 : STATUS 왼쪽 */
+
+.fixed-table tr:nth-child(1) > th:nth-child(2) {
+  box-shadow:
+    inset 0.5px 0 0 #000,
+    inset 0 -0.5px 0 #000;
+}
+
+
+/* 두 번째 행 : YEAR 왼쪽 */
+
+.fixed-table tr:nth-child(2) > th:nth-child(1) {
+  box-shadow:
+    inset 0.5px 0 0 #000,
+    inset 0 -0.5px 0 #000;
+}
+
+
+/* 세 번째 행 이후 : 50% 위치 */
+
+.fixed-table tr:nth-child(n+3) > th:nth-child(3) {
+  box-shadow:
+    inset 0.5px 0 0 #000,
+    inset 0 -0.5px 0 #000;
+}
+
+
+/****************************************
+
+    제목
+
+*****************************************/
+
+.project-title-en {
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.project-subtitle {
+  display: block;
+  font-weight: 400;
+  font-size: 1.2rem;
+}
+  
+.areaCell { cursor: pointer; user-select: none; }
+.areaCell:hover { color: var(--accent); }
+  
+.slider-wrapper, .detail-slider {
+  position: relative;
+  z-index: 1;
+}
+
+/****************************************
+
+    3. 도면 슬라이드
+
+*****************************************/
+
+.drawing-section {
+  width: 100%;
+  background: #fff;
+  border-top: 0.5px solid #000;
+}
+
+.drawing-slider {
+  position: relative;
+  width: 100%;
+  height: 90vh;
+  overflow: hidden;
+  background: #fff;
+  touch-action: pan-y;
+}
+
+.drawing-slides {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.drawing-slides img {
+  flex: 0 0 100%;
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 도면 좌우 클릭 영역 */
+
+.drawing-click-zone {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.drawing-click-zone.left {
+  left: 0;
+}
+
+.drawing-click-zone.right {
+  right: 0;
+}
+
+
+/****************************************
+
+    도면 하단 정보
+
+*****************************************/
+
+.drawing-info {
+  width: 100%;
+  height: 40px;
+  display: grid;
+
+  /* 좌표 / 스케일바 / 도면명 */
+  grid-template-columns: 10% 50% 40%;
+
+  border-top: 0.5px solid #000;
+  background: #fff;
+}
+
+.drawing-info > div {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+
+/* 좌표 */
+
+.drawing-info-coordinate {
+  position: relative;
+  overflow: hidden;
+  border-right: 0.5px solid #000;
+  background: #fff;
+}
+
+.drawing-coordinate-img {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  display: block;
+  pointer-events: none;
+}
+
+
+/* 스케일바 */
+
+.drawing-info-scale {
+  position: relative;
+  overflow: hidden;
+
+  border-right: 0.5px solid #000;
+  background: #fff;
+}
+
+.drawing-scale-img {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  display: block;
+  pointer-events: none;
+}
+
+
+/* 도면명 */
+
+.drawing-info-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+#drawingTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mobile-menu-panel .menu-bottom {
+  background: #000;
+  height: 50px;
+}
+
+.mobile-menu-panel .menu-bottom a {
+  color: #fff;
+}
+
+

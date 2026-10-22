@@ -1,0 +1,24 @@
+<!-- 템프인 복제 테스트용 아임웹 코드 위젯 -->
+<div id="filt-tempin-copy-root"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
+<link rel="stylesheet" href="https://raw.githubusercontent.com/filtehwa/filt_website/tempin-clone-test/tempin-copy/tempin-copy.css">
+<script>
+(async function () {
+  const root = document.getElementById("filt-tempin-copy-root");
+  const baseUrl = "https://raw.githubusercontent.com/filtehwa/filt_website/tempin-clone-test/tempin-copy/";
+  try {
+    const response = await fetch(baseUrl + "tempin-copy-content.html");
+    if (!response.ok) throw new Error("콘텐츠를 불러오지 못했습니다: " + response.status);
+    root.innerHTML = await response.text();
+    const script = document.createElement("script");
+    script.src = baseUrl + "tempin-copy.js";
+    script.onerror = () => { root.textContent = "템프인 복제 코드를 불러오지 못했습니다."; };
+    document.body.appendChild(script);
+  } catch (error) {
+    console.error("[FILT tempin-copy]", error);
+    root.textContent = "템프인 복제 코드를 불러오지 못했습니다. 잠시 후 다시 확인해주세요.";
+  }
+})();
+</script>
+
