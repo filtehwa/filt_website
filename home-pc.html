@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+  
+  <style>
+  /* ------------------------------
+     	📌1. 기본 설정
+		- 브라우저 여백, 폰트
+     ------------------------------ */
+
+:root{
+  --accent:#BD005E;
+  --bg-color:#fff;
+  --panel-width:240px;
+  --panel-font: "Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;
+}  
+	
+  html, body {
+  font-family:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif !important;
+  font-weight:300 !important;
+  letter-spacing:0.4px;
+  color: #000;
+  background: #fff;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden; /* 스크롤바 방지 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+	
+  /* ------------------------------
+     	📌2. 좌측 사이드 패널
+		- 로고, 메뉴, 구분선
+     ------------------------------ */
+	/* 사이드 패널 */
+  .side-panel {
+	position: fixed;
+	top: 0; 
+	left: 0;
+	width: var(--panel-width);
+	height: 100vh;
+	background: #fff;
+	border-right: 1px solid #000;
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+	z-index: 10000;
+}
+	
+.side-panel,
+.side-panel *{
+  font-family: var(--panel-font) !important;
+  letter-spacing: 0.4px; /* 상세페이지 느낌 */
+}
+	  
+	/* 구분선 */
+  .vert {
+	position: absolute;
+	left: 230px;
+	top: 0;
+	width: 10px;
+	height: 410px;
+	background-color: #000;
+}
+  .divider-top {
+	position: absolute;
+	top: 410px;
+	left: 0;
+	width: 240px;
+	height: 0.5px;
+	background-color: #000;
+}
+	
+	/* 로고 버튼 */
+  .logo-btn {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 240px;
+	height: 410px;
+	cursor: pointer;
+	z-index: 11; /* 메뉴보다 위에 */
+  }
+  .logo-btn svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #000;
+    stroke-width: 5;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .logo-btn:hover svg {
+    opacity: 0.7;
+  }
+  
+	/*사무소 이름 (텍스트)*/
+  .office-name {
+	position: absolute;
+	left: 20px;
+	top: 330px;
+	width: 180px;
+	line-height: 1.0;
+	letter-spacing: 0px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #000;
+}
+
+	/* 메뉴 */
+	.panel-menu {
+	  position: absolute;
+	  top: 420px;
+	  left: 20px;
+	  z-index: 20;
+}
+	.panel-menu ul {
+	  list-style: none;
+	  padding: 0;
+	  margin: 0;
+}
+	
+.panel-menu a{
+  display:block;
+  font-size:12px;
+  font-weight:400;
+  line-height:1.6;
+  letter-spacing:0.4px;
+  color:#000;
+  text-decoration:none !important;
+  transition: all .2s ease;
+}
+	
+.panel-menu a:hover{
+  color: var(--accent);
+  font-weight:700;
+  transform: translateX(3px);
+}
+	
+	/* 하단 구분선 아래 문구 */
+	.panel-footer {
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 35px;
+	  background-color: #000;
+	  display: flex;
+	  align-items: center;
+	  padding-left: 20px;
+	  box-sizing: border-box;
+}
+  .panel-subtitle {
+	font-weight: 200;
+	font-size: 12px;
+	letter-spacing: 0.6px;
+	z-index: 21;
+	color: #fff;
+	margin: 0;
+}
+	
+  /* ------------------------------
+     	📌3. 메인 이미지 갤러리
+		- 이미지 슬라이드
+     ------------------------------ */
+  .slide-gallery {
+	position: fixed;
+	left: var(--panel-width);
+	top: 0;
+	width: calc(100% - var(--panel-width));
+	height: 100vh;
+	overflow: hidden;
+	z-index: 9000;
+}
+  .slides {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+  .slides img {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	top: 50%;
+	left: 50%;
+	width: 100%;
+	height: 100%;  
+	object-fit: cover;
+    object-position: center center; /* 기본값 */
+    will-change: opacity;
+	transform: translate(-50%, -50%);
+}
+
+	/* 양쪽 클릭 영역 (투명) */
+  .click-zone {
+	position: absolute;
+	top: 0;
+	width: 20%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 9100;
+}
+
+.click-zone.left { left: 0; }
+.click-zone.right { right: 0; }
+
+/* 흰색 25% + 뒤 사진이 75% 비침 */
+.side-panel {
+  background: rgba(255, 255, 255, 0.0);
+}
+
+/* 하단 검정 배경 + 흰색 글씨 */
+.panel-footer {
+  background-color: #000;
+}
+
+.panel-subtitle {
+  color: #fff;
+}
+
+/* 사진은 메뉴 뒤까지 화면 전체로 확장 */
+.slide-gallery {
+  left: 0;
+  width: 100%;
+}
+
+.click-zone.left {
+  left: var(--panel-width);
+}
+
+.panel-footer {
+  border-top: 1px solid #000;
+}
+
+/* 사진을 세로 슬라이드에 맞게 배치 */
+.slides {
+  overflow: hidden;
+}
+
+.slides img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+  will-change: transform;
+}
+
+/* 기존 클릭 영역을 오른쪽 위·아래로 재배치 */
+.click-zone.left,
+.click-zone.right {
+  left: auto;
+  right: 0;
+  width: 20%;
+  height: 50%;
+}
+
+.click-zone.left {
+  top: 0;
+  bottom: auto;
+  cursor: default;
+}
+
+.click-zone.right {
+  top: auto;
+  bottom: 0;
+  cursor: default;
+}
+
+.panel-subtitle {
+  color: transparent;
+}
+
+.panel-footer {
+  background: transparent;
+  padding: 0;
+  border-top: 1px solid #000;
+}
+
+.panel-footer svg {
+  display: block;
+}
+
+/* 글자 뒤에는 메뉴의 흰색 막 없이 사진이 보이도록 */
+.side-panel {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0) calc(100% - 35px),
+    transparent calc(100% - 35px),
+    transparent 100%
+  );
+}
+
+.panel-menu a {
+  font-size: 12px;
+}
+
+/* 사진 클릭 시 WORKS로 이동 */
+.slide-gallery {
+  cursor: pointer;
+}
+
+.slide-gallery {
+  cursor: default;
+}
+
+/* 화면 오른쪽 20%를 사진 전환 영역으로 설정 */
+.click-zone.left,
+.click-zone.right {
+  position: absolute;
+  left: auto;
+  right: 0;
+  width: 20%;
+  min-width: 0;
+  height: 50%;
+  z-index: 9100;
+  cursor: default;
+}
+
+.click-zone.left {
+  top: 0;
+  bottom: auto;
+}
+
+.click-zone.right {
+  top: auto;
+  bottom: 0;
+}
+  </style>
+</head> 
+  
+<body>
+
+  <!-- ✅ 사이드메뉴 -->
+<aside class="side-panel" id="panel">
+  <div class="logo-btn" id="logoBtn">
+	  <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">
+		<path id="f-2" class="cls-1" d="M28.2,265.02v54.66"/>
+		<path id="f-1" class="cls-1" d="M25.78,267.47h19.22"/>
+		<path id="f-3" class="cls-1" d="M18,289.07h6"/>
+		<path id="f-4" class="cls-1" d="M32.4,289.07h9.6"/>
+		<path id="i-1" class="cls-1" d="M42,289.07h9.6"/>
+		<path id="t-2" class="cls-1" d="M60,289.07h24"/>
+		<path id="l-2" class="cls-1" d="M55.8,289.07v30.6"/>
+		<path id="l-1" class="cls-1" d="M55.8,264.47v24.6"/>
+		<path id="t-3" class="cls-1" d="M72,293.27v26.4"/>
+		<path id="t-1" class="cls-1" d="M72,264.47v20.4"/>
+		<path id="i-2" class="cls-1" d="M42,293.27v26.4"/>
+		<path id="l-3" class="cls-1" d="M67.81,317.17h-14.46"/>
+	</svg>
+  </div>
+
+  <div class="office-name" id="officeName">
+    <p>필트아키텍츠<br>건축사사무소</p>
+  </div>
+  
+  <div class="vert"></div>
+  <div class="divider-top"></div>
+  
+  <nav class="panel-menu">
+    <ul>
+      <li><a href="/office">OFFICE</a></li>
+      <li><a href="/news">NEWS</a></li>
+      <li><a href="/works_list">WORKS</a></li>
+    </ul>
+  </nav>
+  
+<footer class="panel-footer">
+  <svg
+    width="100%"
+    height="100%"
+    role="img"
+    aria-label="ESSAYS AND DRAWINGS"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <mask id="footer-text-cutout"
+            x="0" y="0" width="100%" height="100%"
+            style="mask-type: luminance;">
+        <rect width="100%" height="100%" fill="white" />
+
+        <text
+          x="20"
+          y="50%"
+          dominant-baseline="central"
+          fill="black"
+          style="font-size:12px; font-weight:200; letter-spacing:0.6px;"
+        >ESSAYS AND DRAWINGS</text>
+      </mask>
+    </defs>
+
+    <rect
+      width="100%"
+      height="100%"
+      fill="black"
+      mask="url(#footer-text-cutout)"
+    />
+  </svg>
+</footer>
+</aside>
+  
+  
+  <!-- ✅ 슬라이드 갤러리 -->
+<main class="slide-gallery">
+  <section class="slides">
+    <img src="https://cdn.imweb.me/thumbnail/20251217/0fa326fe8c87b.jpg" data-position="center bottom" alt="#1 Yaein Church Healing Center">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/f6c58845910fe.jpg" data-position="center bottom" alt="#2 Yaein Church Healing Center">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/66cb7d712fcd6.jpg" data-position="center center" alt="#3 Sejong-no Church Annex">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/0272ee3f4285e.jpg" data-position="center bottom" alt="#4 Sejong-no Church Annex">
+	<img src="https://res.cloudinary.com/dn4y0tydx/image/upload/v1777902727/%EC%9B%B9_%EB%B4%89%EC%B2%9C%EB%8F%99_885-21_%EA%B7%BC%EB%A6%B0%EC%83%9D%ED%99%9C%EC%8B%9C%EC%84%A4-20_puejpe.jpg" data-position="center bottom" alt="#5 Tempin Project">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/3ec113251181f.jpg" data-position="center bottom" alt="#6 Tempin Project">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/220d7114a4fb8.jpg" data-position="center center" alt="#7 Tempin Project">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/a96be5661b67b.jpg" data-position="center center" alt="#8 Tempin Project">
+	<img src="https://res.cloudinary.com/dn4y0tydx/image/upload/v1777903353/IMG_1548_EDIT_LOW_COLOR_fakixj.jpg" data-position="center bottom" alt="#9 Ovino Studio">
+	<img src="https://cdn.imweb.me/thumbnail/20251217/2d8af857d9ed1.jpg" data-position="center center" alt="#10 Hajung-dong office">
+  </section>
+  <div class="click-zone left"></div>
+  <div class="click-zone right"></div>
+</main>
+
+    
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
+  
+<script>
+  // --- 로고 모핑 스크립트 ---
+	  window.addEventListener("load", () => {
+		const logoBtn = document.getElementById("logoBtn");
+		const logo = logoBtn.querySelector("svg");
+		const paths = logo.querySelectorAll("path");
+		
+		gsap.registerPlugin(MorphSVGPlugin);
+
+		
+  const shapes = {
+panel: [
+    "M28.2,265.02v54.66",
+    "M25.78,267.47h19.22",
+    "M18,289.07h6",
+    "M32.4,289.07h9.6",
+    "M42,289.07h9.6",
+    "M60,289.07h24",
+    "M55.8,289.07v30.6",
+    "M55.8,264.47v24.6",
+    "M72,293.27v26.4",
+    "M72,264.47v20.4",
+    "M42,293.27v26.4",
+    "M67.81,317.17h-14.46"
+  ],
+  logo: [	
+    "M49.37-.25v270.82",
+    "M85.87,261.57h39",
+    "M-.13,289.07h69",
+    "M45,301.57h53.87",
+    "M93.37,327.57h27.5",
+    "M164.87,299.07h75.13",
+    "M93.37,314.57v75",
+    "M114.87,270.35v45.23",
+    "M149.87,382.37v27.63",
+    "M209.87,296.57v42",
+    "M68.87,258.57v33",
+    "M239.87,355.57h-125"
+  ]
+};
+		
+ // 처음엔 panel 상태로 시작
+  let currentStage = "panel";
+
+  const morphTo = (targetStage) => {
+    const tl = gsap.timeline({ defaults: { duration: 0.8, ease: "power2.inOut" } });
+    const newPaths = shapes[targetStage];
+    paths.forEach((p, i) => {
+      tl.to(p, { morphSVG: { shape: newPaths[i], map: "position" } }, 0);
+    });
+    currentStage = targetStage;
+  };
+
+  // 로고 클릭 시 panel ↔ logo 전환
+  logoBtn.addEventListener("click", () => {
+    if (currentStage === "panel") morphTo("logo");
+    else morphTo("panel");
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const slides = Array.from(document.querySelectorAll(".slides img"));
+  const total = slides.length;
+  slides.forEach((slide) => {
+  slide.style.objectPosition =
+    slide.dataset.position || "center center";
+});
+  if (!total) return;
+
+  let current = 0;
+  let isAnimating = false;
+  let autoSlide = null;
+
+  // 첫 번째 사진만 화면에 표시
+  gsap.set(slides, {
+    opacity: 1,
+    visibility: "hidden",
+    yPercent: 0,
+    zIndex: 0
+  });
+
+  gsap.set(slides[0], {
+    visibility: "visible",
+    zIndex: 1
+  });
+
+  // direction: 1 = 위로, -1 = 아래로
+  function goTo(next, direction) {
+    if (isAnimating || next === current) return;
+    isAnimating = true;
+
+    const cur = slides[current];
+    const nxt = slides[next];
+
+    gsap.killTweensOf([cur, nxt]);
+
+    // 다음 사진을 화면 아래 또는 위에서 준비
+    gsap.set(nxt, {
+      visibility: "visible",
+      opacity: 1,
+      yPercent: direction * 100,
+      zIndex: 2
+    });
+
+    // 두 사진을 함께 밀어 이동
+    gsap.timeline({
+      defaults: {
+        duration: 1.25,
+        ease: "power2.inOut"
+      },
+      onComplete: () => {
+        gsap.set(cur, {
+          visibility: "hidden",
+          yPercent: 0,
+          zIndex: 0
+        });
+
+        gsap.set(nxt, {
+          yPercent: 0,
+          zIndex: 1
+        });
+
+        current = next;
+        isAnimating = false;
+      }
+    })
+    .to(cur, { yPercent: -direction * 100 }, 0)
+    .to(nxt, { yPercent: 0 }, 0);
+  }
+
+  // 자동 전환: 10초마다 위로 이동
+  function startAuto() {
+    clearInterval(autoSlide);
+    autoSlide = setInterval(() => {
+      goTo((current + 1) % total, 1);
+    }, 10000);
+  }
+
+  // 우하단: 다음 사진으로, 위로 슬라이드
+document.querySelector(".click-zone.right")
+  .addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    if (isAnimating) return;
+    goTo((current + 1) % total, 1);
+    startAuto();
+  });
+
+// 우상단: 이전 사진으로, 아래로 슬라이드
+document.querySelector(".click-zone.left")
+  .addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    if (isAnimating) return;
+    goTo((current - 1 + total) % total, -1);
+    startAuto();
+  });
+
+const gallery = document.querySelector(".slide-gallery");
+const panel = document.querySelector(".side-panel");
+
+// WORKS로 이동할 수 있는 영역인지 확인
+function isWorksArea(event) {
+  const menuRight = panel.getBoundingClientRect().right;
+  const worksEnd = document.documentElement.clientWidth * 0.8;
+
+  return (
+    !event.target.closest(".click-zone") &&
+    event.clientX >= menuRight &&
+    event.clientX < worksEnd
+  );
+}
+
+// 해당 영역에서 손 모양 커서 표시
+gallery.addEventListener("mousemove", (event) => {
+  gallery.style.cursor = isWorksArea(event) ? "pointer" : "default";
+});
+
+// 해당 영역을 클릭하면 WORKS로 이동
+gallery.addEventListener("click", (event) => {
+  if (isWorksArea(event)) {
+    window.location.href = "/works_list";
+  }
+});
+
+  startAuto();
+});
+</script>
+
+</body>
+</html>
