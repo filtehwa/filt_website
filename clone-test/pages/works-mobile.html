@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>WORKS_LIST_M | FILT.</title>
+
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+<style>
+  :root {
+	--accent: #BD005E;
+	--bg-color: #fff;
+}
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html, body {
+  font-family: "SUIT", "Pretendard Variable", sans-serif !important;
+  font-weight: 300;
+  letter-spacing: 0px;
+  color: #000;
+  background: #fff;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto ;
+}
+  
+  /* 스크롤바 숨기기 */
+body { -ms-overflow-style: none; scrollbar-width: none; }
+body::-webkit-scrollbar { display: none; }
+  
+
+/****************************************
+           📌 상단바
+*****************************************/
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 0.7px solid #000;
+  z-index: 5000;
+  background: #fff;
+  box-sizing: border-box;
+}
+  
+.header-logo { /* 홈버튼 */
+  display: flex;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+}
+.header-logo svg {
+  display: block; 
+  height: 24px; /* 40px 바 안에서 적절한 크기로 조정 */
+  width: auto;
+}
+ 
+.header-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: none;
+}
+.btn-dot {
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+}
+  
+/****************************************
+       📌 우측 메뉴 패널
+*****************************************/
+
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 45%;
+  height: 100vh;  /* 지원 안 하는 브라우저용 */
+  height: 100dvh; /* 최신 브라우저용 */
+  background: #fff;
+  border-left: 0.5px solid #000;
+  transition: right 0.35s ease;
+  z-index: 7000;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-panel.open {
+  right: 0;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* 배경을 살짝 어둡게 (완전 투명을 원하면 0으로) */
+  z-index: 6000; /* 패널보다는 낮고 본문보다는 높게 */
+  display: none; /* 평소에는 숨김 */
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+.menu-middle {
+  flex-grow: 1; /* 남는 공간을 모두 차지 */
+  margin-top: 150px;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  border-bottom: 0.7px solid #000;
+  border-top: 0.7px solid #000;
+}
+
+.menu-middle a {
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+  display: block;
+  text-decoration: none;
+  transition: color 0.35s;
+}
+
+.menu-bottom {
+  flex-shrink: 0;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: right;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  background: #000;
+}
+
+.menu-bottom a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+  
+/****************************************
+  📌 카테고리 필터
+*****************************************/
+.category-filter {
+  position: fixed;
+  top: 40px; /* 상단바 높이 만큼 아래 고정 */
+  left: 0;
+  width: 100%;
+  z-index: 4000;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 8px;
+  border-bottom: 0.7px solid #000;
+}
+
+.category-filter button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0em;
+  color: #000;
+}
+.category-filter button.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+  
+/****************************************
+     📌 메인 페이지
+*****************************************/
+.mobile-page {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding-top: 65px; /* 상단바 + 필터에 본문이 가려지지 않게 여백 */
+  display: flex;
+  flex-direction: column;
+}
+
+/*** 프로젝트 리스트 ***/
+.works-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 25px;
+  margin-top: 0;
+}
+  
+.works-item {
+  display: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.works-thumb {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 0.7px solid #000;
+  padding-bottom: 0px;
+  border-top: 0.7px solid #000;
+  padding-top: 65px;
+}
+.works-thumb: last-child { border-bottom: none; }
+.works-thumb: first-child { border-top: none; }
+  
+.works-thumb.tall { padding-top: 120%; }  /* [세로형] 가로 대비 1.2배 비율 */
+.works-thumb.square { padding-top: 120%; }  /* [가로형/정방형] 1:1.2 비율 */
+
+.works-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* 이미지가 박스를 꽉 채우면서 센터 크롭 */
+  display: block;
+}
+
+/* 제목 */
+.works-title {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-weight: 300;
+  margin-top: 2px; /* 이미지와의 간격 */
+  padding: 0;
+  color: #000;
+  font-size: 1.2rem !important; 
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+/* 상단 두 줄 배경 투명 */
+.mobile-header,
+.category-filter {
+  background: transparent;
+}
+
+/* 첫 사진이 상단 메뉴 뒤까지 올라오도록 */
+.mobile-page {
+  padding-top: 65px;
+}
+
+/* 상위 영역의 좌우 여백을 넘어 화면 전체 폭 사용 */
+.mobile-page {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* 사진 영역 내부 여백 제거 */
+.works-grid,
+.works-item,
+.works-thumb {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* 첫 번째 줄: 40px */
+.mobile-header {
+  height: 40px;
+  box-sizing: border-box;
+}
+
+/* 두 번째 줄: 30px */
+.category-filter {
+  top: 40px;
+  height: 25px;
+  padding: 0 8px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* 사진은 상단 메뉴가 끝나는 70px부터 시작 */
+.mobile-page {
+  padding-top: 65px;
+}
+
+.works-grid {
+  margin-top: 0;
+}
+
+/* 메뉴 하단선과 첫 사진의 상단선이 겹치지 않도록 */
+.works-thumb {
+  border-top: 0.7px solid #000;
+  border-bottom: 0.7px solid #000;
+}
+
+</style>
+  </head>
+  
+  
+  
+<body>
+<!-- 📌 상단바 -->
+  <header class="mobile-header">
+	<div class="header-logo" onclick="location.href='/home'">
+	  <svg viewBox="0 0 91.67 76.67">
+        <path d="M14.17,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M10,4.17h27.5" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M0,34.17h8.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M20,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M33.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M58.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M71.67,34.17h20" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M52.5,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M75,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M75,0v28.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M33.33,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M69.17,72.5h-20.83" stroke="#000" stroke-width="8.33" fill="none"/>
+	  </svg>
+	</div>
+	<button type="button" class="header-menu-btn" id="openMenuBtn" aria-label="메뉴 열기">
+	  <div class="btn-dot"></div>
+	</button>
+  </header>
+  
+<!-- 📌 우측 메뉴 패널 -->
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <aside class="mobile-menu-panel" id="mobileMenuPanel">
+    <nav class="menu-middle">
+      <a href="/works_list">WORKS</a>
+      <a href="/office">OFFICE</a>
+      <a href="/news">NEWS</a>
+	</nav>
+    <div class="menu-bottom">
+      <a href="">ESSAY & DRAWING</a>
+	</div>
+  </aside>
+
+    <!-- 📌 카테고리 필터 -->
+  <nav class="category-filter">
+	<button type="button" class="filter-btn active" data-filter="all">All</button>
+	<button type="button" class="filter-btn" data-filter="architecture">Architecture</button>
+	<button type="button" class="filter-btn" data-filter="interior">Interior</button>
+	<button type="button" class="filter-btn" data-filter="furniture">Furniture</button>
+	<button type="button" class="filter-btn" data-filter="rawtech">Raw Tech</button>
+  </nav>
+
+  <!-- 📌 프로젝트 리스트 -->
+  <main class="mobile-page">
+  <div class="works-grid">
+  <article class="works-item" data-cat="interior" onclick="">
+      <div class="works-thumb tall"><img src="https://cdn.imweb.me/thumbnail/20260810/b260daa845481.jpg"></div>
+      <h6 class="works-title">예인교회 본당 리노베이션|Yaein Church Renovation</h6>
+  </article>
+  <article class="works-item" data-cat="architecture" onclick="">
+      <div class="works-thumb tall"><img src="https://cdn.imweb.me/thumbnail/20260810/14ea8b53ed786.jpg"></div>
+      <h6 class="works-title">D 프로젝트|D Project</h6>
+  </article> 
+	<article class="works-item" data-cat="architecture" onclick="location.href='/tempin_office'">
+      <div class="works-thumb tall"><img src="https://cdn.imweb.me/thumbnail/20251224/0c684dbe95d4c.jpg"></div>
+      <h6 class="works-title">템프인 오피스|Tempin Office</h6>
+    </article>
+	<article class="works-item" data-cat="architecture" onclick="location.href='/yaeinchurch_healing_center'">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251226/cbebd9cf00b13.jpg"></div>
+      <h6 class="works-title">예인교회 힐링센터|Yaein Healing Center</h6>
+    </article>
+	<article class="works-item" data-cat="architecture" onclick="location.href='/sejongno_church_annex'">
+      <div class="works-thumb tall"><img src="https://cdn.imweb.me/thumbnail/20251224/93e28a3287d35.jpg"></div>
+      <h6 class="works-title">세종로 성당 신관|Sejongno Church Annex</h6>
+    </article>
+	<article class="works-item" data-cat="architecture" onclick="location.href='/yeonmujang_SZF'">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/3ecadc9466943.jpg"></div>
+      <h6 class="works-title">연무장 SZF|Yeonmujang SZF</h6>
+    </article>
+	<article class="works-item" data-cat="architecture" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/5ed332907b0ad.png"></div>
+      <h6 class="works-title">논현동 PJT.|Nonhyun-dong PJT.</h6>
+    </article>
+    <article class="works-item" data-cat="architecture" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/e26a96f6e3b64.png"></div>
+      <h6 class="works-title">연무장길 X|Yeonmujang-gil X</h6>
+    </article>
+	<article class="works-item" data-cat="architecture" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/c51d898738c50.png"></div>
+      <h6 class="works-title">연무장길 Y|Yeonmujang-gil Y</h6>
+    </article>
+	<article class="works-item" data-cat="architecture" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/10a6d2aa18f28.png"></div>
+      <h6 class="works-title">청담동 PJT.|Cheongdam-dong PJT.</h6>
+    </article>
+    <article class="works-item" data-cat="interior" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/2ef0695ae03f0.jpg"></div>
+      <h6 class="works-title">하중동 사무소|Hajung-dong Office</h6>
+    </article>
+	<article class="works-item" data-cat="interior" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/0aab4127b9bb9.jpg"></div>
+	  <h6 class="works-title">아다모 스튜디오|Adamo Studio</h6>
+    </article>
+	<article class="works-item" data-cat="interior" onclick="">
+	  <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/b8816139b05fb.jpg"></div>
+	  <h2 class="works-title">이촌동부 센트레빌|Ichon Dongbu Centreville</h2>
+	</article>
+    <article class="works-item" data-cat="interior" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/8c88a6d415214.jpg"></div>
+      <h6 class="works-title">보타닉 동물병원|Botanic Vet Clinic</h6>
+    </article>
+	<article class="works-item" data-cat="furniture" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/3786166f1b5fa.png"></div>
+      <h6 class="works-title">데스크 모듈 A|Desk Module A</h6>
+    </article>
+	<article class="works-item" data-cat="rawtech" onclick="">
+      <div class="works-thumb square"><img src="https://cdn.imweb.me/thumbnail/20251224/abc66b69c1ba3.jpg"></div>
+      <h6 class="works-title">윈도우 디테일|Window Detail</h6>
+    </article>
+	</div>
+  </main>
+
+<script>
+///// 카테고리 필터
+const filterButtons = document.querySelectorAll(".filter-btn");
+const items = document.querySelectorAll(".works-item");
+
+filterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    filterButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const category = btn.dataset.filter;
+
+    items.forEach(item => {
+      if (category === "all" || category === item.dataset.cat) {
+        item.style.display = "block";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  });
+});
+
+  /* 초기: 전체 보이기 */
+items.forEach(item => item.style.display = "block");
+  
+</script>
+  
+  <script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@tempin-clone-test/clone-test/shared/mobile-menu.js"></script>
+</body>
+  </html>
