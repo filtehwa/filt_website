@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>TEMPIN OFFICE | FILT.</title>
+
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+<style>
+
+:root {
+	--accent: #BD005E;
+	--bg-color: #fff;
+}  
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: none;
+}
+  
+html, body {
+  font-family: 'SUIT', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
+  font-weight: 300;
+  letter-spacing: 0px;
+  color: #000;
+  background: #fff;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+}  
+
+  /* 전체 페이지 스크롤바 숨기기 */
+
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}  
+
+/****************************************
+
+           📌 상단바
+
+*****************************************/
+
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 0.5px solid #000;
+  z-index: 5;
+  background: transparent;
+  box-sizing: border-box;
+}  
+
+.header-logo { /* 홈버튼 */
+  display: flex;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+}
+
+.header-logo svg {
+  display: block; 
+  height: 24px; /* 40px 바 안에서 적절한 크기로 조정 */
+  width: auto;
+}
+
+.mobile-header .header-menu-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.mobile-header .header-menu-btn .btn-dot {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  flex: 0 0 12px;
+  background-color: #000 !important;
+  border-radius: 50%;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+  
+
+/****************************************
+
+       📌 우측 메뉴 패널
+
+*****************************************/
+
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 45%;
+  height: 100vh;  /* 지원 안 하는 브라우저용 */
+  height: 100dvh; /* 최신 브라우저용 */
+  background: #fff;
+  border-left: 0.5px solid #000;
+  transition: right 0.35s ease;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-panel.open {
+  right: 0;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* 배경을 살짝 어둡게 (완전 투명을 원하면 0으로) */
+  z-index: 6; /* 패널보다는 낮고 본문보다는 높게 */
+  display: none; /* 평소에는 숨김 */
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+.menu-middle {
+  flex-grow: 1; /* 남는 공간을 모두 차지 */
+  margin-top: 150px;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  border-bottom: 0.5px solid #000;
+  border-top: 0.5px solid #000;
+}
+
+.menu-middle a {
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+  display: block;
+  text-decoration: none;
+  transition: color 0.35s;
+}
+
+.menu-bottom {
+  flex-shrink: 0;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: right;
+  padding: 5px 5px;
+  background: color: #000;
+  box-sizing: border-box;
+}
+
+.menu-bottom a {
+  text-decoration: none;
+  color: #ffff;
+  font-size: 1.2rem;
+  font-weight: 400;
+}  
+
+/****************************************
+
+           📌 메인 페이지
+
+*****************************************/  
+
+.mobile-page {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 40px; /* 상단바에 본문이 가려지지 않게 여백 */
+  z-index: 4;
+}
+
+/****************************************
+
+        1. 이미지 슬라이드
+
+*****************************************/
+
+.slider-wrapper {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  padding: 0;
+  margin: 0;
+} 
+
+.detail-slider {
+  position: relative;
+  width: 100%;
+  height: 66.5vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  touch-action: pan-y; /* 세로 스크롤은 허용하되 가로 스크롤 간섭 방지 */
+  /* 만약 스와이프 중에 아예 화면이 위아래로도 안 움직이게 하려면 'none'으로 설정 */
+}
+
+.slides {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+  /* 이미지 설정*/
+
+.slides img {
+  flex: 0 0 100%;
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
+  box-sizing: border-box;
+  /* 조작 방지 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}  
+
+.landscape {
+  width: 100% !important;
+  height: 100% !important; /* 높이를 슬라이더 전체에 맞춤 */
+  object-fit: contain;      /* 이미지 비율을 유지하며 빈 공간은 여백으로 남김 */
+  object-position: center;   /* 이미지를 가로/세로 중앙에 배치 */
+}
+  
+.portrait {
+  width: auto;
+  height: 100%;
+}
+
+.click-zone {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 50;
+  /* 조작 방지 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.click-zone.left { left: 0; }
+.click-zone.right { right: 0; }
+
+/****************************************
+
+    2. 표, 텍스트
+
+*****************************************/
+
+.content-wrapper {
+  width: 100%;
+  background: #fff;
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid #000;
+}  
+
+  /* 설명 텍스트 */
+
+.text-content {
+  display: block;          /* ✅ 보이게 */
+  padding: 12px 12px 12px; /* 표 아래 여백 */
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+  
+/* 설명 문단 */
+.text-content .desc{
+  margin: 10px 0 14px;
+}
+  
+/* 소제목 (설명용 헤딩) */
+.text-content .desc-heading{
+  margin: 18px 0 8px;
+  font-size: 1.35rem;
+  font-weight: 500;          /* ✅ 본문(300~400)보다 한 단계만 두껍게 */
+  line-height: 1.3;
+  letter-spacing: 0.25px;
+  text-align: left;
+}
+
+/* 첫 소제목이 바로 나올 경우 위 여백 조정 */
+.text-content .desc-heading:first-child{
+  margin-top: 6px;
+}
+
+/* 두 이미지를 양옆으로 배치 */
+.desc-figures-row {
+  width: 100%;
+  display: flex;
+  gap: 12px;              /* 두 이미지 사이 여백 */
+  align-items: flex-start;
+}
+
+.desc-figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.desc-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.desc-caption {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  opacity: 0.75;
+  text-align: left;
+  white-space: normal;
+}
+
+/* 개요 표 */
+
+.fixed-table {
+  width: 100% !important;
+  background: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.4px;
+  position: relative;
+  margin-top: 0;
+
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+
+  /* 표 맨 위 선 */
+  border-top: 0.5px solid #000;
+}
+
+
+/* 셀 기본 */
+
+.fixed-table th,
+.fixed-table td {
+  height: 20px;
+  padding: 3px 5px;
+
+  border: none !important;
+
+  /* 모든 셀의 하단 가로선 */
+  box-shadow: inset 0 -0.5px 0 #000;
+
+  box-sizing: border-box;
+}
+
+
+/* 텍스트 */
+
+.fixed-table th {
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  vertical-align: top;
+}
+
+.fixed-table td {
+  font-weight: 400;
+  text-align: right;
+  vertical-align: bottom;
+}
+
+
+/****************************************
+
+    중앙 50% 세로선
+    가로선과 동일하게 box-shadow 사용
+
+*****************************************/
+
+
+/* 첫 번째 행 : STATUS 왼쪽 */
+
+.fixed-table tr:nth-child(1) > th:nth-child(2) {
+  box-shadow:
+    inset 0.5px 0 0 #000,
+    inset 0 -0.5px 0 #000;
+}
+
+
+/* 두 번째 행 : YEAR 왼쪽 */
+
+.fixed-table tr:nth-child(2) > th:nth-child(1) {
+  box-shadow:
+    inset 0.5px 0 0 #000,
+    inset 0 -0.5px 0 #000;
+}
+
+
+/* 세 번째 행 이후 : 50% 위치 */
+
+.fixed-table tr:nth-child(n+3) > th:nth-child(3) {
+  box-shadow:
+    inset 0.5px 0 0 #000,
+    inset 0 -0.5px 0 #000;
+}
+
+
+/****************************************
+
+    제목
+
+*****************************************/
+
+.project-title-en {
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.project-subtitle {
+  display: block;
+  font-weight: 400;
+  font-size: 1.2rem;
+}
+  
+.areaCell { cursor: pointer; user-select: none; }
+.areaCell:hover { color: var(--accent); }
+  
+.slider-wrapper, .detail-slider {
+  position: relative;
+  z-index: 1;
+}
+
+/****************************************
+
+    3. 도면 슬라이드
+
+*****************************************/
+
+.drawing-section {
+  width: 100%;
+  background: #fff;
+  border-top: 0.5px solid #000;
+}
+
+.drawing-slider {
+  position: relative;
+  width: 100%;
+  height: 90vh;
+  overflow: hidden;
+  background: #fff;
+  touch-action: pan-y;
+}
+
+.drawing-slides {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.drawing-slides img {
+  flex: 0 0 100%;
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 도면 좌우 클릭 영역 */
+
+.drawing-click-zone {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.drawing-click-zone.left {
+  left: 0;
+}
+
+.drawing-click-zone.right {
+  right: 0;
+}
+
+
+/****************************************
+
+    도면 하단 정보
+
+*****************************************/
+
+.drawing-info {
+  width: 100%;
+  height: 40px;
+  display: grid;
+
+  /* 좌표 / 스케일바 / 도면명 */
+  grid-template-columns: 10% 50% 40%;
+
+  border-top: 0.5px solid #000;
+  background: #fff;
+}
+
+.drawing-info > div {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+
+/* 좌표 */
+
+.drawing-info-coordinate {
+  position: relative;
+  overflow: hidden;
+  border-right: 0.5px solid #000;
+  background: #fff;
+}
+
+.drawing-coordinate-img {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  display: block;
+  pointer-events: none;
+}
+
+
+/* 스케일바 */
+
+.drawing-info-scale {
+  position: relative;
+  overflow: hidden;
+
+  border-right: 0.5px solid #000;
+  background: #fff;
+}
+
+.drawing-scale-img {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  display: block;
+  pointer-events: none;
+}
+
+
+/* 도면명 */
+
+.drawing-info-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+#drawingTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mobile-menu-panel .menu-bottom {
+  background: #000;
+  height: 50px;
+}
+
+.mobile-menu-panel .menu-bottom a {
+  color: #fff;
+}
+
+</style>
+</head>
+<body>
+  
+<!-- 📌 상단바 -->
+  
+  <header class="mobile-header">
+    <div class="header-logo" onclick="location.href='/home'">
+	  <svg viewBox="0 0 91.67 76.67">
+        <path d="M14.17,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M10,4.17h27.5" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M0,34.17h8.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M20,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M33.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M58.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M71.67,34.17h20" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M52.5,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M75,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M75,0v28.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M33.33,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M69.17,72.5h-20.83" stroke="#000" stroke-width="8.33" fill="none"/>
+	  </svg>
+	</div>
+	<button type="button" class="header-menu-btn" id="openMenuBtn">
+	  <div class="btn-dot"></div>
+	</button>
+  </header>
+
+  
+<!-- 📌 우측 메뉴 패널 -->
+
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <aside class="mobile-menu-panel" id="mobileMenuPanel">
+    <nav class="menu-middle">
+      <a href="/works_list">WORKS</a>
+      <a href="/office">OFFICE</a>
+      <a href="/news">NEWS</a>
+	</nav>
+    <div class="menu-bottom">
+      <a href="/000">ESSAY & DRAWING</a>
+	</div>
+  </aside>
+
+  
+<!-- 📌 이미지 슬라이드 -->
+  
+  <main class="mobile-page">
+  <section class="slider-wrapper">
+    <div class="detail-slider">
+      <div class="slides">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/cb1135fa8dcde.jpg" 
+			  class="portrait" alt="#01 Tempin Exterior - Daytime View"> 
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/5e8f5f4d39c9a.jpg" 
+			  class="portrait" alt="#02 Tempin Exterior - Daytime View">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/c89b74aafbf16.jpg" 
+			  class="portrait"  alt="#03 Tempin Exterior - Daytime View">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/17f046b3e035c.jpg" 
+			  class="portrait" alt="#04 Tempin Exterior - Daytime View">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/aa6d4404472bd.jpg" 
+			  class="landscape" alt="#05 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/1775fe3ca0217.jpg" 
+			  class="landscape" alt="#06 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/a5521c1127606.jpg" 
+			  class="landscape" alt="#07 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/5222990a8c499.jpg" 
+			  class="landscape" alt="#08 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/c57be88d18327.jpg" 
+			  class="portrait" alt="#09 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/9e857704e0cc8.jpg" 
+			  class="landscape" alt="#10 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/15ec91b82fed5.jpg" 
+			  class="landscape" alt="#11 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/57a2aefd1f994.jpg" 
+			  class="landscape" alt="#12 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/d95d76b59a8b6.jpg" 
+			  class="landscape" alt="#13 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/9f457b13bf411.jpg" 
+			  class="landscape" alt="#14 Tempin Office - Interior">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/a61cbc90150e5.jpg" 
+			  class="portrait" alt="#15 Tempin Exterior - Night View">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/9ed7654a4931e.jpg" 
+			  class="portrait" alt="#16 Tempin Exterior - Night View">
+		 <img src="https://cdn.imweb.me/thumbnail/20251226/3e19b5f754997.jpg" 
+			  class="portrait" alt="#17 Tempin Exterior - Night View">
+      </div>
+      <div class="click-zone left" role="button" aria-label="이전 슬라이드"></div>
+      <div class="click-zone right" role="button" aria-label="다음 슬라이드"></div>
+    </div>
+  </section>
+
+  <article class="content-wrapper">
+    <table class="fixed-table">
+        <colgroup>
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+        </colgroup>
+	  <tbody>
+        <tr>
+          <th rowspan="2" colspan="2" class="project-title">
+            <div class="project-title-en">TEMPIN <br>OFFICE</div>
+            <div class="project-subtitle">템프인 오피스</div>
+          </th>
+          <th>STATUS</th><td>BUILT</td>
+        </tr>
+        <tr>
+          <th>YEAR</th><td>2024-2025</td>
+        </tr>
+        <tr>
+          <th>LOCATION</th><td>SEOUL,<br>SOUTH KOREA</td>
+          <th>PROGRAM</th><td>OFFICE</td>
+        </tr>
+        <tr>
+          <th>NUMBER OF FLOORS</th><td>B1F|4F</td>
+          <th>PROJECT TYPE</th><td>RENOVATION & EXTENSION</td>
+        </tr>
+        <tr>
+          <th>BUILDING AREA</th>
+          <td  class="areaCell" data-m2="56.35">56.35㎡</td>
+          <th>TOTAL FLOOR AREA</th>
+          <td class="areaCell" data-m2="252.39">252.39㎡</td>
+        </tr>
+        <tr>
+          <th>CLIENT</th><td>TEMPIN</td>
+          <th>CONSTRUCTION</th><td>PS ENGINEERING</td>
+        </tr>
+        <tr>
+          <th>PHOTOGRAPHER</th><td>JANG MI</td>
+          <th>COWORK</th><td>NMG. ARCHITECTS</td>
+        </tr>
+      </tbody>
+    </table>
+	
+    <section class="text-content">
+	   <h3 class="desc-heading"></h3>
+	  <br>
+    이 프로젝트는 일반주거지역의 소형 필지에 위치한 다가구 주택을 오피스로 리노베이션한 작업이다. 1990년에 준공된 기존 건물은 허가도서와 실제 건물의 대부분이 일치하지 않았다. 건물 후면에는 불법으로 증축된 발코니가 매달려 있었고, 발코니와 마당은 폴리카보네이트와 샌드위치 패널로 덧씌워져 있었다. 공간을 최대한 활용하기 위해 덧붙여진 구조물들이었다.
+    <br><br>
+    <div class="desc-figures-row">
+      <figure class="desc-figure">
+    <img class="desc-img"
+         src="https://cdn.imweb.me/thumbnail/20251230/2529930afb6fc.png"
+         alt="Street view before renovation">
+    <figcaption class="desc-caption">
+      *리노베이션 전 목화부동산 건물
+    </figcaption>
+  </figure>
+
+  <figure class="desc-figure">
+    <img class="desc-img"
+         src="https://cdn.imweb.me/thumbnail/20251230/18ee9357fee2c.png"
+         alt="Back view before renovation">
+    <figcaption class="desc-caption">
+      *리노베이션 전 건물 후면 위반건축물
+    </figcaption>
+  </figure>
+  </div>
+    <br>
+    건물의 실제 윤곽과 구조를 파악하기 위해 부수적인 요소들을 모두 철거한 뒤 실측을 진행했다. 그 결과, 수직으로 이동할 수 있는 동선은 불법으로. 축조된 발코니의 계단뿐이었다. 실측 과정에서는 건물의 구조 또한 예상과 달랐다. 1층은 철근콘크리트 구조였지만, 2층과 3층은 1층의 구조열과. 무관하게 배치된 조적 벽체로 이루어져 있었다. 이 건물에 우선적으로 필요한 것은 적법한 수직 동선을 확보하고, 위반 요소를 모두 덜어내어 건물의. 적법한 외형을 다시 형성하는 일이었다.
+    <br><br>
+    철골 보강은 1층 기존 철근콘크리트 구조열을 따라 이루어졌다. 조적 내력벽이 어긋나 있던 2층과 3층, 그리고 새로 증축된 4층까지 하나의 구조열이 관통한다. 구조적 기능을 더 이상 수행하지 않는 내부의 조적 벽체는 대부분 철거되었지만, 문제는 구조열과 일치하지 않는 조적 외피였다.
+    <br><br>
+    덧댄 외피는 서로 다른 질서를 중재한다. 개방성을 확보하기 위해 기존 개구부는 구조열에 맞추어 선택적으로 철거하거나 유지하였고, 철거에 따라. 지지가 필요한 조적 인방은 다시 보강하였다. 그 위에 적절한 단열 성능을 확보하기 위해 덧붙인 단열재는 스터코로 마감했다. 반복되는 T자 형태의. 스터코는 보강된 구조열의 질서를 시각적으로 투영하고, 그 사이의 분절은 외피가 가볍게 덧붙여진 또 하나의 층위임을 드러낸다.
+    <br><br>
+    작은 건축면적 안에서 내부는 기능을 압축하고 전용면적을 최대한 확보하도록 계획하였다. 횡력에 저항하는 트러스는 건물의 양쪽 코너에 배치되어. 계단실과 오피스 공간의 구석에서 X자 형태로 드러난다.
+    <br><br>
+    1층에서는 기존 철근콘크리트 구조와 이를 보강한 철판을 그대로 노출하였다. 기존 건물의 구조가 곧 내부의 마감이 된다. 2층부터 4층에서는 은빛의 철골을 노출하여 기존 건물 속에 새롭게 삽입된 구조를 드러냈다. 바닥과 벽은 무채색의 톤으로 정리하고, 구조와 기본적인 재료만으로 내부를. 구성하였다. 절제된 내부에서는 개구부 너머의 외부 풍경이 상대적으로 선명하게 드러난다.
+    <br><br>
+    이 작은 건물의 외피는 정돈된 질서를 드러내지만, 그 형태를 구축하는 과정은 기존 건물이 지닌 구조적 불일치에서 시작된다. 안에서는 정렬된 구조가. 노출되고, 밖에서는 하나의 표면으로 정리된다.
+    <br><br>
+
+</section>
+
+<!-- 📌 도면 슬라이드 -->
+
+<section class="drawing-section">
+
+  <div class="drawing-slider">
+
+    <div class="drawing-slides">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%20-B1.svg"
+        data-title="B1F PLAN"
+        alt="Tempin B1F Plan">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/beabfe7c830be1b1fc66ae0f98e81c5569735136/MOB/260227_MOB_TEMPIN_Floor%201.svg"
+        data-title="1F PLAN"
+        alt="Tempin 1F Plan">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%202.svg"
+        data-title="2F PLAN"
+        alt="Tempin 2F Plan">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%203.svg"
+        data-title="3F PLAN"
+        alt="Tempin 3F Plan">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%204.svg"
+        data-title="4F PLAN"
+        alt="Tempin 4F Plan">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Roof.svg"
+        data-title="ROOF PLAN"
+        alt="Tempin Roof Plan">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/223b7f936eba77f7d54a5fe52b3b0b179d1bd6ac/MOB/260227_MOB_TEMPIN_Section.svg"
+        data-title="SECTION"
+        data-coordinate="off"
+        alt="Tempin Section">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/223b7f936eba77f7d54a5fe52b3b0b179d1bd6ac/MOB/260227_MOB_TEMPIN_Elev%20A.svg"
+        data-title="ELEVATION A"
+        data-coordinate="off"
+        alt="Tempin Elevation A">
+
+      <img
+        src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/223b7f936eba77f7d54a5fe52b3b0b179d1bd6ac/MOB/260227_MOB_TEMPIN_Elev%20B.svg"
+        data-title="ELEVATION B"
+        data-coordinate="off"
+        alt="Tempin Elevation B">
+
+    </div>
+
+    <div class="drawing-click-zone left"
+         role="button"
+         aria-label="이전 도면"></div>
+
+    <div class="drawing-click-zone right"
+         role="button"
+         aria-label="다음 도면"></div>
+
+  </div>
+
+
+  <!-- 도면 하단 정보 -->
+
+<div class="drawing-info">
+
+  <!-- 좌표 -->
+  <div class="drawing-info-coordinate">
+    <img
+      src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/dff5eec971ef49ca9039211988352973bcd252c7/MOB/North.svg"
+      class="drawing-coordinate-img"
+      alt="Coordinate">
+  </div>
+
+  <!-- 스케일바 -->
+  <div class="drawing-info-scale">
+    <img
+      src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/90833849bc9fa2553234f6ba90a8e638a65078a0/MOB/scale%20bar_re2.svg"
+      class="drawing-scale-img"
+      alt="Scale Bar">
+  </div>
+
+  <!-- 도면명 -->
+  <div class="drawing-info-title">
+    <span id="drawingTitle"></span>
+  </div>
+
+</div>
+
+</section>
+  </article>
+  </main>
+  
+
+<script>
+  
+// 이미지 슬라이드 요소 선택
+const slidesContainer = document.querySelector('.slides');
+const originalImages = document.querySelectorAll('.slides img');
+const leftZone = document.querySelector('.click-zone.left');
+const rightZone = document.querySelector('.click-zone.right');
+const slider = document.querySelector('.detail-slider');
+
+let currentIndex = 1; // 복사본이 앞에 하나 있으므로 1부터 시작
+const totalSlides = originalImages.length;
+let isTransitioning = false; // 연속 클릭 방지용
+
+// 1. 무한 루프를 위한 클론 생성
+const firstClone = originalImages[0].cloneNode(true);
+const lastClone = originalImages[totalSlides - 1].cloneNode(true);
+
+slidesContainer.appendChild(firstClone); // 끝에 첫 번째 사진 추가
+slidesContainer.insertBefore(lastClone, originalImages[0]); // 처음에 마지막 사진 추가
+
+// 2. 초기 위치 설정 (첫 번째 원본 사진이 보이도록)
+slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+// 슬라이드 이동 함수
+function updateSlide(animate = true) {
+  if (animate) {
+    slidesContainer.style.transition = 'transform 0.4s ease-out';
+  } else {
+    slidesContainer.style.transition = 'none';
+  }
+  slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
+
+// 다음 슬라이드
+function nextSlide() {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  currentIndex++;
+  updateSlide(true);
+}
+
+// 이전 슬라이드
+function prevSlide() {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  currentIndex--;
+  updateSlide(true);
+}
+
+// 3. 순간이동(무한 루프 핵심) 처리
+slidesContainer.addEventListener('transitionend', () => {
+  isTransitioning = false;
+  
+  // 마지막 클론(첫 번째 사진의 복사본)에 도달했을 때 -> 진짜 첫 번째로 순간이동
+  if (currentIndex === totalSlides + 1) {
+    currentIndex = 1;
+    updateSlide(false);
+  }
+  // 첫 번째 클론(마지막 사진의 복사본)에 도달했을 때 -> 진짜 마지막으로 순간이동
+  if (currentIndex === 0) {
+    currentIndex = totalSlides;
+    updateSlide(false);
+  }
+});
+
+// 클릭 이벤트
+leftZone.addEventListener('click', (e) => {
+  e.stopPropagation();
+  prevSlide();
+});
+
+rightZone.addEventListener('click', (e) => {
+  e.stopPropagation();
+  nextSlide();
+});
+
+// 터치 스와이프 로직
+let touchStartX = 0;
+slider.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].pageX;
+}, { passive: true });
+
+slider.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].pageX;
+  const deltaX = touchStartX - touchEndX;
+
+  if (Math.abs(deltaX) > 50) {
+    if (deltaX > 0) nextSlide();
+    else prevSlide();
+  }
+}, { passive: true });
+</script>
+<script>
+/* ====== 면적(㎡) ↔ 평(py) 토글 (ID 중복/복제 DOM 대응) ====== */
+(function () {
+  const M2_PER_PY = 3.305785;
+
+  function toPy(m2) {
+    return Math.round(m2 / M2_PER_PY); // 반올림, 소수점 없음
+  }
+
+  function setAllTo(unit) {
+    const cells = document.querySelectorAll('.areaCell');
+    cells.forEach(cell => {
+      const m2 = Number(cell.dataset.m2);
+      if (!Number.isFinite(m2)) return;
+
+      if (unit === 'py') cell.textContent = `${toPy(m2)}py`;
+      else cell.textContent = `${m2}㎡`;
+      cell.dataset.unit = unit;
+    });
+  }
+
+  function toggleAll() {
+    const cells = document.querySelectorAll('.areaCell');
+    const anyPy = Array.from(cells).some(c => c.dataset.unit === 'py');
+    setAllTo(anyPy ? 'm2' : 'py');
+  }
+
+  // ✅ 이벤트 위임: 복제본/동적 주입에도 항상 동작
+  document.addEventListener('click', (e) => {
+    const cell = e.target.closest('.areaCell');
+    if (!cell) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleAll(); // 두 값 모두 같이 토글
+  }, true);
+})();
+</script>
+
+<script>
+/* ====== 도면 슬라이더 ====== */
+
+(function () {
+
+  const drawingSlider =
+    document.querySelector('.drawing-slider');
+
+  const drawingSlides =
+    document.querySelector('.drawing-slides');
+
+  const drawingImages =
+    document.querySelectorAll('.drawing-slides img');
+
+  const drawingLeft =
+    document.querySelector('.drawing-click-zone.left');
+
+  const drawingRight =
+    document.querySelector('.drawing-click-zone.right');
+
+  const drawingTitle =
+    document.querySelector('#drawingTitle');
+
+  const drawingScaleImg =
+  document.querySelector('.drawing-scale-img');
+
+  const drawingCoordinateImg =
+  document.querySelector('.drawing-coordinate-img');
+
+  function updateScaleBarSize(realIndex) {
+
+  if (!drawingScaleImg && !drawingCoordinateImg) return;
+
+  const currentImage = drawingImages[realIndex];
+
+  if (!currentImage) return;
+
+  const sliderRect =
+    drawingSlider.getBoundingClientRect();
+
+  const originalWidth =
+    currentImage.naturalWidth;
+
+  const originalHeight =
+    currentImage.naturalHeight;
+
+  if (
+    !originalWidth ||
+    !originalHeight ||
+    !sliderRect.width ||
+    !sliderRect.height
+  ) return;
+
+
+  /* object-fit: contain의 실제 배율 */
+  const scale = Math.min(
+    sliderRect.width / originalWidth,
+    sliderRect.height / originalHeight
+  );
+
+
+  /* 화면에서 실제 도면이 차지하는 크기 */
+  const renderedWidth =
+    originalWidth * scale;
+
+  const renderedHeight =
+    originalHeight * scale;
+
+
+  /* 스케일바 */
+  if (drawingScaleImg) {
+
+    drawingScaleImg.style.width =
+      `${renderedWidth}px`;
+
+    drawingScaleImg.style.height =
+      `${renderedHeight}px`;
+
+  }
+
+
+  /* 좌표 */
+  if (drawingCoordinateImg) {
+
+    drawingCoordinateImg.style.width =
+      `${renderedWidth}px`;
+
+    drawingCoordinateImg.style.height =
+      `${renderedHeight}px`;
+
+  }
+
+}
+
+
+  if (
+    !drawingSlider ||
+    !drawingSlides ||
+    drawingImages.length === 0
+  ) return;
+
+
+  let drawingIndex = 0;
+  let drawingTransitioning = false;
+
+
+  const drawingTotal =
+    drawingImages.length;
+
+
+  /* 무한루프용 복제 */
+
+  const drawingFirstClone =
+    drawingImages[0].cloneNode(true);
+
+  const drawingLastClone =
+    drawingImages[drawingTotal - 1].cloneNode(true);
+
+
+  drawingSlides.appendChild(drawingFirstClone);
+
+  drawingSlides.insertBefore(
+    drawingLastClone,
+    drawingImages[0]
+  );
+
+
+  let drawingCurrent = 1;
+
+
+function updateDrawingSlide(animate = true) {
+
+  drawingSlides.style.transition =
+    animate
+      ? 'transform 0.4s ease-out'
+      : 'none';
+
+  drawingSlides.style.transform =
+    `translateX(-${drawingCurrent * 100}%)`;
+
+
+  /* 실제 도면 index */
+
+  let realIndex =
+    drawingCurrent - 1;
+
+  if (realIndex < 0)
+    realIndex = drawingTotal - 1;
+
+  if (realIndex >= drawingTotal)
+    realIndex = 0;
+
+
+  const currentImage =
+    drawingImages[realIndex];
+
+
+  /* 도면명 */
+
+  drawingTitle.textContent =
+    currentImage.dataset.title || '';
+
+
+  /* 스케일바 + 좌표 크기 */
+
+  updateScaleBarSize(realIndex);
+
+
+  /* SECTION / ELEVATION에서는 좌표 숨김 */
+
+  if (drawingCoordinateImg) {
+
+    if (currentImage.dataset.coordinate === 'off') {
+
+      drawingCoordinateImg.style.display = 'none';
+
+    } else {
+
+      drawingCoordinateImg.style.display = 'block';
+
+    }
+
+  }
+
+}
+
+  /* 초기 위치 */
+  updateDrawingSlide(false);
+  function nextDrawing() {
+    if (drawingTransitioning) return;
+    drawingTransitioning = true;
+    drawingCurrent++;
+    updateDrawingSlide(true);
+  }
+
+  function prevDrawing() {
+    if (drawingTransitioning) return;
+    drawingTransitioning = true;
+    drawingCurrent--;
+    updateDrawingSlide(true);
+  }
+
+
+  /* 무한 루프 */
+
+  drawingSlides.addEventListener(
+    'transitionend',
+    () => {
+      drawingTransitioning = false;
+      if (
+        drawingCurrent ===
+        drawingTotal + 1
+      ) {
+        drawingCurrent = 1;
+        updateDrawingSlide(false);
+      }
+
+
+      if (drawingCurrent === 0) {
+
+        drawingCurrent =
+          drawingTotal;
+
+        updateDrawingSlide(false);
+
+      }
+
+    }
+  );
+
+
+  /* 좌우 클릭 */
+
+  drawingLeft.addEventListener(
+    'click',
+    (e) => {
+
+      e.stopPropagation();
+
+      prevDrawing();
+
+    }
+  );
+
+
+  drawingRight.addEventListener(
+    'click',
+    (e) => {
+
+      e.stopPropagation();
+
+      nextDrawing();
+
+    }
+  );
+
+
+  /* 모바일 스와이프 */
+
+  let drawingTouchStartX = 0;
+
+
+  drawingSlider.addEventListener(
+    'touchstart',
+    (e) => {
+
+      drawingTouchStartX =
+        e.touches[0].pageX;
+
+    },
+    { passive: true }
+  );
+
+
+drawingSlider.addEventListener(
+    'touchend',
+    (e) => {
+
+      const touchEndX =
+        e.changedTouches[0].pageX;
+
+      const deltaX =
+        drawingTouchStartX - touchEndX;
+
+      if (Math.abs(deltaX) > 50) {
+
+        if (deltaX > 0)
+          nextDrawing();
+
+        else
+          prevDrawing();
+
+      }
+
+    },
+    { passive: true }
+  );
+
+
+  /* ============================
+     화면 크기 변경 대응
+     ============================ */
+
+  window.addEventListener('resize', () => {
+
+    let realIndex =
+      drawingCurrent - 1;
+
+    if (realIndex < 0)
+      realIndex = drawingTotal - 1;
+
+    if (realIndex >= drawingTotal)
+      realIndex = 0;
+
+    updateScaleBarSize(realIndex);
+
+  });
+
+
+  /* ============================
+     모바일 화면 회전 대응
+     ============================ */
+
+  window.addEventListener('orientationchange', () => {
+
+    setTimeout(() => {
+
+      let realIndex =
+        drawingCurrent - 1;
+
+      if (realIndex < 0)
+        realIndex = drawingTotal - 1;
+
+      if (realIndex >= drawingTotal)
+        realIndex = 0;
+
+      updateScaleBarSize(realIndex);
+
+    }, 100);
+
+  });
+
+
+})();
+</script>
+
+<script>
+document.querySelectorAll('.desc-figures-row').forEach(row => {
+  const figures = [...row.querySelectorAll('.desc-figure')];
+  const images = figures.map(figure => figure.querySelector('.desc-img'));
+
+  function setFigureRatio() {
+    if (!images.every(img => img.naturalWidth && img.naturalHeight)) return;
+
+    images.forEach((img, i) => {
+      const ratio = img.naturalWidth / img.naturalHeight;
+
+      figures[i].style.flex = `${ratio} 1 0`;
+    });
+  }
+
+  images.forEach(img => {
+    if (!img.complete) {
+      img.addEventListener('load', setFigureRatio);
+    }
+  });
+
+  setFigureRatio();
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@tempin-clone-test/clone-test/shared/mobile-menu.js"></script>
+</body>
+</html>
