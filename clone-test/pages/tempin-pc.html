@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tempin Office | PROJECT INFO</title>
+
+<style>
+  
+ /* ------------------------------
+     	📌1. 기본 설정
+		- 브라우저 여백, 폰트
+     ------------------------------ */
+
+:root {
+  --accent: #BD005E;
+  --bg-color: #fff;
+  --panel-width: 240px;
+  --panel-hide-width: 210px;
+}  
+	
+  html, body {
+  font-family: "Suit","Pretendard Variable", "Noto Sans KR", sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.4px;
+  color: #000;
+  background: var(--bg-color);
+  height: 100vh;
+  margin: 0;
+  overflow: hidden; /* 스크롤바 방지 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+
+/* ------------------------------
+     	📌2. 본문 레이아웃
+ - 좌측(이미지), 우측(표, 텍스트)
+     ------------------------------ */
+  
+.page-container { height: 100vh !important; overflow: hidden; }
+
+/* ========== 이미지 구역 ========== */
+  
+.img-section {
+  position: absolute;
+  top: 0; bottom: 0; left: 0px; right: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: left 0.4s ease, right 0.4s ease;
+  transform-origin: center center;
+  z-index: 1;
+  background: var(--bg-color);
+  scroll-snap-type: y proximity;
+  scrollbar-width: none;
+  -ms-overflow-style:none;
+}
+
+
+.img-section img {
+  object-fit: cover;
+  object-position: center !important;
+  display: block;
+  flex-shrink: 0;
+}
+  
+ img.landscape {
+  width: 100%;
+  height: 100vh;
+}
+  
+ img.portrait {
+  width: auto;
+  height: 100vh;
+}
+
+ img.drawing {
+  width: 100%;
+  min-height: 100vh !important;
+  object-fit: contain !important;
+}
+
+ hr {
+  border: none;
+  border-top: 0.2px solid #000;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  transform: scaleY(0.5);
+}
+
+/* ========== 우측 구역 ========== */
+  
+.side-section{
+  position: fixed !important;
+  right: 0;
+  top: 0;
+  width: 430px !important;
+  height: 100vh !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  background: var(--bg-color);
+  border-left: 0.5px solid #000 !important;
+  z-index: 1000 !important;
+  position: fixed !important;
+}
+ 
+/* == 뷰 전환 == */
+.view-toolbar {
+  height: 40px;
+  background: var(--bg-color);
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.view-btns {
+  position: absolute; 
+  top:20px; 
+  right:40px;
+  z-index:5000;
+}
+  
+ .view-btns button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.view-btns button:focus,
+.view-btns button:active {
+  outline: none;
+  background: none;
+}
+  
+.integrated-view-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  outline: none;
+  transition: opacity 0.2s ease;
+}
+ 
+.icon-back {
+  width: 20px; 
+  height: 20px;
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:transform 0.2s ease, opacity 0.2s ease;
+}
+.integrated-view-btn:hover .icon-back {transform: translateX(-3px); opacity:0.7;}
+  
+.icon-list {
+  width: 18px;
+  height: 18px;
+  display: block;
+  transition:transform 0.2s ease, opacity 0.2s ease;
+}
+  
+.integrated-view-btn:hover .icon-list {transform:scale(1.1); opacity:0.7;}
+
+  
+  /* 1. 텍스트 */
+  
+.side-section .text-content{
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 210px !important;    /* 하단 표 높이 */
+  overflow-y: auto !important;
+  padding: 18px !important;
+  padding-top: 40px !important;
+  background: var(--bg-color);
+  z-index: 2 !important;
+  border-bottom: 0.5px solid #000;
+}
+
+.side-section .text-content,
+.side-section .text-content *{
+  color: #000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;     /* p/span이 이상하게 inline/0height 되는 경우 방지 */
+}  
+
+.side-section .text-content p{
+  margin: 0 !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+}  
+  
+  /* 2. 캡션 및 이미지 영역 */
+  
+.side-figure{
+  margin: 8px 0 14px 0;  /* 위/아래 간격 */
+  padding: 0 10px;       /* 좌우 여백 */
+  box-sizing: border-box;
+}
+  
+.side-single-img{
+  display: block;
+  width: 300px;
+  object-fit: contain;        /* 비율 유지 + 안 잘림 */
+  object-position: left center; /* 좌측 기준으로 배치 */
+}
+  
+.side-caption{
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  opacity: 0.75;
+  text-align: left;
+  /* 한 줄로만 보이게(길면 … 처리) */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}  
+  
+/* 3. 하단 표 영역: 화면 맨 바닥에 210px 높이로 박제 */
+  
+.side-section .fixed-table{
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 210px !important;
+  overflow-y: auto !important;
+  background:#fff !important;
+  z-index: 2 !important;
+  border-top: none !important;
+}
+
+.fixed-table table{
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border-top: 0 !important;
+}
+  
+.fixed-table th, .fixed-table td {
+  height: 35px !important;
+  padding: 2px 5px;
+  font-size: 10px;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid #000 !important;
+}
+
+.fixed-table th {
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: left;
+    vertical-align: top;
+}
+
+.fixed-table td {
+  font-weight: 400;
+  text-align: right;
+  vertical-align: bottom;
+  border-right: 0.5px solid #000 !important;
+}
+  
+.fixed-table tr:first-child th,
+.fixed-table tr:first-child td{
+  border-top: 0 !important;
+}
+
+/* 프로젝트 타이틀 셀 (2행 높이) */
+.fixed-table .project-title-cell {
+  height: 70px;
+  padding-top: 5px;
+  text-align: left !important;
+  vertical-align: top !important;    
+  border-right: 0.5px solid #000;
+}
+
+.project-title-en {
+  font-weight: 700; font-size: 14px; line-height: 1.3;
+}
+.project-subtitle {
+  display: block; font-weight: 400; font-size: 13px; margin-top: 2px;
+}
+
+/* Chrome, Safari 스크롤바 숨기기 */
+.img-section::-webkit-scrollbar,
+.main-section::-webkit-scrollbar,
+.side-section::-webkit-scrollbar,
+.text-content::-webkit-scrollbar,
+.fixed-table::-webkit-scrollbar {
+  width: 0; height: 0; display: none;
+}
+  
+#buildingareaCell, #totalAreaCell {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ------------------------------
+     	📌3. 좌측 사이드 패널
+		- 로고, 메뉴, 구분선
+     ------------------------------ */
+  /* 사이드 패널 */
+  .side-panel {
+	position:fixed; 
+	top:0; 
+	left:-210px;
+	width:240px; 
+	height:100vh;
+	background:#fff; 
+	border-right:1px solid #000;
+	z-index:10;
+	transition:left .35s ease;
+	padding:40px 30px; 
+	box-sizing:border-box;
+	cursor:pointer;
+}
+.side-panel.open {left:0;}
+
+  
+  /* 홈 버튼 */
+.home-btn {
+  position: absolute; 
+  top: 20px; 
+  left: 20px;
+  width: 15px; 
+  height: 15px;
+  border: 0px solid #000; 
+  border-radius: 50%;
+  background-color: #000;
+  cursor: pointer;
+  transition: background-color .3s ease, transform .2s ease; 
+  z-index:10000; 
+}
+.home-btn: hover {background-color:#000; opacity:0.5;}
+.home-btn: active {transform:scale(0.9); background-color:#fff;}
+	  
+	/* 구분선 */
+  .vert {
+	position: absolute;
+	left: 230px;
+	top: 0;
+	width: 10px;
+	height: 410px;
+	background-color: #000;
+	z-index:10000; 
+}
+  .divider-top {
+	position: absolute;
+	top: 410px;
+	left: 0;
+	width: 240px;
+	height: 0.5px;
+	background-color: #000;
+}
+	
+	/* 로고 버튼 */
+  .logo-btn {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 240px;
+	height: 410px;
+	cursor: pointer;
+	background: none;
+	z-index: 11; /* 메뉴보다 위에 */
+  }
+  .logo-btn svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #000;
+    stroke-width: 5;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .logo-btn:hover svg {
+    opacity: 0.7;
+  }
+  
+	/*사무소 이름 (텍스트)*/
+.office-name {
+  position: absolute;
+  left: 20px;
+  top: 330px;
+  width: 180px;
+  line-height: 1.0;
+  letter-spacing: 0px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+}
+
+	/* 메뉴 */
+.panel-menu {
+  position: absolute;
+  top: 420px;
+  left: 20px;
+  z-index: 20;
+}
+.panel-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}	
+.panel-menu a {
+  display: block;
+  font-size: 12px;  
+  font-weight: 400;
+  line-height: 1.6;
+  color: #000; 
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+.panel-menu a:hover {
+  color: var(--accent);
+  font-weight: 700;
+  transform: translateX(3px);
+}
+	
+	/* 하단 구분선 문구 */
+	.panel-footer {
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 35px;
+	  background-color: #000;
+	  display: flex;
+	  align-items: center;
+	  padding-left: 20px;
+	  box-sizing: border-box;
+}
+  .panel-subtitle {
+	font-weight: 200;
+	font-size: 12px;
+	letter-spacing: 0.6px;
+	z-index: 21;
+	color: #fff;
+	margin: 0;
+}
+
+/* 메뉴 배경 투명 */
+.side-panel {
+  background: transparent;
+}
+
+/* 하단 검정 바는 SVG로 표시 */
+.panel-footer {
+  background: transparent;
+  padding: 0;
+  border-top: 1px solid #000;
+}
+
+.panel-footer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+</style>
+</head>
+
+<body>
+  
+  <!-- ✅ 사이드메뉴 -->
+  
+<aside class="side-panel" id="panel">
+  <button class="home-btn" onclick="location.href='/home'"></button>
+  <button class="logo-btn" id="logoBtn">
+	  <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">
+      <path d="M28.2,265.02v54.66"/>
+<path d="M25.78,267.47h19.22"/>
+<path d="M18,289.07h6"/>
+<path d="M32.4,289.07h9.6"/>
+<path d="M42,289.07h9.6"/>
+<path d="M60,289.07h24"/>
+<path d="M55.8,289.07v30.6"/>
+<path d="M55.8,264.47v24.6"/>
+<path d="M72,293.27v26.4"/>
+<path d="M72,264.47v20.4"/>
+<path d="M42,293.27v26.4"/>
+<path d="M67.81,317.17h-14.46"/>
+    </svg>
+  </button>
+
+  <div class="office-name" id="officeName">
+    <p>필트아키텍츠<br>건축사사무소</p>
+  </div>
+  
+  <div class="vert"></div>
+  <div class="divider-top"></div>
+  
+  <nav class="panel-menu">
+    <ul>
+      <li><a href="/office">OFFICE</a></li>
+      <li><a href="/news">NEWS</a></li>
+      <li><a href="/works_list">WORKS</a></li>
+    </ul>
+  </nav>
+  
+<footer class="panel-footer">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="ESSAYS AND DRAWINGS"
+  >
+    <defs>
+      <mask
+        id="footer-text-cutout"
+        x="0" y="0"
+        width="100%" height="100%"
+        style="mask-type: luminance;"
+      >
+        <rect width="100%" height="100%" fill="white" />
+
+        <text
+          x="20"
+          y="50%"
+          dominant-baseline="central"
+          fill="black"
+          style="font-family:'Pretendard Variable','Pretendard','Noto Sans KR',sans-serif; font-size:12px; font-weight:200; letter-spacing:0.6px;"
+        >ESSAYS AND DRAWINGS</text>
+      </mask>
+    </defs>
+
+    <rect
+      width="100%"
+      height="100%"
+      fill="black"
+      mask="url(#footer-text-cutout)"
+    />
+  </svg>
+</footer>
+</aside>
+  
+  
+  <!-- ✅ 메인 콘텐츠 -->
+
+<main class="page-container">
+  <div class="img-section">
+	<img src="https://cdn.imweb.me/thumbnail/20251226/cb1135fa8dcde.jpg" 
+			  class="portrait" alt="#01 Tempin Exterior - Daytime View"><hr> 
+	<img src="https://cdn.imweb.me/thumbnail/20251226/5e8f5f4d39c9a.jpg" 
+			  class="portrait" alt="#02 Tempin Exterior - Daytime View"><hr> 
+	<img src="https://cdn.imweb.me/thumbnail/20251226/c89b74aafbf16.jpg" 
+			  class="portrait"  alt="#03 Tempin Exterior - Daytime View"><hr> 
+	<img src="https://cdn.imweb.me/thumbnail/20251226/17f046b3e035c.jpg" 
+			  class="portrait" alt="#04 Tempin Exterior - Daytime View"><hr> 
+	<img src="https://cdn.imweb.me/thumbnail/20251226/aa6d4404472bd.jpg" 
+			  class="landscape" alt="#05 Tempin Office - Interior"><hr> 
+	<img src="https://cdn.imweb.me/thumbnail/20251226/1775fe3ca0217.jpg" 
+			  class="landscape" alt="#06 Tempin Office - Interior"><hr> 
+	<img src="https://cdn.imweb.me/thumbnail/20251226/a5521c1127606.jpg" 
+			  class="landscape" alt="#07 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/5222990a8c499.jpg" 
+			  class="landscape" alt="#08 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/c57be88d18327.jpg" 
+			  class="portrait" alt="#09 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/9e857704e0cc8.jpg" 
+			  class="landscape" alt="#10 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/15ec91b82fed5.jpg" 
+			  class="landscape" alt="#11 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/57a2aefd1f994.jpg" 
+			  class="landscape" alt="#12 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/d95d76b59a8b6.jpg" 
+			  class="landscape" alt="#13 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/9f457b13bf411.jpg" 
+			  class="landscape" alt="#14 Tempin Office - Interior"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/a61cbc90150e5.jpg" 
+			  class="portrait" alt="#15 Tempin Exterior - Night View"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/9ed7654a4931e.jpg" 
+			  class="portrait" alt="#16 Tempin Exterior - Night View"><hr>
+	<img src="https://cdn.imweb.me/thumbnail/20251226/3e19b5f754997.jpg" 
+			  class="portrait" alt="#17 Tempin Exterior - Night View"><hr> 
+	<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%20-B1.svg" 
+     class="drawing" alt="#18 Tempin - B1F Plan"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%201.svg" 
+     class="drawing" alt="#19 Tempin - 1st Floor Plan"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%202.svg" 
+     class="drawing" alt="#20 Tempin - 2nd Floor Plan"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%203.svg" 
+     class="drawing" alt="#21 Tempin - 3rd Floor Plan"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%204.svg" 
+     class="drawing" alt="#22 Tempin - 4th Floor Plan"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Roof.svg" 
+     class="drawing" alt="#23 Tempin - Roof Plan"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Section.svg" 
+     class="drawing" alt="#24 Tempin - Section"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Elev%20A.svg" 
+     class="drawing" alt="#25 Tempin - Elevation A"> <hr> 
+<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Elev%20B.svg" 
+     class="drawing" alt="#26 Tempin - Elevation B"> <hr>
+  </div>
+
+  <section class="side-section">
+	<header class="view-toolbar">
+	  <div class="view-btns">
+		<button class="integrated-view-btn" onclick="location.href='/works_list'">
+      <svg class="icon-back" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+    <svg class="icon-list" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/>
+      <line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/>
+      <line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/>
+      <line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/>
+    </svg>
+		</button>
+	  </div>
+	</header>
+    <div class="text-content">
+<br><br>
+이 프로젝트는 일반주거지역의 소형 필지에 위치한 다가구 주택을 오피스로 리노베이션한 작업이다. 1990년에 준공된 기존 건물은 허가도서와 실제 건물의 대부분이 일치하지 않았다. 건물 후면에는 불법으로 증축된 발코니가 매달려 있었고, 발코니와 마당은 폴리카보네이트와 샌드위치 패널로 덧씌워져 있었다. 공간을 최대한 활용하기 위해 덧붙여진 구조물들이었다.
+<br><br>
+	  <figure class="side-figure">
+    <img class="side-single-img"
+         src="https://cdn.imweb.me/thumbnail/20251230/18ee9357fee2c.png"
+         alt="Tempin side image2">
+    <figcaption class="side-caption">      *리노베이션 전 건물 후면 위반건축물    </figcaption>
+  </figure>
+건물의 실제 윤곽과 구조를 파악하기 위해 부수적인 요소들을 모두 철거한 뒤 실측을 진행했다. 그 결과, 수직으로 이동할 수 있는 동선은 불법으로 축조된 발코니의 계단뿐이었다. 실측 과정에서는 건물의 구조 또한 예상과 달랐다. 1층은 철근콘크리트 구조였지만, 2층과 3층은 1층의 구조열과 무관하게 배치된 조적 벽체로 이루어져 있었다. 이 건물에 우선적으로 필요한 것은 적법한 수직 동선을 확보하고, 위반 요소를 모두 덜어내어 건물의 적법한 외형을 다시 형성하는 일이었다.
+<br><br>
+	  <figure class="side-figure">
+      <img class="side-single-img"
+       src="https://cdn.imweb.me/thumbnail/20251230/2529930afb6fc.png"
+       alt="Tempin side image1">
+      <figcaption class="side-caption">      *리노베이션 전 목화부동산 건물</figcaption>
+	  </figure>
+철골 보강은 1층 기존 철근콘크리트 구조열을 따라 이루어졌다. 조적 내력벽이 어긋나 있던 2층과 3층, 그리고 새로 증축된 4층까지 하나의 구조열이 관통한다. 구조적 기능을 더 이상 수행하지 않는 내부의 조적 벽체는 대부분 철거되었지만, 문제는 구조열과 일치하지 않는 조적 외피였다.
+<br><br>
+덧댄 외피는 서로 다른 질서를 중재한다. 개방성을 확보하기 위해 기존 개구부는 구조열에 맞추어 선택적으로 철거하거나 유지하였고, 철거에 따라 지지가 필요한 조적 인방은 다시 보강하였다. 그 위에 적절한 단열 성능을 확보하기 위해 덧붙인 단열재는 스터코로 마감했다. 반복되는 T자 형태의 스터코는 보강된 구조열의 질서를 시각적으로 투영하고, 그 사이의 분절은 외피가 가볍게 덧붙여진 또 하나의 층위임을 드러낸다.
+<br><br>
+작은 건축면적 안에서 내부는 기능을 압축하고 전용면적을 최대한 확보하도록 계획하였다. 횡력에 저항하는 트러스는 건물의 양쪽 코너에 배치되어 계단실과 오피스 공간의 구석에서 X자 형태로 드러난다.
+1층에서는 기존 철근콘크리트 구조와 이를 보강한 철판을 그대로 노출하였다. 기존 건물의 구조가 곧 내부의 마감이 된다. 2층부터 4층에서는 은빛의 철골을 노출하여 기존 건물 속에 새롭게 삽입된 구조를 드러냈다. 바닥과 벽은 무채색의 톤으로 정리하고, 구조와 기본적인 재료만으로 내부를 구성하였다. 절제된 내부에서는 개구부 너머의 외부 풍경이 상대적으로 선명하게 드러난다.
+<br><br>
+이 작은 건물의 외피는 정돈된 질서를 드러내지만, 그 형태를 구축하는 과정은 기존 건물이 지닌 구조적 불일치에서 시작된다. 안에서는 정렬된 구조가 노출되고, 밖에서는 하나의 표면으로 정리된다.
+<br><br>
+    </div>
+
+    <div class="fixed-table">
+      <table>
+		 <colgroup>
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+         </colgroup>
+        <tr>
+          <td rowspan="2" colspan="2" class="project-title-cell">
+			<div class="project-title-en">TEMPIN OFFICE</div>
+            <div class="project-subtitle">템프인 오피스</div>
+          </td>
+          <th>STATUS</th><td>BUILT</td>
+        </tr>
+        <tr><th>YEAR</th><td>2024–2025</td></tr>
+        <tr><th>LOCATION</th><td>SEOUL, <br>SOUTH KOREA</td>
+            <th>PROGRAM</th><td>OFFICE</td></tr>
+        <tr>
+          <th>FLOORS</th><td>B1F|4F</td>
+          <th>TYPE</th><td>RENOVATION & EXTENSION</td>
+        </tr>
+        <tr>
+          <th>BUILDING AREA</th><td id="buildingareaCell">56.35㎡</td>
+          <th>TOTAL AREA</th><td id="totalAreaCell">252.39㎡</td>
+        </tr>
+        <tr>
+          <th>CLIENT</th><td>TEMPIN</td>
+          <th>CONSTRUCTION</th><td>PS ENGINEERING</td>
+        </tr>
+		<tr>
+          <th>PHOTOGRAPHER</th><td>JANG MI</td>
+          <th>COWORK</th><td>NMG. ARCHITECTS</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+
+<!-- ====================== JS ====================== -->
+ 
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
+
+<script>
+  
+
+
+
+  
+/* ✅ img-section: 세로 무한 캐러셀(가짜 클론 방식) */
+window.addEventListener('load', () => {
+  const scroller = document.querySelector('.img-section');
+  if (!scroller) return;
+
+  // 원본 img만 수집 (클론은 나중에 추가)
+  const originalImgs = Array.from(scroller.querySelectorAll('img'));
+  if (originalImgs.length < 2) return;
+
+  // hr도 같이 다루기 위해: "슬라이드 단위"를 img 기준으로 이동만 한다.
+  // (hr은 시각 구분만 하고 offsetTop은 img 기준으로 잡음)
+
+  // ✅ 1) 클론 만들기 (첫/마지막)
+  const firstClone = originalImgs[0].cloneNode(true);
+  firstClone.dataset.clone = "1";
+
+  const lastClone = originalImgs[originalImgs.length - 1].cloneNode(true);
+  lastClone.dataset.clone = "1";
+
+  // ✅ 2) DOM에 삽입
+  // 맨 앞: lastClone + hr(있으면 동일 스타일)
+  const hrForFront = document.createElement('hr');
+  // 맨 뒤: hr + firstClone
+  const hrForBack = document.createElement('hr');
+
+  // 앞에 lastClone을 넣되, 기존 첫 요소 앞에 [lastClone, hr] 넣기
+  scroller.insertBefore(hrForFront, scroller.firstChild);
+  scroller.insertBefore(lastClone, scroller.firstChild);
+
+  // 뒤에 [hr, firstClone] 추가
+  scroller.appendChild(hrForBack);
+  scroller.appendChild(firstClone);
+
+  // 이제 전체 img 다시 수집 (클론 포함)
+  const allImgs = Array.from(scroller.querySelectorAll('img'));
+  const total = allImgs.length;
+
+  // 인덱스 규칙:
+  // 0            : lastClone
+  // 1..n         : 원본들
+  // total-1      : firstClone
+  let currentIndex = 1; // ✅ 시작은 원본 첫 장
+
+  let isJumping = false;
+  let scrollEndTimer = null;
+
+  const scrollToIndex = (idx, smooth = true) => {
+    const target = allImgs[idx];
+    if (!target) return;
+
+    scroller.scrollTo({
+      top: target.offsetTop,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+  };
+
+  // ✅ 3) 초기 위치를 원본 1장으로 "즉시" 맞추기
+  // 이미지 로딩 후 offsetTop 안정화가 필요하므로 1프레임 뒤에 맞춤
+  requestAnimationFrame(() => scrollToIndex(currentIndex, false));
+
+  // ✅ 4) 스크롤이 끝났는지(=smooth 이동 완료) 감지: scroll 이벤트 디바운스
+  const onScrollEnd = () => {
+    if (isJumping) return;
+
+    // 현재 위치에 가장 가까운 img 인덱스를 찾음
+    const y = scroller.scrollTop;
+    let best = 0, bestDist = Infinity;
+
+    allImgs.forEach((img, i) => {
+      const dist = Math.abs(img.offsetTop - y);
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    });
+
+    currentIndex = best;
+
+    // ✅ 5) 클론 위치에 도달했으면 원본으로 순간이동
+    // 맨 위(0=lastClone) -> 원본 마지막(total-2)
+    if (currentIndex === 0) {
+      isJumping = true;
+      currentIndex = total - 2;           // 원본 마지막
+      scrollToIndex(currentIndex, false); // 순간이동
+      requestAnimationFrame(() => { isJumping = false; });
+    }
+
+    // 맨 아래(total-1=firstClone) -> 원본 첫(1)
+    if (currentIndex === total - 1) {
+      isJumping = true;
+      currentIndex = 1;                   // 원본 첫
+      scrollToIndex(currentIndex, false); // 순간이동
+      requestAnimationFrame(() => { isJumping = false; });
+    }
+  };
+
+  scroller.addEventListener('scroll', () => {
+    if (scrollEndTimer) clearTimeout(scrollEndTimer);
+    scrollEndTimer = setTimeout(onScrollEnd, 90);
+  }, { passive: true });
+
+  // ✅ 6) 클릭 위치로 이전/다음 (항상 "인접 슬라이드"로만 이동)
+  const onTap = (clientY) => {
+    if (isJumping) return;
+
+    const rect = scroller.getBoundingClientRect();
+    const ratio = (clientY - rect.top) / rect.height;
+
+    // 🔼 상단 40% → 이전
+    if (ratio <= 0.40) {
+      currentIndex -= 1;
+      scrollToIndex(currentIndex, true);
+    }
+    // 🔽 하단 60% → 다음
+    else {
+      currentIndex += 1;
+      scrollToIndex(currentIndex, true);
+    }
+  };
+
+  scroller.addEventListener('click', (e) => {
+    onTap(e.clientY);
+  });
+
+  // 우클릭 방지
+  scroller.addEventListener('contextmenu', e => e.preventDefault());
+
+  // ✅ 7) 리사이즈/폰트/이미지 로딩으로 offsetTop 변하면 현재 장 재정렬
+  // (레이아웃 흔들릴 때 위치 튐 방지)
+  const reAlign = () => {
+    if (isJumping) return;
+    scrollToIndex(currentIndex, false);
+  };
+  window.addEventListener('resize', () => requestAnimationFrame(reAlign));
+});
+
+  
+  
+/* ✅ BUILDING AREA / TOTAL AREA 동시 토글 (㎡ ↔ py) */
+window.addEventListener('load', () => {
+  const M2_PER_PY = 3.305785;
+
+  const a = document.getElementById('buildingareaCell');
+  const b = document.getElementById('totalAreaCell');
+  if (!a || !b) return;
+
+  const cells = [a, b];
+
+  const parseNumber = (txt) => {
+    const m = String(txt).replace(/,/g,'').match(/-?\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : NaN;
+  };
+
+  // ✅ 원본 m² 저장 (이미 dataset 있으면 유지)
+  cells.forEach(el => {
+    if (!el.dataset.m2) {
+      const m2 = parseNumber(el.textContent);
+      if (Number.isFinite(m2)) el.dataset.m2 = String(m2);
+    }
+    if (!el.dataset.unit) el.dataset.unit = "m2";
+  });
+
+  const renderAll = (unit) => {
+    cells.forEach(el => {
+      const m2 = parseFloat(el.dataset.m2);
+      if (!Number.isFinite(m2)) return;
+
+      if (unit === "m2") el.textContent = `${m2.toFixed(2)}㎡`;
+      else el.textContent = `${Math.round(m2 / M2_PER_PY)}py`;
+      el.dataset.unit = unit;
+    });
+  };
+
+  const toggleBoth = () => {
+    const anyPy = cells.some(el => el.dataset.unit === "py");
+    renderAll(anyPy ? "m2" : "py");
+  };
+
+  // 초기 렌더 (m2로 정리)
+  renderAll("m2");
+
+  // ✅ 둘 중 아무 칸이나 클릭하면 두 칸 같이 토글
+  cells.forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation(); // 슬라이드 클릭 로직 방지
+      e.preventDefault();
+      toggleBoth();
+    });
+  });
+});
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@tempin-clone-test/clone-test/shared/works-project-desktop-common.js"></script>
+</body>
+</html>
+
