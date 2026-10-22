@@ -49,3 +49,16 @@
 
 `main`에 병합하거나 운영 중인 원본 페이지에 적용하는 단계는 포함하지 않습니다.
 
+## Vercel 미리보기
+
+`index.html`은 테스트 페이지들을 PC·모바일별로 여는 독립 미리보기 시작 화면입니다.
+
+Vercel에서 이 저장소로 새 프로젝트를 만들 때 다음과 같이 설정합니다.
+
+1. GitHub 저장소 `filtehwa/filt_website`를 가져옵니다.
+2. Root Directory를 `clone-test`로 지정합니다.
+3. Framework Preset은 `Other`를 선택합니다.
+4. Build Command는 비우고, Output Directory는 `.`로 둡니다.
+5. Production Branch는 `tempin-clone-test`로 지정해 테스트 브랜치만 배포합니다.
+
+이 설정은 저장소 루트의 운영 원본 파일을 배포 대상으로 삼지 않습니다. 실제 도메인은 연결하지 않고 Vercel 미리보기 주소로 확인합니다.
