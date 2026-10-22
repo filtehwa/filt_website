@@ -1,0 +1,663 @@
+<!-- works 섹션별 스크롤 (완성본) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<title>OFFICE | FILT.</title>
+
+<!-- ✅ Pretendard Variable (한글용, weight 100~900 지원) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+<!-- ✅ Work Sans Variable (영문용, weight 100~900 지원) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@100..900&display=swap">
+  
+<!-- ✅ GSAP & MorphSVG -->
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
+
+<style>
+html, body {
+  font-family: "Suit", "Pretendard Variable", "Pretendard", "Noto Sans KR", sans-serif !important;
+  font-weight: 300; /* 기본 본문용 */
+  letter-spacing: 0.4px;
+  color: #000;
+  background: #fff;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ========== 레이아웃(본문) ========== */
+.app {
+  position: fixed; inset: 0;
+  display: grid; grid-template-columns: 75% 25%;
+  transition: none; /* ✅ 트랜지션 완전 제거 */
+}
+  
+/* 사이드패널 열릴 때 왼쪽 컬럼만 x축 이동 + 폭 축소 */
+.side-panel.open ~ .app .left {
+  transform: translateX(210px);
+  width: calc(100% - 210px);
+  transition: margin-left 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
+              width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform, width; /* ✅ 브라우저가 미리 계산하도록 */
+}
+
+/* 왼쪽 영역(섹션 컬럼) */
+.left {
+  display:grid;
+  grid-template-rows:10vh 30vh 30vh 30vh; /* 10, 30, 30, 30 */
+  height:100%;
+  padding-left:30px; /* 사이드패널 오른쪽 돌출선 기준 정렬 */
+  box-sizing:border-box;
+  border-right: 0.5px solid #000; /* ✅ full-split-line 대체 */
+}
+.full-split-line {
+  position: fixed;
+  left: 64%;
+  width: 0.5px;
+  background: #000;
+  z-index: 30001; 
+}
+
+/* 섹션 기본 구조 */
+.sec { overflow:hidden; color:#000; line-height:1.7; min-height:0; position:relative; }
+.sec__inner {
+  height:100%;
+  overflow-y:auto; overflow-x:hidden;
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.sec__inner::-webkit-scrollbar{display:none;}
+
+/* ✅ 빈 섹션 스타일 (높이/여백 등 설정 가능) */
+.sec.empty {
+  height: 120px;              /* 원하는 높이 */
+  background: #fff;          /* 배경색 (투명하게 유지하고 싶으면 제거) */
+  border-bottom: none;
+  display: flex;             /* 중앙 정렬 원하면 */
+  align-items: center;
+  justify-content: center;
+  color: #999;               /* 임시 텍스트 색 */
+}
+  
+/* 제목 + divider (sticky) */
+.sec__header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+.sec__title {
+  font-size: 16px !important;
+  font-weight:500 !important;
+  letter-spacing: 0.4px !important;
+  line-height: 1.2 !important;
+  margin: 0 0 4px 20px;
+
+  /* 👇 GPU 레이어 완전 해제 */
+  transform: none !important;
+  will-change: auto !important;
+  isolation: auto !important;
+  backface-visibility: visible !important;
+  contain: none !important;
+  position: relative !important; /* 🔥 핵심: sticky → relative로 리셋 */
+  display: block !important;
+
+  /* 👇 글꼴 재렌더링 강제 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sec__divider {
+  height:0.5px; background:#000;
+  margin-bottom:6px; pointer-events:none;
+}
+
+/* PEOPLE 섹션 */
+.sec.people .item.person {
+  display: block;
+  margin-left: 20px;
+  margin-bottom: 6px;
+  font-size: 12px !important;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.sec.people .item.person:hover { color: #BD005E; }
+
+.sec.people .item.person .main {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr; column-gap: 10px;
+  letter-spacing: 0.4px;
+  font-size: 12px !important;
+  font-weight: 400;
+  margin-bottom: 0px;
+}
+
+.sec.people .item.person .name {
+  font-weight: 500;
+}
+
+.sec.people .info {
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  font-weight: 300;
+  line-height: 1.8;
+  padding-top: 10px;
+  margin-left: 0px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.5s ease, opacity 0.4s ease;
+}
+
+.sec.people .info div {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr;
+  column-gap: 10px;
+}
+
+/* info가 열릴 때 */
+.sec.people .info.open {
+  max-height: 400px; /* 충분히 큰 값 */
+  opacity: 1;
+}
+
+/* Principal은 항상 열려있음 */
+.sec.people .item.person.principal {
+  cursor: default;
+}
+.sec.people .item.person.principal .info {
+  max-height: none;
+  opacity: 1;
+}
+
+/* ✅ (B안) 진행중 경력 굵게 */
+.sec.people .info .is-bold span{
+  font-weight: 500 !important;
+}
+
+/* ✅ (덤) <br> 대신 간격용 spacer */
+.sec.people .info .spacer{
+  height: 6px;
+}
+
+/* ✅ h4.sub-title (PEOPLE 섹션용) */
+.sec.people h4.sub-title {
+  all: unset; /* 🔥 기본 h4 스타일 완전히 제거 */
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  color: #000;
+  margin: 12px 0 6px 20px;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+/* 소제목 */
+.sub-title {
+  font-family: "Arial", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  margin: 12px 0 6px 20px;
+  color: #000;
+}
+
+/* 리스트 아이템 */
+.item {
+  display:grid;
+  grid-template-columns:4fr 2fr 2fr 2fr; column-gap:10px; 
+  font-family: "Pretendard Variable", "Pretendard", "Noto Sans", sans-serif !important; font-size:12px; font-weight: 300;
+  letter-spacing:0.4px; padding:0px 0;
+  margin-left:20px; cursor:pointer;
+  transition:color .2s ease;
+}
+.item p{
+  margin: 0;
+  padding: 0;
+  line-height: 1.8;
+}
+  
+.item:hover {color:#BD005E;}
+
+.right {
+  position: relative;
+  height: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30000;
+}
+
+.thumbnail {
+  position: relative;
+  top: 175px;
+  left: 0;
+  right: 0;
+  height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  pointer-events: none;
+}
+  
+#thumb {
+  width: 50%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#thumb.show {
+  opacity: 1;
+}
+
+/* ✅ 사이드패널 */
+.side-panel {
+  position:fixed; top:0; left:-210px;
+  width:240px; height:100vh;
+  background:#fff; border-right:1px solid #000;
+  z-index:10;
+  transition:left .35s ease;
+  padding:40px 30px; box-sizing:border-box;
+  cursor:pointer;
+}
+.side-panel.open {left:0;}
+
+/* ------------------------------
+   🎯 filt 로고 버튼
+------------------------------ */
+.logo-btn {
+  position: absolute;     /* 화면 고정 */
+  top: 0px;
+  left: 0px;
+  width: 240px;
+  height: 410px;
+  cursor: pointer;
+  z-index: 11;      /* 메뉴보다 항상 위에 */
+}
+
+.logo-btn svg {
+  width: 100%;
+  height: 100%;
+  fill: none;          /* 내부 채움 없음 */
+  stroke: #000;        /* 선 색상: 검정 */
+  stroke-width:5;      /* 선 굵기 */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.logo-btn:hover svg {
+  opacity: 0.7;
+}
+
+/*필트아키텍츠 br 건축사사무소*/  
+.office-name {
+  position: absolute;
+  left: 20px;
+  top: 330px;
+  width: 180px;
+  line-height: 1.0;
+  letter-spacing: 0px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+}
+
+/* 홈 버튼 */
+.home-btn {
+  position:absolute; top:20px; left:20px;
+  width:15px; height:15px;
+  border:0px solid #000; border-radius:50%;
+  background-color:#000;
+  cursor:pointer;
+  transition:background-color .3s ease, transform .2s ease; z-index:10000; 
+}
+.home-btn:hover {background-color:#000; opacity:0.5;}
+.home-btn:active {transform:scale(0.9); background-color:#fff;}
+
+/* 로고 & 패널 내부 장식 */
+.vert {position:absolute; left:230px; top:0; width:10px; height:410px; background:#000; z-index:10000; }
+.div-top {position:absolute; top:410px; left:0; right:0; height:.5px; background:#000;}
+.div-bot {position:absolute; bottom:0px; left:0; right:0; height:35px; background:#000;}
+.menu {position:absolute; top:420px; left:20px;}
+.side-panel .menu a {
+  display: block;
+  font-family: "Pretendard Variable", sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.4px !important;
+  line-height: 1.6 !important;
+  color: #000 !important;
+  text-decoration: none !important;
+}
+.side-panel .menu a:hover {
+  font-family: "Pretendard Variable", sans-serif !important;
+  color: #BD005E !important;
+  font-weight: 700 !important;
+  transform: translateX(3px);
+}
+
+/* 하단 구분선 아래 문구 */
+.panel-subtitle {
+  position: absolute;
+  top: calc(100vh - 30px + 2px); /* 하단선 기준 20px 아래 */
+  left: 20px;
+  width: 300px;
+  font-weight: 200;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  color: #fff;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ✅ 사이드패널 -->
+<div class="side-panel" id="panel">
+  <div class="home-btn" onclick="location.href='/home'"></div>
+
+  <!-- 로고 (애니메이션 대상) -->
+  <div class="logo-btn" id="logoBtn">
+    <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">
+      <path d="M28.2,265.02v54.66"/>
+<path d="M25.78,267.47h19.22"/>
+<path d="M18,289.07h6"/>
+<path d="M32.4,289.07h9.6"/>
+<path d="M42,289.07h9.6"/>
+<path d="M60,289.07h24"/>
+<path d="M55.8,289.07v30.6"/>
+<path d="M55.8,264.47v24.6"/>
+<path d="M72,293.27v26.4"/>
+<path d="M72,264.47v20.4"/>
+<path d="M42,293.27v26.4"/>
+<path d="M67.81,317.17h-14.46"/>
+    </svg>
+  </div>
+
+  <!-- (주)필트아키텍츠 건축사사무소 -->
+  <div class="office-name" id="officeName">
+    <p><span class="kr">필트아키텍츠<br>건축사사무소</span></p>
+  </div>
+
+  <div class="vert"></div>
+  <div class="div-top"></div>
+  <nav class="menu">
+    <a href="/office">OFFICE</a>
+    <a href="/news">NEWS</a>
+    <a href="/works_list">WORKS</a>
+  </nav>
+  <div class="div-bot"></div>
+  <!-- 하단 문구 -->
+  <p class="panel-subtitle">ESSAYS AND DRAWINGS</p>
+</div>
+
+<!-- ✅ 메인 콘텐츠 -->
+<div class="app">
+  <div class="left">
+    <!-- (여백 섹션) -->
+    <section class="sec empty"></section>
+
+    <!-- OFFICE -->
+    <section class="sec">
+      <div class="sec__inner">
+        <header class="sec__header">
+          <h3 class="sec__title">OFFICE</h3>
+          <div class="sec__divider"></div>
+        </header>
+
+        <div class="item" data-link="https://filt.kr/0302002">
+          <p>3F. 161, Tojeong-ro, Mapo-gu, Seoul, Korea (postal code 04077)</p>
+        </div>
+        <div class="item">
+          <p>+82 2 336 9729</p>
+        </div>
+        <div class="item">
+          <a href="mailto:OFFICE@FILT.KR">office@filt.kr</a>
+        </div>
+        <div class="item" data-link="https://www.instagram.com/filt.kr/">
+          <p>@filt.kr</p>
+        </div>
+      </div>
+      <div class="sec__divider"></div>
+    </section>
+
+    <!-- PEOPLE -->
+    <section class="sec people">
+      <div class="sec__inner">
+        <header class="sec__header">
+          <h3 class="sec__title">PEOPLE</h3>
+          <div class="sec__divider"></div>
+        </header>
+
+        <!-- 🔹 Principal Architect (항상 펼쳐짐) -->
+        <div class="item person principal" data-img="https://cdn.imweb.me/thumbnail/20251112/21ec044092c82.jpg">
+          <div class="main">
+            <span class="name">경 연 성</span>
+            <span class="role">소장 · 대표 건축사</span>
+            <span class="email"></span>
+          </div>
+          <div class="main">
+            <span class="name">KYONG, YEONSUNG</span>
+            <span class="role">PRINCIPAL ARCHITECT · KIRA</span>
+            <span class="email">KYONG@FILT.KR</span>
+          </div>
+
+          <div class="info open">
+            <div><span>2007–2015</span><span>Seoul National University</span><span>Bachelor of Architecture</span></div>
+			<div class="spacer"></div>
+            <div><span>2015–2018</span><span>KYWC Architects</span><span></span></div>
+            <div><span>2019–2022</span><span>EAN RNC Co., Ltd.</span><span>Site Manager</span></div>
+            <div><span>2023–2025</span><span>KYONGYOON Architects</span><span>Principal Architect</span></div>
+            <div class="spacer"></div>
+            <div class="is-bold"><span>2023–</span><span>Ewha Womans University</span><span>Adjunct Professor</span></div>
+            <div class="is-bold"><span>2025–</span><span>FILT Architects</span><span>Principal Architect</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔹 Designers (기본 접힘) -->
+    <section class="sec people">
+      <div class="sec__divider"></div> 
+      <div class="sec__inner">
+
+        <div class="item person" data-img="https://cdn.imweb.me/thumbnail/20251112/21ec044092c82.jpg">
+          <div class="main">
+            <span class="name">김 혜 리</span>
+            <span class="role">디자이너</span>
+            <span class="email"></span>
+          </div>
+          <div class="main">
+            <span class="name">KIM, HYERI</span>
+            <span class="role">DESIGNER</span>
+            <span class="email">HYERI@FILT.KR</span>
+          </div>
+          <div class="info">
+            <div><span>2018–2024</span><span>Ewha Womans University</span><span>Bachelor of Architecture</span></div>
+            <div><span>2024–2025</span><span>KYONGYOON Architects</span><span>Intern</span></div>
+            <div><span>2025–</span><span>FILT Architects</span><span>Designer</span></div>
+          </div>
+        </div>
+	  
+        <div class="item person" data-img="https://cdn.imweb.me/thumbnail/20251112/f2caca4b420ed.jpg">
+          <div class="main">
+            <span class="name">강 이 화</span>
+            <span class="role">디자이너</span>
+            <span class="email"></span>
+          </div>
+          <div class="main">
+            <span class="name">KANG, LEEHWA</span>
+            <span class="role">DESIGNER</span>
+            <span class="email">EHWA@FILT.KR</span>
+          </div>
+          <div class="info">
+            <div><span>2019–2025</span><span>Ewha Womans University</span><span>Bachelor of Architecture</span></div>
+            <div><span>2025–2025</span><span>KYONGYOON Architects</span><span>Intern</span></div>
+            <div><span>2025–</span><span>FILT Architects</span><span>Designer</span></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="sec__divider"></div> <!-- ✅ 섹션 끝 divider -->
+    </section>
+
+  </div>
+
+  <div class="full-split-line"></div>		
+  <!-- 오른쪽 썸네일 영역 -->
+  <div class="right">
+    <div class="thumbnail">
+      <img id="thumb" alt="preview"/>
+      <div class="thumb-line"></div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  
+/* ✅ 로고 3단계 모핑 (base / panel / logo) */
+window.addEventListener('load', ()=> {
+  const logo = document.querySelector('#logoBtn svg');
+  const paths = logo.querySelectorAll('path');
+  const panel = document.getElementById('panel');
+  const vert = document.querySelector('.vert'); // ✅ vert 요소 직접 선택
+  gsap.registerPlugin(MorphSVGPlugin);
+
+const shapes = {
+  /* base: [
+	    "M221,241v46",
+    "M221.15,243.5h9.85",
+    "M212.5,261.5h5",
+    "M218.5,291.5h2.5",
+    "M220.75,291.5h2.75",
+    "M211,384.5h6.5",
+    "M224.5,384.5h6.5",
+    "M221,330v39",
+    "M221,388v22",
+    "M221,371v17",
+    "M221,295v33",
+    "M231,366.5h-11.25"
+  ],*/
+panel: [
+    "M28.2,265.02v54.66",
+    "M25.78,267.47h19.22",
+    "M18,289.07h6",
+    "M32.4,289.07h9.6",
+    "M42,289.07h9.6",
+    "M60,289.07h24",
+    "M55.8,289.07v30.6",
+    "M55.8,264.47v24.6",
+    "M72,293.27v26.4",
+    "M72,264.47v20.4",
+    "M42,293.27v26.4",
+    "M67.81,317.17h-14.46"
+  ],
+  logo: [	
+    "M49.37-.25v270.82",
+    "M85.87,261.57h39",
+    "M-.13,289.07h69",
+    "M45,301.57h53.87",
+    "M93.37,327.57h27.5",
+    "M164.87,299.07h75.13",
+    "M93.37,314.57v75",
+    "M114.87,270.35v45.23",
+    "M149.87,382.37v27.63",
+    "M209.87,296.57v42",
+    "M68.87,258.57v33",
+    "M239.87,355.57h-125"
+  ]
+};
+
+  let panelOpen = false;
+  let currentStage = "panel";
+
+  const morphTo = (targetStage) => {
+    const tl = gsap.timeline({ defaults:{ duration:0.8, ease:"power2.inOut" }});
+    const newPaths = shapes[targetStage];
+    paths.forEach((p,i)=> tl.to(p, { morphSVG:{ shape:newPaths[i], shapeIndex:0 } }, 0));
+    currentStage = targetStage;
+  };
+
+  /* ----------------------------
+     🟩 vert 또는 panel 클릭 → 열기 / 닫기
+  ----------------------------- */
+  const togglePanel = () => {
+    if (!panelOpen) {
+      // 열기
+      panel.classList.add("open");
+      morphTo("panel");
+      panelOpen = true;
+    } else {
+      // 닫기
+      panel.classList.remove("open");
+      morphTo("panel");
+      panelOpen = false;
+    }
+  };
+
+  vert.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    togglePanel();
+  });
+
+  panel.addEventListener("click", (e)=>{
+    // 메뉴 링크나 로고 클릭은 무시
+    if (e.target.closest("a") || e.target.closest("#logoBtn")) return;
+    togglePanel();
+  });
+
+  /* ----------------------------
+     🟦 로고 클릭 → panel ↔ logo 전환
+     (단, panel이 열려 있을 때만)
+  ----------------------------- */
+  logoBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    if (!panelOpen) return; // 패널이 닫혀 있으면 무시
+
+    if (currentStage === "panel") {
+      morphTo("logo");
+      currentStage = "logo";
+    } else if (currentStage === "logo") {
+      morphTo("panel");
+      currentStage = "panel";
+    }
+  });
+
+  // 줌인/줌아웃 방지
+document.addEventListener('wheel', function (e) {
+  if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('gesturestart', function (e) {
+  e.preventDefault();
+});
+});
+
+/* ✅ PEOPLE info toggle (Principal 제외) */
+document.querySelectorAll('.sec.people .item.person:not(.principal)').forEach(person => {
+  const info = person.querySelector('.info');
+
+  person.addEventListener('mouseenter', () => {
+    info.classList.add('open');
+  });
+
+  person.addEventListener('mouseleave', () => {
+    info.classList.remove('open');
+  });
+
+  // 클릭으로 토글도 가능하게 (모바일 대응)
+  person.addEventListener('click', () => {
+    info.classList.toggle('open');
+  });
+});
+
+
+</script>
+</body>
+</html>

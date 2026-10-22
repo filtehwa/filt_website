@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WORKS_GALLERY | FILT.</title>
+  
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+<style>
+  
+ /* ------------------------------
+     	📌1. 기본 설정
+		- 브라우저 여백, 폰트
+     ------------------------------ */
+
+:root {
+  --accent: #BD005E;
+  --bg-color: #fff;
+  --panel-width: 240px;
+  --panel-hide-width: 210px;
+  --panel-font: "Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;
+}  
+	
+  html, body {
+  font-family: "Suit","Pretendard Variable", "Noto Sans KR", sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.4px;
+  color: #000;
+  background: var(--bg-color);
+  height: 100vh;
+  margin: 0;
+  overflow: hidden; /* 스크롤바 방지 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+  /* ------------------------------
+     	📌 2. 본문 레이아웃
+ - 좌측 (갤러리), 우측 (상단 뷰 버튼)
+     ------------------------------ */
+.main {
+  position: fixed; 
+  inset: 0;
+  display: grid; 
+  grid-template-columns: 75% 25%;
+  transition: none; /* ✅ 트랜지션 완전 제거 */
+}
+
+.left{
+  display:flex;
+  height:100vh;
+  padding-left:30px;
+  box-sizing:border-box;
+  min-height:0;
+  z-index: 4000;
+  background: var(--bg-color);
+}
+
+.side-panel.open ~ .main .left {
+  width: auto;
+  transform: translateX(var(--panel-hide-width));
+  transition: transform 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform;  
+}
+ 
+  /* ========== 갤러리 ========== */
+  
+.sec__gallery {
+  height:100%;
+  padding-bottom: 120px;
+  overflow-y:auto; 
+  overflow-x:hidden;
+  scrollbar-width:none; 
+  -ms-overflow-style:none;
+}
+.sec__gallery::-webkit-scrollbar{display:none;}
+
+.gallery-grid {
+  display: grid;
+  padding-left: 40px;
+  padding-top:120px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 갤러리 아이템 */
+.gallery-item {
+  display: flex;
+  flex-direction: column;   
+  align-items: flex-start;  
+  cursor: pointer;
+  transition: transform .3s ease, opacity .3s ease;
+}
+
+/* 이미지 */
+.gallery-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform .3s ease;
+}
+
+.gallery-item:hover img {
+  opacity: 0.9;
+}
+
+/* 캡션 */
+.caption {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: LEFT;
+  width: 100%;
+  letter-spacing: 0.3px;
+  color: #000;
+  line-height: 1.4;
+}
+
+.gallery-item:hover .caption { opacity: 1; }
+  
+   /* ========== 뷰 전환 ========== */
+  
+.right {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  background: var(--bg-color);
+}
+
+.view-toolbar {
+  height: 80px;
+  background: var(--bg-color);
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.view-btns {
+  position: absolute; 
+  top:20px; 
+  right:40px;
+  background: none;
+  display:flex;
+  gap:15px; 
+  z-index:5000;
+}
+ .view-btns button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.view-btns button:focus,
+.view-btns button:active {
+  outline: none;
+  background: none;
+}
+.view-btns svg {
+  width:18px; height:18px; cursor:pointer;
+  transition:transform .2s ease, opacity .2s ease;
+}
+.view-btns svg:hover {transform:scale(1.1); opacity:0.7;}
+
+
+ /* ------------------------------
+     	📌 3. 좌측 사이드 패널
+		- 로고, 메뉴, 구분선
+     ------------------------------ */
+  /* 사이드 패널 */
+.side-panel {
+  position:fixed; 
+  top:0; 
+  left:-210px;
+  width:240px; 
+  height:100vh;
+  background:#fff; 
+  border-right:1px solid #000;
+  z-index:10;
+  transition:left .35s ease;
+  padding:0; 
+  box-sizing:border-box;
+  cursor:pointer;
+}
+.side-panel.open {left:0;}
+  
+.side-panel,
+.side-panel *{
+  font-family: var(--panel-font) !important;
+  letter-spacing: 0.4px; /* 상세페이지 느낌 */
+}
+
+  
+  /* 홈 버튼 */
+.home-btn {
+  position:absolute; top:20px; left:20px;
+  width:15px; height:15px;
+  border:0px solid #000; border-radius:50%;
+  background-color:#000;
+  cursor:pointer;
+  transition:background-color .3s ease, transform .2s ease; z-index:10000; 
+}
+.home-btn:hover {background-color:#000; opacity:0.5;}
+.home-btn:active {transform:scale(0.9); background-color:#fff;}
+	  
+  /* 구분선 */
+  
+.vert {
+  position: absolute;
+  left: 230px;
+  top: 0;
+  width: 10px;
+  height: 410px;
+  background-color: #000;
+  z-index:10000; 
+}
+  
+.divider-top {
+  position: absolute;
+  top: 410px;
+  left: 0;
+  width: 240px;
+  height: 0.5px;
+  background-color: #000;
+}
+	
+  /* 로고 버튼 */
+.logo-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 410px;
+  cursor: pointer;
+  background: none;
+  z-index: 11; /* 메뉴보다 위에 */
+  }
+.logo-btn svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #000;
+  stroke-width: 5;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+.logo-btn:hover svg {
+  opacity: 0.7;
+  }
+  
+  /*사무소 이름 (텍스트)*/
+.office-name {
+  position: absolute;
+  left: 20px;
+  top: 330px;
+  width: 180px;
+  line-height: 1.0;
+  letter-spacing: 0px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+}
+
+	/* 메뉴 */
+.panel-menu {
+  position: absolute;
+  top: 420px;
+  left: 20px;
+  z-index: 20;
+}
+.panel-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}	
+.panel-menu a{
+  display:block;
+  font-size:12px;
+  font-weight:400;
+  line-height:1.6;
+  letter-spacing:0.4px;
+  color:#000;
+  text-decoration:none !important;
+  transition: all .2s ease;
+}
+
+.panel-menu a:hover{
+  color: var(--accent);
+  font-weight:700;
+  transform: translateX(3px);
+}
+	
+	/* 하단 구분선 문구 */
+	.panel-footer {
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 35px;
+	  background-color: #000;
+	  display: flex;
+	  align-items: center;
+	  padding-left: 20px;
+	  box-sizing: border-box;
+}
+  .panel-subtitle {
+	font-weight: 200;
+	font-size: 12px;
+	letter-spacing: 0.6px;
+	z-index: 21;
+	color: #fff;
+	margin: 0;
+}
+
+  
+</style>
+</head>
+
+<body>
+  
+<!-- ✅ 사이드메뉴 -->
+  
+<aside class="side-panel" id="panel">
+  <button class="home-btn" onclick="location.href='/home'"></button>
+  <button class="logo-btn" id="logoBtn">
+	  <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">
+      <path d="M28.2,265.02v54.66"/>
+<path d="M25.78,267.47h19.22"/>
+<path d="M18,289.07h6"/>
+<path d="M32.4,289.07h9.6"/>
+<path d="M42,289.07h9.6"/>
+<path d="M60,289.07h24"/>
+<path d="M55.8,289.07v30.6"/>
+<path d="M55.8,264.47v24.6"/>
+<path d="M72,293.27v26.4"/>
+<path d="M72,264.47v20.4"/>
+<path d="M42,293.27v26.4"/>
+<path d="M67.81,317.17h-14.46"/>
+    </svg>
+  </button>
+
+  <div class="office-name" id="officeName">
+    <p>필트아키텍츠<br>건축사사무소</p>
+  </div>
+  
+  <div class="vert"></div>
+  <div class="divider-top"></div>
+  
+  <nav class="panel-menu">
+    <ul>
+      <li><a href="/office">OFFICE</a></li>
+      <li><a href="/news">NEWS</a></li>
+      <li><a href="/works_list">WORKS</a></li>
+    </ul>
+  </nav>
+  
+  <footer class="panel-footer">
+    <p class="panel-subtitle">ESSAYS AND DRAWINGS</p>
+  </footer>
+</aside>
+
+<!-- ✅ 메인 콘텐츠 -->
+<main class="main">
+  <div class="left">
+	<section class="sec__gallery">
+	  <div class="gallery-grid">
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20260810/14ea8b53ed786.jpg" alt="D PJT.">
+		  <p class="caption">D 프로젝트|D PJT.</p>
+    </div>
+    <div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20260810/b260daa845481.jpg" alt="Yaein Church Renovation">
+		  <p class="caption">예인교회 본당 리노베이션|Yaein Church Renovation</p>
+    </div>
+		<div class="gallery-item" onclick="location.href='/tempin_office'">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/0c684dbe95d4c.jpg" alt="Tempin Office">
+		  <p class="caption">템프인 오피스|Tempin Office</p>
+		</div>
+		<div class="gallery-item" onclick="location.href='/yaeinchurch_healing_center'">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/f14e562a9c873.jpg" alt="Yaein Healing Center">
+		  <p class="caption">예인교회 힐링센터|Yaein Church Healing Center</p>
+		</div>
+		<div class="gallery-item" onclick="location.href='/sejongno_church_annex'">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/93e28a3287d35.jpg" alt="Sejongno Church Annex">
+		  <p class="caption">세종로성당 신관|Sejongro Church Annex</p>
+		</div>
+		<div class="gallery-item" onclick="location.href='/yeonmujang_SZF'">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/3ecadc9466943.jpg" alt="Yeonmujang SZF">
+		  <p class="caption">연무장 SZF|Yeonmujang SZF</p>
+		</div>
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/5ed332907b0ad.png" alt="Nonhyun-dong PJT.">
+		  <p class="caption">논현동 프로젝트|Nonhyun-dong PJT.</p>
+		</div>
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/e26a96f6e3b64.png" alt="Yeonmujang-gil X">
+		  <p class="caption">연무장길 X|Yeonmujang-gil X.</p>
+		</div>
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/10a6d2aa18f28.png" alt="Cheongdam-dong PJT">
+		  <p class="caption">청담동 PJT.|Cheongdam-dong PJT.</p>
+		</div>
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/c51d898738c50.png" alt="Yeonmujang-gil Y">
+		  <p class="caption">연무장길 Y|Yeonmujang-gil Y.</p>
+		</div>
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/0aab4127b9bb9.jpg" alt="Adamo Studio">
+		  <p class="caption">아다모 스튜디오|Adamo Studio</p>
+		</div>
+		<div class="gallery-item" onclick="">
+		  <img src="https://cdn.imweb.me/thumbnail/20251224/b8816139b05fb.jpg" alt="Ichon Dongbu Centreville">
+		  <p class="caption">이촌동부 센트레빌|Ichon Dongbu Centreville</p>
+		</div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251224/2ef0695ae03f0.jpg" alt="Hajoong-dong Office">
+      <p class="caption">하중동 사무소|Hajoong-dong Office</p>
+    </div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251231/eb8ae171cb737.jpg" alt="Shinwon Miju Apt">
+      <p class="caption">신원미주 아파트|Shinwon Miju Apt</p>
+    </div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251224/8c88a6d415214.jpg" alt="Botanic Vet Clinic">
+      <p class="caption">보타닉 동물병원|Botanic Vet Clinic</p>
+    </div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251224/3786166f1b5fa.png" alt="Desk Module A">
+      <p class="caption">데스크 모듈 A|Desk Module A</p>
+    </div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251231/de80a902d921b.png" alt="Adaptive Partition System">
+      <p class="caption">가변적 파티션 시스템|Adaptive Partition System</p>
+    </div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251231/5bc525d62e356.png" alt="Acoustic Panel System">
+      <p class="caption">어쿠스틱 패널 시스템|Acoustic Panel System</p>
+    </div>
+	 <div class="gallery-item" onclick="">
+      <img src="https://cdn.imweb.me/thumbnail/20251224/abc66b69c1ba3.jpg" alt="Window Detail">
+      <p class="caption">윈도우 디테일|Window Detail</p>
+		</div>
+	  </div>
+	</section>
+  </div>
+  <!-- 오른쪽 뷰 전환 -->
+  <div class="right">
+	<header class="view-toolbar">
+	  <div class="view-btns">
+		<!-- 갤러리 버튼 (자산1 인라인 버전) -->
+		<button class="gallery-btn" onclick="location.href='/works_gallery'">
+		  <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+			<rect x="0.5" y="0.5" width="17" height="17" fill="#fff" stroke="#000" stroke-width="2.5"/>
+			<path d="M17,13 L13,8 L9,13 L7,10 L1,17" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+		  </svg>
+		</button>
+        <!-- 리스트 버튼 (자산2 인라인 버전) -->
+	  <button class="list-btn" onclick="location.href='/works_list' ">
+		<svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+		  <line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/>
+		  <line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/>
+		  <line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/>
+		  <line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/>
+		</svg>
+		</button>
+	  </div>
+	</header>
+  </div>
+  </main>
+
+
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
+  
+<script>
+  
+/* ✅ 로고 3단계 모핑 (base / panel / logo) */
+window.addEventListener('load', ()=> {
+  const logo = document.querySelector('#logoBtn');
+  const paths = logo.querySelectorAll('path');
+  const panel = document.getElementById('panel');
+  const vert = document.querySelector('.vert'); // ✅ vert 요소 직접 선택
+  gsap.registerPlugin(MorphSVGPlugin);
+
+const shapes = {
+panel: [
+    "M28.2,265.02v54.66",
+    "M25.78,267.47h19.22",
+    "M18,289.07h6",
+    "M32.4,289.07h9.6",
+    "M42,289.07h9.6",
+    "M60,289.07h24",
+    "M55.8,289.07v30.6",
+    "M55.8,264.47v24.6",
+    "M72,293.27v26.4",
+    "M72,264.47v20.4",
+    "M42,293.27v26.4",
+    "M67.81,317.17h-14.46"
+  ],
+  logo: [	
+    "M49.37-.25v270.82",
+    "M85.87,261.57h39",
+    "M-.13,289.07h69",
+    "M45,301.57h53.87",
+    "M93.37,327.57h27.5",
+    "M164.87,299.07h75.13",
+    "M93.37,314.57v75",
+    "M114.87,270.35v45.23",
+    "M149.87,382.37v27.63",
+    "M209.87,296.57v42",
+    "M68.87,258.57v33",
+    "M239.87,355.57h-125"
+  ]
+};
+
+  let panelOpen = false;
+  let currentStage = "panel";
+
+  const morphTo = (targetStage) => {
+    const tl = gsap.timeline({ defaults:{ duration:0.8, ease:"power2.inOut" }});
+    const newPaths = shapes[targetStage];
+    paths.forEach((p,i)=> tl.to(p, { morphSVG:{ shape:newPaths[i], shapeIndex:0 } }, 0));
+    currentStage = targetStage;
+  };
+
+  /* ----------------------------
+     🟩 vert 또는 panel 클릭 → 열기 / 닫기
+  ----------------------------- */
+  const togglePanel = () => {
+    if (!panelOpen) {
+      // 열기
+      panel.classList.add("open");
+      morphTo("panel");
+      panelOpen = true;
+    } else {
+      // 닫기
+      panel.classList.remove("open");
+      morphTo("panel");
+      panelOpen = false;
+    }
+  };
+
+  vert.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    togglePanel();
+  });
+
+  panel.addEventListener("click", (e)=>{
+    // 메뉴 링크나 로고 클릭은 무시
+    if (e.target.closest("a") || e.target.closest("#logoBtn")) return;
+    togglePanel();
+  });
+
+  /* ----------------------------
+     🟦 로고 클릭 → panel ↔ logo 전환
+     (단, panel이 열려 있을 때만)
+  ----------------------------- */
+  logoBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    if (!panelOpen) return; // 패널이 닫혀 있으면 무시
+
+    if (currentStage === "panel") {
+      morphTo("logo");
+      currentStage = "logo";
+    } else if (currentStage === "logo") {
+      morphTo("panel");
+      currentStage = "panel";
+    }
+  });
+  // 줌인/줌아웃 방지
+document.addEventListener('wheel', function (e) {
+  if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('gesturestart', function (e) {
+  e.preventDefault();
+});
+});
+  
+</script>
+  
+</body>
+</html>

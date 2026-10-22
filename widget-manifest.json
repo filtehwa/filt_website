@@ -1,0 +1,187 @@
+{
+  "source": "https://filt.kr/admin/design",
+  "copiedAt": "2026-10-22T01:57:50.987Z",
+  "scope": "Existing code widgets from 19 inspected menu pages. Deleted HOME duplicate excluded.",
+  "lineEndings": "LF; code text otherwise unchanged",
+  "widgetCount": 20,
+  "widgets": [
+    {
+      "page": "#HOME",
+      "device": "pc",
+      "widgetId": "w2025111317a929133ea50",
+      "file": "home-pc.html",
+      "menuId": "m2025111383a6ca2083472",
+      "characters": 13554
+    },
+    {
+      "page": "#HOME",
+      "device": "mobile",
+      "widgetId": "w20251114a980dac36d5ec",
+      "file": "home-mobile.html",
+      "menuId": "m2025111383a6ca2083472",
+      "characters": 4370
+    },
+    {
+      "page": "TEST",
+      "device": "mobile",
+      "widgetId": "w202610210154d7839fe0a",
+      "file": "test-mobile.html",
+      "note": "",
+      "menuId": "m20261021bcd9b6bc07b28",
+      "characters": 31735
+    },
+    {
+      "page": "#WORKS list",
+      "device": "mobile",
+      "widgetId": "w202511144f562fa1db7dd",
+      "file": "works-list-mobile.html",
+      "note": "",
+      "menuId": "m202511133beeb597ceb61",
+      "characters": 13984
+    },
+    {
+      "page": "#WORKS gallery",
+      "device": "mobile",
+      "widgetId": "w202512226d5403c85392d",
+      "file": "works-gallery-mobile.html",
+      "note": "",
+      "menuId": "m2025110774d4c7e8a8a37",
+      "characters": 13088
+    },
+    {
+      "page": "템프인 사옥",
+      "device": "mobile",
+      "widgetId": "w2025122226024138cd537",
+      "file": "tempin-mobile.html",
+      "note": "",
+      "menuId": "m202512223ef5b0ef5d690",
+      "characters": 32332
+    },
+    {
+      "page": "예인교회 힐링센터",
+      "device": "mobile",
+      "widgetId": "w2025111413a4cb073ad63",
+      "file": "yein-healing-center-mobile.html",
+      "note": "",
+      "menuId": "m202510138668c4d75d920",
+      "characters": 20325
+    },
+    {
+      "page": "연무장 SZF",
+      "device": "mobile",
+      "widgetId": "w20251222708f4cba473d5",
+      "file": "yeonmujang-szf-mobile.html",
+      "note": "",
+      "menuId": "m202512227946013175a0d",
+      "characters": 20913
+    },
+    {
+      "page": "세종로 성당 신관",
+      "device": "mobile",
+      "widgetId": "w202601158bc608f9e1006",
+      "file": "sejongno-cathedral-mobile.html",
+      "note": "",
+      "menuId": "m20260115f42c5d86bf868",
+      "characters": 20136
+    },
+    {
+      "page": "#OFFICE",
+      "device": "mobile",
+      "widgetId": "w202511189306e44fe9610",
+      "file": "office-mobile.html",
+      "note": "",
+      "menuId": "m2025111849b0fe9e34a18",
+      "characters": 12277
+    },
+    {
+      "page": "#NEWS",
+      "device": "mobile",
+      "widgetId": "w202511174233672265acf",
+      "file": "news-mobile.html",
+      "note": "",
+      "menuId": "m20251117b5b2a76dfdc82",
+      "characters": 13446
+    },
+    {
+      "page": "TEST",
+      "device": "pc",
+      "widgetId": "w2026102165c1611704652",
+      "file": "test-pc.html",
+      "note": "",
+      "menuId": "m20261021bcd9b6bc07b28",
+      "characters": 8160
+    },
+    {
+      "page": "#WORKS list",
+      "device": "pc",
+      "widgetId": "w2025111391c43b30bd3b7",
+      "file": "works-list-pc.html",
+      "note": "",
+      "menuId": "m202511133beeb597ceb61",
+      "characters": 20431
+    },
+    {
+      "page": "#WORKS gallery",
+      "device": "pc",
+      "widgetId": "w20251107d9e63e28849ec",
+      "file": "works-gallery-pc.html",
+      "note": "",
+      "menuId": "m2025110774d4c7e8a8a37",
+      "characters": 15277
+    },
+    {
+      "page": "템프인 사옥",
+      "device": "pc",
+      "widgetId": "w202512226843e3ccfd42f",
+      "file": "tempin-pc.html",
+      "note": "",
+      "menuId": "m202512223ef5b0ef5d690",
+      "characters": 27189
+    },
+    {
+      "page": "예인교회 힐링센터",
+      "device": "pc",
+      "widgetId": "w202510179adee2ad82ddd",
+      "file": "yein-healing-center-pc.html",
+      "note": "",
+      "menuId": "m202510138668c4d75d920",
+      "characters": 25128
+    },
+    {
+      "page": "연무장 SZF",
+      "device": "pc",
+      "widgetId": "w202512228fd13954a2d9a",
+      "file": "yeonmujang-szf-pc.html",
+      "note": "",
+      "menuId": "m202512227946013175a0d",
+      "characters": 25733
+    },
+    {
+      "page": "세종로 성당 신관",
+      "device": "pc",
+      "widgetId": "w202601151a02177c2af8b",
+      "file": "sejongno-cathedral-pc.html",
+      "note": "",
+      "menuId": "m20260115f42c5d86bf868",
+      "characters": 29826
+    },
+    {
+      "page": "#OFFICE",
+      "device": "pc",
+      "widgetId": "w202511183f32276a31ba8",
+      "file": "office-pc.html",
+      "note": "",
+      "menuId": "m2025111849b0fe9e34a18",
+      "characters": 17390
+    },
+    {
+      "page": "#NEWS",
+      "device": "pc",
+      "widgetId": "w202511172970889c7f62c",
+      "file": "news-pc.html",
+      "note": "",
+      "menuId": "m20251117b5b2a76dfdc82",
+      "characters": 15164
+    }
+  ]
+}

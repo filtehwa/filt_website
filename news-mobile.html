@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>NEWS_M | FILT.</title>
+
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+<style>
+  :root {
+	--accent: #BD005E;
+	--bg-color: #fff;
+}
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html, body {
+  font-family: "SUIT", "Pretendard Variable", sans-serif !important;
+  font-weight: 300;
+  letter-spacing: 0px;
+  color: #000;
+  background: #fff;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto ;
+}
+  
+  /* 스크롤바 숨기기 */
+body { -ms-overflow-style: none; scrollbar-width: none; }
+body::-webkit-scrollbar { display: none; }
+  
+
+/****************************************
+           📌 상단바
+*****************************************/
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 0.7px solid #000;
+  z-index: 5000;
+  background: #fff;
+  box-sizing: border-box;
+}
+  
+.header-logo { /* 홈버튼 */
+  display: flex;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+}
+.header-logo svg {
+  display: block; 
+  height: 24px; /* 40px 바 안에서 적절한 크기로 조정 */
+  width: auto;
+}
+ 
+.header-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: none;
+}
+.btn-dot {
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+}
+  
+/****************************************
+       📌 우측 메뉴 패널
+*****************************************/
+
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 45%;
+  height: 100vh;  /* 지원 안 하는 브라우저용 */
+  height: 100dvh; /* 최신 브라우저용 */
+  background: #fff;
+  border-left: 0.5px solid #000;
+  transition: right 0.35s ease;
+  z-index: 7000;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-panel.open {
+  right: 0;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* 배경을 살짝 어둡게 (완전 투명을 원하면 0으로) */
+  z-index: 6000; /* 패널보다는 낮고 본문보다는 높게 */
+  display: none; /* 평소에는 숨김 */
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+.menu-middle {
+  flex-grow: 1; /* 남는 공간을 모두 차지 */
+  margin-top: 150px;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  border-bottom: 0.7px solid #000;
+  border-top: 0.7px solid #000;
+}
+
+.menu-middle a {
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+  display: block;
+  text-decoration: none;
+  transition: color 0.35s;
+}
+
+.menu-bottom {
+  flex-shrink: 0;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: right;
+  padding: 5px 5px;
+  box-sizing: border-box;
+}
+
+.menu-bottom a {
+  text-decoration: none;
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+  
+/****************************************
+  📌 카테고리 필터
+*****************************************/
+.category-filter {
+  position: fixed;
+  top: 40px; /* 상단바 높이 만큼 아래 고정 */
+  left: 0;
+  width: 100%;
+  z-index: 4000;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 8px;
+  border-bottom: 0.7px solid #000;
+}
+
+.category-filter button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0em;
+  color: #000;
+}
+.category-filter button.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+  
+/****************************************
+     📌 메인 페이지
+*****************************************/
+.mobile-page {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding-top: 67px; /* 상단바 + 필터에 본문이 가려지지 않게 여백 */
+  display: flex;
+  flex-direction: column;
+}
+
+  
+/* 메인 리스트 전체 */
+.mobile-works-grid {
+  display: block;
+  padding: 0px;
+  margin-top: 0;
+}
+
+/* 하나의 row(줄) */
+.mobile-works-item {
+  display: grid;
+  grid-template-columns: 3fr 1fr  1fr; /* 제목 / 날짜 / 참여자 */
+  column-gap: 15px;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 0.5px solid #000;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.list-title,
+.list-date,
+.list-extra {
+  margin: 0;
+  padding: 0;
+}
+  
+.timeline{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  border-bottom: 0.5px solid #000;
+}
+  
+.timeline img{
+  max-height: 240px;      /* 🔧 원하는 최대 높이 */
+  width: auto;            /* 비율 유지 */
+  max-width: 100%;        /* 모바일 화면 넘지 않게 */
+  display: block;
+  margin: 6px 0 8px 0;    /* 좌측 정렬 */
+  object-fit: contain;
+}
+</style>
+</head>
+  
+<body>
+
+<!-- 📌 상단바 -->
+<header class="mobile-header">
+  <div class="header-logo" onclick="location.href='/home'">
+    <svg viewBox="0 0 91.67 76.67">
+      <path d="M14.17,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M10,4.17h27.5" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M0,34.17h8.33" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M20,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M33.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M58.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M71.67,34.17h20" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M52.5,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M75,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M75,0v28.33" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M33.33,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+      <path d="M69.17,72.5h-20.83" stroke="#000" stroke-width="8.33" fill="none"/>
+    </svg>
+  </div>
+  <button type="button" class="header-menu-btn" id="openMenuBtn" aria-label="메뉴 열기">
+    <div class="btn-dot"></div>
+  </button>
+</header>
+  
+<!-- 📌 우측 메뉴 패널 -->
+<div class="menu-overlay" id="menuOverlay"></div>
+<aside class="mobile-menu-panel" id="mobileMenuPanel">
+  <nav class="menu-middle">
+    <a href="/works_list">WORKS</a>
+    <a href="/office">OFFICE</a>
+    <a href="/news">NEWS</a>
+  </nav>
+  <div class="menu-bottom">
+    <a href="/000">ESSAY & DRAWING</a>
+  </div>
+</aside>
+
+<!-- 📌 카테고리 필터 -->
+<nav class="category-filter">
+  <button type="button" class="filter-btn active" data-filter="all">All</button>
+  <button type="button" class="filter-btn" data-filter="News">News</button>
+  <button type="button" class="filter-btn" data-filter="Recruit">Recruit</button>
+</nav>
+
+<!-- 📌 메인 페이지 -->
+<main class="mobile-page">
+  <div class="mobile-works-grid">
+
+            <div class="mobile-works-item" data-cat="News">
+      <div class="list-title">세종로성당 신관_와이드AR 7-8월호 게재</div>
+      <div class="list-date">2026/07/30</div>
+      <div class="list-extra">KY</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        <img src="https://cdn.imweb.me/thumbnail/20260807/fd9adb1cd0fad.png" alt="">
+        - 와이드AR 7-8월호에 ADSLAB, 우하건축사사무소와 협업한 세종로성당 신관 프로젝트가 게재되었습니다.
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+
+        <div class="mobile-works-item" data-cat="News">
+      <div class="list-title">2026 이화여대 건축학과 건축재료 특강</div>
+      <div class="list-date">2026/05/27</div>
+      <div class="list-extra">KY</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        <img src="https://cdn.imweb.me/thumbnail/20260807/caae8f317f266.png" alt="">
+        - 이화여자대학교 건축학과 건축재료 수업에서 「만드는 자의 입장」에 관한 주제로 온라인 특강을 진행했습니다.
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+    
+    <div class="mobile-works-item" data-cat="News">
+      <div class="list-title">세종로 성당 신관 준공식 참석</div>
+      <div class="list-date">2025/07/19</div>
+      <div class="list-extra">KY</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        <img src="https://cdn.imweb.me/thumbnail/20251224/70e47bb32d676.jpg" alt="">
+        - 세종로성당 신관 준공 축복식에서 프로젝트에 대한 감사의 뜻을 담은 감사패를 전달받았습니다.
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+    
+    <div class="mobile-works-item" data-cat="News">
+      <div class="list-title">2025 이화여대 건축학과 건축재료 특강</div>
+      <div class="list-date">2025/05/28</div>
+      <div class="list-extra">KY</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        <img src="https://cdn.imweb.me/thumbnail/20251228/3d7c91eec3bee.png" alt="">
+        - 이화여자대학교 건축학과 건축재료 수업에서 「재료는 어디에서 오는가?」를 주제로 온라인 특강을 진행했습니다.
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+    
+    <div class="mobile-works-item" data-cat="News">
+      <div class="list-title">2024 이화여대 건축학과 건축재료 특강</div>
+      <div class="list-date">2024/05/29</div>
+      <div class="list-extra">KY</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        <img src="https://cdn.imweb.me/thumbnail/20251228/de02b71b09ec1.png" alt="">
+        - 이화여자대학교 건축학과 건축재료 수업에서 「재료 이전의 것들」을 주제로 온라인 특강을 진행했습니다.
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+    
+    <div class="mobile-works-item" data-cat="News">
+      <div class="list-title">시공세미나 @경영위치</div>
+      <div class="list-date">2023/02/09</div>
+      <div class="list-extra">KY</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        <img src="https://cdn.imweb.me/thumbnail/20251228/9a21d77cb5b0e.png" alt="">
+        - 경영위치건축사사무소에서 건축시공을 주제로 총 6회에 걸친 세미나를 진행했습니다.
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+    
+    <div class="mobile-works-item" data-cat="Recruit">
+      <div class="list-title">진행중인 채용공고가 없습니다.</div>
+      <div class="list-date">-</div>
+      <div class="list-extra">-</div>
+    </div>
+    <div class="timeline">
+      <div style="height: 6px;"></div>
+      <div style="margin-left:5px; font-size:1rem; line-height:1.5;">
+        -
+      </div>
+      <div style="height: 10px;"></div>
+    </div>
+
+  </div>
+</main>
+
+
+<script>
+/***** 우측 메뉴 패널 *****/
+const menuPanelEl = document.querySelector("#mobileMenuPanel");
+const openMenuBtnEl = document.querySelector("#openMenuBtn");
+const menuOverlayEl = document.querySelector("#menuOverlay");
+
+// 1. 메뉴 열기
+openMenuBtnEl.onclick = () => {
+  menuPanelEl.classList.add("open");
+  menuOverlayEl.classList.add("active");
+  document.body.style.overflow = "hidden";
+};
+
+// 2. 메뉴 닫기
+const closeMenuPanel = () => {
+  menuPanelEl.classList.remove("open");
+  menuOverlayEl.classList.remove("active");
+  document.body.style.overflow = "";
+};
+
+// 3. 배경(오버레이) 클릭 시 닫기
+menuOverlayEl.onclick = closeMenuPanel;
+</script>
+
+
+<script>
+/***** 뉴스(타임라인) 아코디언 + 필터 (변수명 충돌 방지 버전) *****/
+
+// 1) 아코디언용 pair 만들기
+const newsRowEls = Array.from(document.querySelectorAll(".mobile-works-item"));
+
+const newsPairs = newsRowEls
+  .map(rowEl => {
+    const timelineEl = rowEl.nextElementSibling;
+    if (!timelineEl || !timelineEl.classList.contains("timeline")) return null;
+
+    // 초기 닫힘
+    timelineEl.style.maxHeight = "0px";
+    return { rowEl, timelineEl };
+  })
+  .filter(Boolean);
+
+function closeNewsPair(pair) {
+  pair.rowEl.classList.remove("open");
+  pair.timelineEl.style.maxHeight = "0px";
+}
+
+function openNewsPair(pair) {
+  pair.rowEl.classList.add("open");
+  pair.timelineEl.style.maxHeight = pair.timelineEl.scrollHeight + "px";
+}
+
+// 2) 클릭 시 "한 번에 하나만 열리게" (아코디언)
+newsPairs.forEach(pair => {
+  pair.rowEl.addEventListener("click", () => {
+    const isOpen = pair.rowEl.classList.contains("open");
+
+    // 다른 것들 먼저 닫기
+    newsPairs.forEach(p => {
+      if (p !== pair) closeNewsPair(p);
+    });
+
+    // 토글
+    if (isOpen) closeNewsPair(pair);
+    else openNewsPair(pair);
+  });
+});
+
+
+// 3) 카테고리 필터 (타임라인까지 함께 show/hide)
+const filterBtnEls = document.querySelectorAll(".filter-btn");
+
+filterBtnEls.forEach(btnEl => {
+  btnEl.addEventListener("click", () => {
+    filterBtnEls.forEach(b => b.classList.remove("active"));
+    btnEl.classList.add("active");
+
+    const selected = btnEl.dataset.filter; // "all" | "News" | "Recruit"
+
+    newsPairs.forEach(pair => {
+      const rowCat = pair.rowEl.dataset.cat;
+      const shouldShow = (selected === "all" || selected === rowCat);
+
+      pair.rowEl.style.display = shouldShow ? "grid" : "none";
+      pair.timelineEl.style.display = shouldShow ? "block" : "none";
+
+      // 숨기는 순간 열린 상태면 닫아두기(꼬임 방지)
+      if (!shouldShow) closeNewsPair(pair);
+    });
+  });
+});
+
+// 초기: 전체 보이기(명시적으로)
+newsPairs.forEach(pair => {
+  pair.rowEl.style.display = "grid";
+  pair.timelineEl.style.display = "block";
+  closeNewsPair(pair);
+});
+</script>
+
+</body>
+</html>

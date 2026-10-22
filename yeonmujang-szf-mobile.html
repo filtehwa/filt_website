@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Yeonmujang SZF | FILT.</title>
+
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+<style>
+
+:root {
+	--accent: #BD005E;
+	--bg-color: #fff;
+}  
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: none;
+}
+  
+html, body {
+  font-family: 'SUIT', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
+  font-weight: 300;
+  letter-spacing: 0px;
+  color: #000;
+  background: #fff;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+}  
+
+  /* 전체 페이지 스크롤바 숨기기 */
+
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}  
+
+/****************************************
+
+           📌 상단바
+
+*****************************************/
+
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 0.7px solid #000;
+  z-index: 5;
+  background: #fff;
+  box-sizing: border-box;
+}  
+
+.header-logo { /* 홈버튼 */
+  display: flex;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+}
+
+.header-logo svg {
+  display: block; 
+  height: 24px; /* 40px 바 안에서 적절한 크기로 조정 */
+  width: auto;
+}
+
+.header-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: none;
+}
+
+.btn-dot {
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+  
+
+/****************************************
+
+       📌 우측 메뉴 패널
+
+*****************************************/
+
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 45%;
+  height: 100vh;  /* 지원 안 하는 브라우저용 */
+  height: 100dvh; /* 최신 브라우저용 */
+  background: #fff;
+  border-left: 0.5px solid #000;
+  transition: right 0.35s ease;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-panel.open {
+  right: 0;
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* 배경을 살짝 어둡게 (완전 투명을 원하면 0으로) */
+  z-index: 6; /* 패널보다는 낮고 본문보다는 높게 */
+  display: none; /* 평소에는 숨김 */
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+.menu-middle {
+  flex-grow: 1; /* 남는 공간을 모두 차지 */
+  margin-top: 150px;
+  padding: 5px 5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  border-bottom: 0.7px solid #000;
+  border-top: 0.7px solid #000;
+}
+
+.menu-middle a {
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+  display: block;
+  text-decoration: none;
+  transition: color 0.35s;
+}
+
+.menu-bottom {
+  flex-shrink: 0;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: right;
+  padding: 5px 5px;
+  box-sizing: border-box;
+}
+
+.menu-bottom a {
+  text-decoration: none;
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 400;
+}  
+
+/****************************************
+
+           📌 메인 페이지
+
+*****************************************/  
+
+.mobile-page {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding-top: 40px; /* 상단바에 본문이 가려지지 않게 여백 */
+  z-index: 4;
+}
+
+/****************************************
+
+        1. 이미지 슬라이드
+
+*****************************************/
+
+.slider-wrapper {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  padding: 0;
+  margin: 0;
+} 
+
+.detail-slider {
+  position: relative;
+  width: 100%;
+  height: 66.5vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  touch-action: pan-y; /* 세로 스크롤은 허용하되 가로 스크롤 간섭 방지 */
+  /* 만약 스와이프 중에 아예 화면이 위아래로도 안 움직이게 하려면 'none'으로 설정 */
+}
+
+.slides {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+  /* 이미지 설정*/
+
+.slides img {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
+  /* 조작 방지 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}  
+
+.landscape {
+  width: 100% !important;
+  height: 100% !important; /* 높이를 슬라이더 전체에 맞춤 */
+  object-fit: contain;      /* 이미지 비율을 유지하며 빈 공간은 여백으로 남김 */
+  object-position: center;   /* 이미지를 가로/세로 중앙에 배치 */
+}
+  
+.portrait {
+  width: auto;
+  height: 100%;
+}
+
+.drawing {
+  width: 100% !important;
+  height: auto;
+}
+
+.click-zone {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 50;
+  /* 조작 방지 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.click-zone.left { left: 0; }
+.click-zone.right { right: 0; }
+
+/****************************************
+
+    2. 표, 텍스트
+
+*****************************************/
+
+.content-wrapper {
+  width: 100%;
+  background: #fff;
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+  border-bottom: 0.7px solid #000;
+}  
+
+  /* 설명 텍스트 */
+
+.text-content {
+  display: block;          /* ✅ 보이게 */
+  padding: 12px 12px 12px; /* 표 아래 여백 */
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+  
+/* 설명 문단 */
+.text-content .desc{
+  margin: 10px 0 14px;
+}
+  
+/* 소제목 (설명용 헤딩) */
+.text-content .desc-heading{
+  margin: 18px 0 8px;
+  font-size: 1.35rem;
+  font-weight: 500;          /* ✅ 본문(300~400)보다 한 단계만 두껍게 */
+  line-height: 1.3;
+  letter-spacing: 0.25px;
+  text-align: left;
+}
+
+/* 첫 소제목이 바로 나올 경우 위 여백 조정 */
+.text-content .desc-heading:first-child{
+  margin-top: 6px;
+}
+
+/* 이미지+캡션 묶음 */
+.desc-figure{
+  margin: 0 0 18px;
+}
+
+/* 이미지: 폭 맞추고 좌측 정렬, 비율 유지 */
+.desc-img{
+  width: 100%;
+  height: 250px;         /* 필요시 180~280 조절 */
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+}
+
+/* 캡션: 작은 글씨 한 줄 */
+.desc-caption{
+  margin-top: 6px;
+  font-size: 1.0rem;
+  line-height: 1.2;
+  opacity: 0.75;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+  /* 개요 표 */
+
+.fixed-table {
+  border-top: 0.7px solid #000;
+  background: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.4px;
+  width: 100% !important;
+  position: relative;
+  margin-top: 0;
+  border-collapse: collapse;
+}
+
+.fixed-table table {
+  width: 100% !important;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border-right: none; /* 표 전체 오른쪽 테두리 제거 */
+}
+
+.fixed-table th, .fixed-table td {
+  height: 20px;
+  padding: 3px 5px;
+  border-top: 0.5px solid #000;
+  border-bottom: 0.5px solid #000;
+  box-sizing: border-box;
+}
+
+/* 모든 행의 마지막 셀(오른쪽 끝) 테두리 제거 */
+.fixed-table th:last-child, 
+.fixed-table td:last-child {
+ border-right: none !important;
+}
+
+/* 표의 가장 마지막 줄(행)의 하단 선만 0.7px로 설정 */
+.fixed-table tr:last-child th,
+.fixed-table tr:last-child td {
+  border-bottom: 0.7px solid #000 !important;
+}
+
+.fixed-table th {
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  vertical-align: top;
+}
+
+.fixed-table td {
+  font-weight: 400;
+  text-align: right;
+  vertical-align: bottom;
+  border-right: 0.5px solid #000;
+}
+
+/* 제목 영역 */
+.fixed-table th.project-title {
+  border-right: 0.5px solid #000;
+}
+
+.project-title-en {
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.project-subtitle {
+  display: block;
+  font-weight: 400;
+  font-size: 1.2rem;
+}
+  
+.areaCell { cursor: pointer; user-select: none; }
+.areaCell:hover { color: var(--accent); }
+  
+.slider-wrapper, .detail-slider {
+  position: relative;
+  z-index: 1;
+}
+  
+</style>
+</head>
+<body>
+  
+<!-- 📌 상단바 -->
+  
+  <header class="mobile-header">
+    <div class="header-logo" onclick="location.href='/home'">
+	  <svg viewBox="0 0 91.67 76.67">
+        <path d="M14.17,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M10,4.17h27.5" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M0,34.17h8.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M20,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M33.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M58.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M71.67,34.17h20" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M52.5,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M75,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M75,0v28.33" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M33.33,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
+        <path d="M69.17,72.5h-20.83" stroke="#000" stroke-width="8.33" fill="none"/>
+	  </svg>
+	</div>
+	<button type="button" class="header-menu-btn" id="openMenuBtn">
+	  <div class="btn-dot"></div>
+	</button>
+  </header>
+
+  
+<!-- 📌 우측 메뉴 패널 -->
+
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <aside class="mobile-menu-panel" id="mobileMenuPanel">
+    <nav class="menu-middle">
+      <a href="/works_list">WORKS</a>
+      <a href="/office">OFFICE</a>
+      <a href="/news">NEWS</a>
+	</nav>
+    <div class="menu-bottom">
+      <a href="/000">ESSAY & DRAWING</a>
+	</div>
+  </aside>
+
+  
+<!-- 📌 이미지 슬라이드 -->
+  
+  <main class="mobile-page">
+  <section class="slider-wrapper">
+    <div class="detail-slider">
+      <div class="slides">
+		 <img src="https://cdn.imweb.me/thumbnail/20260108/a411c4ae95d78.jpg" 
+			  class="landscape" alt="#01 Yeonmujang SZF Exterior - Daytime View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/d0d6af8c88bec.jpg" 
+			 class="landscape" alt="#02 Yeonmujang SZF Exterior - Daytime View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/398c7559b85ac.jpg" 
+			 class="landscape" alt="#03 Yeonmujang SZF Exterior - Daytime View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/2cf0ebb7373b5.jpg" 
+			 class="landscape" alt="#04 Yeonmujang SZF Exterior - Daytime View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/5d06eb467ac65.jpg" 
+			 class="landscape" alt="#05 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/625852e610b28.jpg" 
+			 class="landscape" alt="#06 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/9182eda7b9674.jpg" 
+			 class="portrait" alt="#07 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/66e0dc5e0224e.jpg" 
+			 class="landscape" alt="#08 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/3e70af2679fe8.jpg" 
+			 class="landscape" alt="#09 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/6796b13d0f813.jpg" 
+			 class="landscape" alt="#10 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/c1b205bb349a3.jpg"
+			 class="landscape" alt="#11 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/9b9959f273cc0.jpg" 
+			 class="landscape" alt="#12 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/17c3a26f68fd9.jpg"
+			 class="landscape" alt="#13 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/380dc99f48a1b.jpg" 
+			 class="landscape" alt="#14 Yeonmujang SZF - Interior">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/61df054a31d7b.jpg" 
+			 class="landscape" alt="#15 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/8259ee42b3585.jpg" 
+			 class="landscape" alt="#16 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/3de11d84869f5.jpg" 
+			 class="landscape" alt="#17 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/efc23db98da03.jpg"
+			 class="portrait" alt="#18 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/587ea966dc228.jpg"
+			 class="portrait" alt="#19 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/63ceea6e82eaf.jpg"
+			 class="landscape" alt="#20 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/b867c7ace939d.jpg" 
+			 class="landscape" alt="#21 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/bc11582fc274b.jpg" 
+			 class="landscape" alt="#22 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/416018b009ee6.jpg" 
+			 class="portrait" alt="#23 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/9bcd9e0b5e908.jpg" 
+			 class="portrait" alt="#24 Yeonmujang SZF - Night View">
+		<img src="https://cdn.imweb.me/thumbnail/20260108/695061a2d7ed4.jpg" 
+			 class="portrait" alt="#25 Yeonmujang SZF - Night View">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/afb5b140caedc59b2e5094975b3844cb6075160a/MOB/MOB_Yeon_SZF_LOCA.svg" 
+			 class="drawing" alt="#26 Yeonmujang SZF - Location">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/b45fcb78df9e4bd1ed155bea08560bf419b53d08/MOB/MOB_Yeon_SZF_1F.svg" 
+			 class="drawing" alt="#27 Yeonmujang SZF - 1st Floor Plan">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/b45fcb78df9e4bd1ed155bea08560bf419b53d08/MOB/MOB_Yeon_SZF_2F.svg" 
+			 class="drawing" alt="#28 Yeonmujang SZF - 2nd Floor Plan">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/379045426513a161ed1828cdb11b6db5525c240a/MOB/MOB_Yeon_SZF_3F.svg" 
+			 class="drawing" alt="#29 Yeonmujang SZF - 3rd Floor Plan">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/afb5b140caedc59b2e5094975b3844cb6075160a/MOB/MOB_Yeon_SZF_rF.svg" 
+			 class="drawing" alt="#30 Yeonmujang SZF - Roof Plan">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/b45fcb78df9e4bd1ed155bea08560bf419b53d08/MOB/MOB_Yeon_SZF_SEC1.svg" 
+			 class="drawing" alt="#31 Yeonmujang SZF - Section 1">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/b45fcb78df9e4bd1ed155bea08560bf419b53d08/MOB/MOB_Yeon_SZF_SEC2.svg" 
+			 class="drawing" alt="#32 Yeonmujang SZF - Section 2">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/afb5b140caedc59b2e5094975b3844cb6075160a/MOB/Y_SZF_str_diag_1-02.svg" 
+			 class="drawing" alt="#33 Yeonmujang SZF - Structure 1">
+		<img src="https://raw.githubusercontent.com/kyong-FILT/Yeonmujang_SZF/afb5b140caedc59b2e5094975b3844cb6075160a/MOB/Y_SZF_str_diag_2-02.svg" 
+			 class="drawing" alt="#34 Yeonmujang SZF - Structure 2">
+      </div>
+      <div class="click-zone left" role="button" aria-label="이전 슬라이드"></div>
+      <div class="click-zone right" role="button" aria-label="다음 슬라이드"></div>
+    </div>
+  </section>
+
+  <article class="content-wrapper">
+    <table class="fixed-table">
+        <colgroup>
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+          <col style="width: 25%;">
+        </colgroup>
+	  <tbody>
+        <tr>
+          <th rowspan="2" colspan="2" class="project-title">
+            <div class="project-title-en">Yeonmujang <br>SZF</div>
+            <div class="project-subtitle">연무장 SZF</div>
+          </th>
+          <th>STATUS</th>
+          <td>BUILT</td>
+        </tr>
+        <tr>
+          <th>YEAR</th>
+          <td>2024</td>
+        </tr>
+        <tr>
+          <th>LOCATION</th>
+          <td>SEOUL,<br>SOUTH KOREA</td>
+          <th>PROGRAM</th>
+          <td>COMMERCIAL</td>
+        </tr>
+        <tr>
+          <th>NUMBER OF FLOORS</th>
+          <td>3F</td>
+          <th>PROJECT TYPE</th>
+          <td>RENOVATION</td>
+        </tr>
+        <tr>
+          <th>BUILDING AREA</th>
+          <td  class="areaCell" data-m2="207.39">207.39㎡</td>
+          <th>TOTAL FLOOR AREA</th>
+          <td class="areaCell" data-m2="613.05">613.05㎡</td>
+        </tr>
+        <tr>
+          <th>CLIENT</th>
+          <td>PRIVATE</td>
+          <th>CONSTRUCTION</th>
+          <td>C&O CONSTRUCTION</td>
+        </tr>
+        <tr>
+          <th>PHOTOGRAPHER</th>
+          <td>YONG JOON CHOI</td>
+          <th></th>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+	
+    <section class="text-content">
+	   <h3 class="desc-heading"></h3>
+	  <br>
+  
+</section>
+  </article>
+  </main>
+  
+
+<script>
+  
+const panel = document.querySelector("#mobileMenuPanel");
+const menuBtn = document.querySelector("#openMenuBtn");
+const overlay = document.querySelector("#menuOverlay"); // 오버레이 추가
+
+// 1. 메뉴 열기
+menuBtn.onclick = () => {
+  panel.classList.add("open");
+  overlay.classList.add("active");
+  document.body.style.overflow = "hidden"; // 본문 스크롤 방지
+};
+
+// 2. 메뉴 닫기 함수 (공통 사용)
+const closeMenu = () => {
+  panel.classList.remove("open");
+  overlay.classList.remove("active"); // 배경 숨기기
+  document.body.style.overflow = ""; // 스크롤 복구
+};
+
+// 3. 배경(오버레이) 클릭 시 닫기
+overlay.onclick = closeMenu;
+  
+  
+// 이미지 슬라이드 요소 선택
+const slidesContainer = document.querySelector('.slides');
+const originalImages = document.querySelectorAll('.slides img');
+const leftZone = document.querySelector('.click-zone.left');
+const rightZone = document.querySelector('.click-zone.right');
+const slider = document.querySelector('.detail-slider');
+
+let currentIndex = 1; // 복사본이 앞에 하나 있으므로 1부터 시작
+const totalSlides = originalImages.length;
+let isTransitioning = false; // 연속 클릭 방지용
+
+// 1. 무한 루프를 위한 클론 생성
+const firstClone = originalImages[0].cloneNode(true);
+const lastClone = originalImages[totalSlides - 1].cloneNode(true);
+
+slidesContainer.appendChild(firstClone); // 끝에 첫 번째 사진 추가
+slidesContainer.insertBefore(lastClone, originalImages[0]); // 처음에 마지막 사진 추가
+
+// 2. 초기 위치 설정 (첫 번째 원본 사진이 보이도록)
+slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+// 슬라이드 이동 함수
+function updateSlide(animate = true) {
+  if (animate) {
+    slidesContainer.style.transition = 'transform 0.4s ease-out';
+  } else {
+    slidesContainer.style.transition = 'none';
+  }
+  slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
+
+// 다음 슬라이드
+function nextSlide() {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  currentIndex++;
+  updateSlide(true);
+}
+
+// 이전 슬라이드
+function prevSlide() {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  currentIndex--;
+  updateSlide(true);
+}
+
+// 3. 순간이동(무한 루프 핵심) 처리
+slidesContainer.addEventListener('transitionend', () => {
+  isTransitioning = false;
+  
+  // 마지막 클론(첫 번째 사진의 복사본)에 도달했을 때 -> 진짜 첫 번째로 순간이동
+  if (currentIndex === totalSlides + 1) {
+    currentIndex = 1;
+    updateSlide(false);
+  }
+  // 첫 번째 클론(마지막 사진의 복사본)에 도달했을 때 -> 진짜 마지막으로 순간이동
+  if (currentIndex === 0) {
+    currentIndex = totalSlides;
+    updateSlide(false);
+  }
+});
+
+// 클릭 이벤트
+leftZone.addEventListener('click', (e) => {
+  e.stopPropagation();
+  prevSlide();
+});
+
+rightZone.addEventListener('click', (e) => {
+  e.stopPropagation();
+  nextSlide();
+});
+
+// 터치 스와이프 로직
+let touchStartX = 0;
+slider.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].pageX;
+}, { passive: true });
+
+slider.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].pageX;
+  const deltaX = touchStartX - touchEndX;
+
+  if (Math.abs(deltaX) > 50) {
+    if (deltaX > 0) nextSlide();
+    else prevSlide();
+  }
+}, { passive: true });
+</script>
+<script>
+/* ====== 면적(㎡) ↔ 평(py) 토글 (ID 중복/복제 DOM 대응) ====== */
+(function () {
+  const M2_PER_PY = 3.305785;
+
+  function toPy(m2) {
+    return Math.round(m2 / M2_PER_PY); // 반올림, 소수점 없음
+  }
+
+  function setAllTo(unit) {
+    const cells = document.querySelectorAll('.areaCell');
+    cells.forEach(cell => {
+      const m2 = Number(cell.dataset.m2);
+      if (!Number.isFinite(m2)) return;
+
+      if (unit === 'py') cell.textContent = `${toPy(m2)}py`;
+      else cell.textContent = `${m2}㎡`;
+      cell.dataset.unit = unit;
+    });
+  }
+
+  function toggleAll() {
+    const cells = document.querySelectorAll('.areaCell');
+    const anyPy = Array.from(cells).some(c => c.dataset.unit === 'py');
+    setAllTo(anyPy ? 'm2' : 'py');
+  }
+
+  // ✅ 이벤트 위임: 복제본/동적 주입에도 항상 동작
+  document.addEventListener('click', (e) => {
+    const cell = e.target.closest('.areaCell');
+    if (!cell) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleAll(); // 두 값 모두 같이 토글
+  }, true);
+})();
+</script>
+</body>
+</html>
