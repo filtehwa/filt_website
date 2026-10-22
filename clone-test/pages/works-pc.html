@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WORKS_LIST | FILT.</title>
+  
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+<style>
+  
+  /* ------------------------------
+     	📌1. 기본 설정
+		- 브라우저 여백, 폰트
+     ------------------------------ */
+
+:root {
+  --accent: #BD005E;
+  --bg-color: #fff;
+  --panel-width: 240px;
+  --panel-hide-width: 210px;
+  --panel-font: "Pretendard Variable","Pretendard","Noto Sans KR",sans-serif;
+}  
+	
+  html, body {
+  font-family: "Suit","Pretendard Variable", "Noto Sans KR", sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.4px;
+  color: #000;
+  background: var(--bg-color);
+  height: 100vh;
+  margin: 0;
+  overflow: hidden; /* 스크롤바 방지 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+  
+  /* ------------------------------
+     	📌 2. 본문 레이아웃
+ - 좌측(뷰 전환, 리스트), 우측(프리뷰)
+     ------------------------------ */
+.main {
+  position: fixed; 
+  inset: 0;
+  display: grid; 
+  grid-template-columns: 75% 25%;
+  transition: none;
+}
+  
+  /* ========== 좌측 구역 ========== */
+.left-container {
+  display:grid;
+  grid-template-rows:30vh 20vh auto auto;
+  height:100vh;
+  padding-left:30px;
+  padding-top:120px;
+  box-sizing:border-box;
+  background: var(--bg-color);
+}
+ 
+.side-panel.open ~ .main .left-container {
+  transform: translateX(var(--panel-hide-width));
+  width: calc(100% - var(--panel-hide-width));
+  transition: margin-left 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
+              width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform, width; /* ✅ 브라우저가 미리 계산하도록 */
+}
+
+  /* == 리스트 섹션 == */
+.sec { 
+  overflow:hidden; 
+  color:#000; 
+  line-height:1.7; 
+  min-height:0; 
+  position:relative; 
+}
+
+.sec__header {
+  position: sticky;
+  top: 0;
+  background: var(--bg-color);
+  padding-left: 20px !important;
+  margin: 0;
+  z-index: 1;
+  border-bottom: 0.5px solid #000;
+}
+.title {
+  display: block;
+  position: relative;
+  font-size: 16px;
+  font-weight:500;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
+  padding: 0;
+  margin: 0;
+  text-indent: 0;
+  font-style: normal;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sec__list {
+  height:100%;
+  overflow-y:auto; 
+  overflow-x:hidden;
+  scrollbar-width:none; 
+  -ms-overflow-style:none;
+  padding-top: 6px;
+}
+.sec__list::-webkit-scrollbar{display:none;}
+
+  
+.item {
+  display:grid;
+  grid-template-columns:1.5fr 1.5fr 0.7fr 0.7fr 0.7fr 0.7fr; 
+  column-gap:15px; 
+  font-size:12px; 
+  font-weight: 300;
+  letter-spacing:0.4px; 
+  padding:0;
+  margin-left:20px;
+  cursor:pointer;
+  transition:color .2s ease;
+  line-height: 1.6; 
+}
+.item p{
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+.item:hover {color: var(--accent)}
+  
+  
+  /* ========== 우측 구역 ========== */
+ /* 오른쪽 이미지 영역 */
+.preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 30000;
+  border-left: 0.5px solid #000;
+  background: var(--bg-color);
+}
+
+/* 보기 전환 버튼을 사진 위에 배치 */
+.view-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: transparent;
+  border: none;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 갤러리·리스트 전환 버튼 위치 */
+.preview .view-btns {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  left: auto;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  background: none;
+  z-index: 5000;
+  pointer-events: auto;
+}
+
+/* 버튼 기본 모양 제거 */
+.preview .view-btns button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* 아이콘 크기 */
+.preview .view-btns svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.preview .view-btns button:hover svg {
+  transform: scale(1.1);
+  opacity: 0.7;
+}
+
+/* 위아래 여백 없이 전체 영역 사용 */
+.thumbnail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 사진 비율을 유지하면서 빈 공간 없이 채우기 */
+#thumb {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#thumb.show {
+  opacity: 1;
+}
+   
+  
+  /* ------------------------------
+     	📌 3. 좌측 사이드 패널
+		- 로고, 메뉴, 구분선
+     ------------------------------ */
+  /* 사이드 패널 */
+.side-panel {
+  position:fixed; 
+  top:0; 
+  left:-210px;
+  width:240px; 
+  height:100vh;
+  background:#fff; 
+  border-right:1px solid #000;
+  z-index:10;
+  transition:left .35s ease;
+  padding:0; 
+  box-sizing:border-box;
+  cursor:pointer;
+}
+.side-panel.open {left:0;}
+  
+.side-panel,
+.side-panel *{
+  font-family: var(--panel-font) !important;
+  letter-spacing: 0.4px; /* 상세페이지 느낌 */
+}
+
+  
+  /* 홈 버튼 */
+.home-btn {
+  position:absolute; top:20px; left:20px;
+  width:15px; height:15px;
+  border:0px solid #000; border-radius:50%;
+  background-color:#000;
+  cursor:pointer;
+  transition:background-color .3s ease, transform .2s ease; z-index:10000; 
+}
+.home-btn:hover {background-color:#000; opacity:0.5;}
+.home-btn:active {transform:scale(0.9); background-color:#fff;}
+	  
+  /* 구분선 */
+  
+.vert {
+  position: absolute;
+  left: 230px;
+  top: 0;
+  width: 10px;
+  height: 410px;
+  background-color: #000;
+  z-index:10000; 
+}
+  
+.divider-top {
+  position: absolute;
+  top: 410px;
+  left: 0;
+  width: 240px;
+  height: 0.5px;
+  background-color: #000;
+}
+	
+  /* 로고 버튼 */
+.logo-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 410px;
+  cursor: pointer;
+  background: none;
+  z-index: 11; /* 메뉴보다 위에 */
+  }
+.logo-btn svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #000;
+  stroke-width: 5;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+.logo-btn:hover svg {
+  opacity: 0.7;
+  }
+  
+  /*사무소 이름 (텍스트)*/
+.office-name {
+  position: absolute;
+  left: 20px;
+  top: 330px;
+  width: 180px;
+  line-height: 1.0;
+  letter-spacing: 0px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+}
+
+	/* 메뉴 */
+.panel-menu {
+  position: absolute;
+  top: 420px;
+  left: 20px;
+  z-index: 20;
+}
+.panel-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}	
+.panel-menu a{
+  display:block;
+  font-size:12px;
+  font-weight:400;
+  line-height:1.6;
+  letter-spacing:0.4px;
+  color:#000;
+  text-decoration:none !important;
+  transition: all .2s ease;
+}
+
+.panel-menu a:hover{
+  color: var(--accent);
+  font-weight:700;
+  transform: translateX(3px);
+}
+	
+	/* 하단 구분선 문구 */
+	.panel-footer {
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 35px;
+	  background-color: #000;
+	  display: flex;
+	  align-items: center;
+	  padding-left: 20px;
+	  box-sizing: border-box;
+}
+  .panel-subtitle {
+	font-weight: 200;
+	font-size: 12px;
+	letter-spacing: 0.6px;
+	z-index: 21;
+	color: #fff;
+	margin: 0;
+}
+
+/* 썸네일 영역의 경계선과 여백 제거 */
+.preview {
+  border: none;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.thumbnail,
+#thumb {
+  border: none;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.thumb-line {
+  display: none;
+}
+
+.preview {
+  border: none;
+  border-left: 0.5px solid #000;
+}
+
+</style>
+</head>
+
+<body>
+
+  <!-- ✅ 사이드메뉴 -->
+  
+<aside class="side-panel" id="panel">
+  <button class="home-btn" onclick="location.href='/home'"></button>
+  <button class="logo-btn" id="logoBtn">
+	  <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">
+      <path d="M28.2,265.02v54.66"/>
+<path d="M25.78,267.47h19.22"/>
+<path d="M18,289.07h6"/>
+<path d="M32.4,289.07h9.6"/>
+<path d="M42,289.07h9.6"/>
+<path d="M60,289.07h24"/>
+<path d="M55.8,289.07v30.6"/>
+<path d="M55.8,264.47v24.6"/>
+<path d="M72,293.27v26.4"/>
+<path d="M72,264.47v20.4"/>
+<path d="M42,293.27v26.4"/>
+<path d="M67.81,317.17h-14.46"/>
+    </svg>
+  </button>
+
+  <div class="office-name" id="officeName">
+    <p>필트아키텍츠<br>건축사사무소</p>
+  </div>
+  
+  <div class="vert"></div>
+  <div class="divider-top"></div>
+  
+  <nav class="panel-menu">
+    <ul>
+      <li><a href="/office">OFFICE</a></li>
+      <li><a href="/news">NEWS</a></li>
+      <li><a href="/works_list">WORKS</a></li>
+    </ul>
+  </nav>
+  
+  <footer class="panel-footer">
+    <p class="panel-subtitle">ESSAYS AND DRAWINGS</p>
+  </footer>
+</aside>
+
+
+<!-- ✅ 메인 콘텐츠 -->
+<main class="main">
+  <div class="left-container">
+
+    <!-- ARCHITECTURE -->
+    <section class="sec">
+	  <div class="sec__header">
+		<p class="title">ARCHITECTURE</p>
+	  </div>
+	  
+	  <div class="sec__list">
+		<div class="item" data-img="https://cdn.imweb.me/thumbnail/20260810/14ea8b53ed786.jpg">
+          <span>D 프로젝트</span><span>D Project</span><span>2026-</span>
+          <span>Factory</span><span>Anseong</span><span>In Progress</span>
+        </div>
+
+		<div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/0c684dbe95d4c.jpg" onclick="location.href='/tempin_office'">
+          <span>템프인 오피스</span><span>Tempin Office</span><span>2024-2025</span>
+          <span>Office</span><span>Seoul</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251226/cbebd9cf00b13.jpg" onclick="location.href='/yaeinchurch_healing_center'">
+          <span>예인교회 힐링센터</span><span>Yaein Healing Center</span><span>2024-2025</span>
+          <span>Religious</span><span>Suwon</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/93e28a3287d35.jpg" onclick="location.href='/sejongno_church_annex'">
+          <span>세종로 성당 신관</span><span>Sejongno Church Annex</span><span>2023-2025</span>
+          <span>Religious</span><span>Seoul</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251228/a872ef432d7e0.jpg" onclick="location.href='/yeonmujang_SZF'">
+          <span>연무장 SZF</span><span>Yeonmujang SZF</span><span>2024-2025</span>
+          <span>Commercial</span><span>Seoul</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/5ed332907b0ad.png" onclick="">
+          <span>논현동 PJT.</span><span>Nonhyun-dong PJT.</span><span>2024</span>
+          <span>Office</span><span>Seoul</span><span>Proposal</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/e26a96f6e3b64.png" onclick="">
+          <span>연무장길 X</span><span>Yeonmujang-gil X</span><span>2025</span>
+          <span>Commercial</span><span>Seoul</span><span>Proposal</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/10a6d2aa18f28.png" onclick="">
+          <span>청담동 PJT.</span><span>Cheongdam-dong PJT.</span><span>2024</span>
+          <span>Commercial</span><span>Seoul</span><span>In Progress</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/c51d898738c50.png" onclick="">
+          <span>연무장길 Y</span><span>Yeonmujang-gil Y</span><span>2025</span>
+          <span>Commercial</span><span>Seoul</span><span>Proposal</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INTERIOR -->
+    <section class="sec">
+      <div class="sec__header">
+		<p class="title">INTERIOR</p>
+	  </div>
+	  
+	  <div class="sec__list">
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20260810/b260daa845481.jpg">
+          <span>예인교회 본당 리모델링</span><span>Yaein Church Remodeling</span><span>2026</span>
+          <span>Religious</span><span>Suwon</span><span>In Progress</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/0aab4127b9bb9.jpg">
+          <span>아다모 스튜디오</span><span>Adamo Studio</span><span>2025</span>
+          <span>Retail</span><span>Seoul</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/b8816139b05fb.jpg">
+          <span>이촌동부 센트레빌</span><span>Ichon Dongbu Centreville</span><span>2024</span>
+          <span>Residential</span><span>Seoul</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/2ef0695ae03f0.jpg">
+          <span>하중동 사무소</span><span>Hajung-dong Office</span><span>2023</span>
+          <span>Office</span><span>Seoul</span><span>Built</span>
+        </div>
+		
+		 <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251231/eb8ae171cb737.jpg">
+          <span>신원미주 아파트</span><span>Shinwon Miju Apt</span><span>2025</span>
+          <span>Residential</span><span>Suwon</span><span>Built</span>
+        </div>
+
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/8c88a6d415214.jpg">
+          <span>보타닉 동물병원</span><span>Botanic Vet Clinic</span><span>2023</span>
+          <span>Clinic</span><span>Seoul</span><span>Built</span>
+        </div>
+	  </div>
+	</section>
+
+    <!-- FURNITURE -->
+    <section class="sec">
+      <div class="sec__header">
+		<p class="title">FURNITURE</p>
+	  </div>
+
+	  <div class="sec__list">
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/3786166f1b5fa.png">
+          <span>데스크 모듈 A</span><span>Desk Module A</span><span>2023</span>
+          <span>Furniture</span><span>-</span><span>Built</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RAW TECH -->
+    <section class="sec">
+      <div class="sec__header">
+          <p class="title">RAW TECH</p>
+	  </div>
+	  
+	  	  <div class="sec__list">
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251231/de80a902d921b.png">
+          <span>가변적 파티션 시스템</span><span>Adaptive Partition System</span><span>2025</span>
+          <span>System</span><span>Seoul</span><span>Implemented</span>
+        </div>	  
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251231/5bc525d62e356.png">
+          <span>어쿠스틱 패널 시스템</span><span>Acoustic Panel System</span><span>2025</span>
+          <span>System</span><span>Suwon</span><span>Implemented</span>
+        </div>
+        <div class="item" data-img="https://cdn.imweb.me/thumbnail/20251224/abc66b69c1ba3.jpg">
+          <span>윈도우 디테일</span><span>Window Detail</span><span>2024-2025</span>
+          <span>Facade</span><span>Seoul</span><span>Built</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 오른쪽 썸네일 영역 -->
+  <div class="preview">
+	<header class="view-toolbar">
+	  <div class="view-btns">
+		<!-- 갤러리 버튼 (자산1 인라인 버전) -->
+		<button class="gallery-btn" onclick="location.href='/works_gallery'">
+		  <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+			<rect x="0.5" y="0.5" width="17" height="17" fill="#fff" stroke="#000" stroke-width="2.5"/>
+			<path d="M17,13 L13,8 L9,13 L7,10 L1,17" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+		  </svg>
+		</button>
+        <!-- 리스트 버튼 (자산2 인라인 버전) -->
+	  <button class="list-btn" onclick="location.href='/works_list' ">
+		<svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+		  <line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/>
+		  <line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/>
+		  <line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/>
+		  <line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/>
+		</svg>
+		</button>
+	  </div>
+	</header>
+    <div class="thumbnail">
+      <img id="thumb" alt="preview"/>
+      <div class="thumb-line"></div>
+    </div>
+  </div>
+</main>
+  
+  
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
+
+<script>
+/* =========================================================
+   ✅ 썸네일 hover 프리뷰 (정상 동작 버전)
+   - 기존 코드에 있던 `});*` 같은 문법 오류 제거
+   - data-img가 "0000", "000" 같은 더미면 fallback으로 표시
+   - 이미지 로딩 실패 시 자동으로 숨김
+   ========================================================= */
+const thumb = document.getElementById('thumb');
+let hideTimeout = null;
+
+// ✅ 여기 기본 썸네일(더미용) - 원하면 변경
+const FALLBACK_THUMB = "0000";
+
+function resolveThumbSrc(raw){
+  if (!raw) return null;
+  const v = String(raw).trim();
+
+  // 더미/오타 값 처리
+  if (v === "0000" || v === "000" || v === "-" || v.length < 5) return FALLBACK_THUMB;
+
+  // 절대 URL이면 그대로
+  if (/^https?:\/\//i.test(v)) return v;
+
+  // 상대경로 처리
+  if (v.startsWith("/")) return v;
+
+  // 그 외 fallback
+  return FALLBACK_THUMB;
+}
+
+document.querySelectorAll('.item[data-img]').forEach(it => {
+  it.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+
+    const src = resolveThumbSrc(it.getAttribute('data-img'));
+    if (!src) return;
+
+    // 로딩 실패 시 숨김
+    thumb.onerror = () => {
+      thumb.classList.remove('show');
+      thumb.removeAttribute('src');
+    };
+
+    // 교체 & 표시
+    thumb.classList.remove('show');
+    thumb.src = src;
+
+    // 캐시된 이미지면 즉시 show
+    if (thumb.complete && thumb.naturalWidth > 0) {
+      thumb.classList.add('show');
+    } else {
+      thumb.onload = () => thumb.classList.add('show');
+    }
+  });
+
+  it.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => {
+      thumb.classList.remove('show');
+    }, 120);
+  });
+});
+
+
+
+
+</script>
+  
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@tempin-clone-test/clone-test/shared/works-project-desktop-common.js"></script>
+</body>
+</html>
+
