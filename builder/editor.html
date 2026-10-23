@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FILT. Builder | Test Page Editor</title>
+  <title>FILT. Builder | Shared Project Editor</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
   <style>
     :root {
@@ -54,6 +54,7 @@
     .top-btn.primary { border-color: var(--accent); background: var(--accent); }
     .top-btn.primary:hover { background: #d6006b; }
     .top-btn:disabled { opacity: .55; cursor: wait; }
+    #projectIdInput { width: 190px; padding: 6px 8px; border: 1px solid #555; color: #fff; background: #252525; }
 
     .page-container { position: absolute; inset: var(--topbar-height) 0 0; overflow: hidden; }
     .img-section {
@@ -306,6 +307,7 @@
       .brand span { display: none; }
       .topbar-actions { gap: 4px; }
       .top-btn { padding: 6px; font-size: 10px; }
+      #projectIdInput { width: 125px; font-size: 10px; }
       .text-content { padding-right: 10px; padding-left: 10px; }
       .img-overlay { opacity: 1; }
     }
@@ -325,8 +327,10 @@
 </head>
 <body>
   <header class="builder-topbar">
-    <div class="brand"><strong>FILT. BUILDER</strong><span>TEST-PAGE EDITOR</span></div>
+    <div class="brand"><strong>FILT. BUILDER</strong><span>SHARED PROJECT EDITOR</span></div>
     <div class="topbar-actions">
+      <input id="projectIdInput" type="text" aria-label="프로젝트 ID" placeholder="프로젝트 ID">
+      <button class="top-btn" id="loadProjectButton">불러오기 / 새로 만들기</button>
       <input id="mainImageFiles" type="file" accept="image/*" multiple>
       <input id="sideImageFile" type="file" accept="image/*">
       <button class="top-btn" id="addMainImage">+ 이미지 추가</button>
@@ -372,8 +376,16 @@
     const API_URL = "/api/builder";
     const UPLOAD_CHUNK_BYTES = 768 * 1024;
     const MAX_UPLOAD_BYTES = 90 * 1024 * 1024;
-    const state = { images: [], items: [], titleEn: "PROJECT TITLE", titleKo: "" };
+    const requestedProjectId = new URLSearchParams(location.search).get("project") || "tempin";
+    const state = {
+      projectId: /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(requestedProjectId) ? requestedProjectId : "tempin",
+      images: [],
+      items: [],
+      titleEn: "PROJECT TITLE",
+      titleKo: ""
+    };
     const $ = (selector) => document.querySelector(selector);
+    $("#projectIdInput").value = state.projectId;
     let savedEditorRange = null;
     let pointerDrag = null;
     let dragScrollTimer = null;
@@ -397,6 +409,7 @@
     async function checkLogin() {
       try {
         await requestJson(`${API_URL}?action=check-auth`);
+        $("#projectIdInput").value = state.projectId;
         await loadProject();
       } catch (error) {
         if (error.message.includes("401") || error.message.includes("Unauthorized")) {
@@ -426,36 +439,44 @@
     });
 
     async function loadProject() {
-      const data = await requestJson(`${API_URL}?action=get-test-pc`);
-      state.images = Array.isArray(data.images) ? data.images : [];
-      $("#textContent").innerHTML = data.textContent || "";
-      parseOverview(data.tableHtml || "");
+      const data = await requestJson(`${API_URL}?action=get-project&id=${encodeURIComponent(state.projectId)}`);
+      const project = data.project;
+      state.images = Array.isArray(project.images) ? project.images : [];
+      state.titleEn = project.overview?.titleEn || state.projectId.toUpperCase().replace(/-/g, " ");
+      state.titleKo = project.overview?.subtitle || "";
+      state.items = Array.isArray(project.overview?.fields) ? project.overview.fields.map((field) => ({
+        label: String(field.label || ""),
+        value: String(field.value || ""),
+        ...(Number.isFinite(Number(field.areaM2)) ? { areaM2: Number(field.areaM2) } : {})
+      })) : [];
+      $("#textContent").innerHTML = project.descriptionHtml || "";
       renderImages();
       renderOverview();
+      document.title = `FILT. Builder | ${project.title || state.projectId}`;
+      return data.isNew;
     }
 
-    function parseOverview(tableHtml) {
-      const doc = new DOMParser().parseFromString(tableHtml, "text/html");
-      const table = doc.querySelector("table");
-      state.items = [];
-      state.titleEn = table?.querySelector(".project-title-en")?.textContent.trim() || "PROJECT TITLE";
-      state.titleKo = table?.querySelector(".project-subtitle")?.textContent.trim() || "";
-      if (!table) return;
-
-      table.querySelectorAll("tr").forEach((row) => {
-        const cells = Array.from(row.children);
-        cells.forEach((cell, index) => {
-          if (cell.tagName !== "TH") return;
-          const valueCell = cells.slice(index + 1).find((candidate) => candidate.tagName === "TD");
-          if (!valueCell || valueCell.classList.contains("project-title-cell")) return;
-          const label = cell.textContent.trim();
-          const valueCopy = valueCell.cloneNode(true);
-          valueCopy.querySelectorAll("br").forEach((lineBreak) => lineBreak.replaceWith(document.createTextNode("\n")));
-          const value = valueCopy.textContent.trim();
-          if (label || value) state.items.push({ label, value });
-        });
-      });
-    }
+    $("#loadProjectButton").addEventListener("click", async () => {
+      const nextId = $("#projectIdInput").value.trim();
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(nextId) || nextId.length > 64) {
+        notify("프로젝트 ID는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.");
+        return;
+      }
+      const button = $("#loadProjectButton");
+      button.disabled = true;
+      try {
+        state.projectId = nextId;
+        const url = new URL(location.href);
+        url.searchParams.set("project", nextId);
+        history.replaceState(null, "", url);
+        const isNew = await loadProject();
+        notify(isNew ? "새 프로젝트입니다. 내용을 입력한 뒤 저장하세요." : "프로젝트를 불러왔습니다.");
+      } catch (error) {
+        notify(`프로젝트 불러오기 실패: ${error.message}`, 6000);
+      } finally {
+        button.disabled = false;
+      }
+    });
 
     function renderImages() {
       const gallery = $("#imgSection");
@@ -706,7 +727,7 @@
           const result = await requestJson(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "upload-image-chunk", base64Data })
+            body: JSON.stringify({ action: "upload-image-chunk", projectId: state.projectId, base64Data })
           });
           if (!result.sha) throw new Error(`${file.name}: ${index + 1}번째 조각을 저장하지 못했습니다.`);
           chunkShas[index] = result.sha;
@@ -721,7 +742,7 @@
       const result = await requestJson(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "finalize-image-upload", filename: file.name, chunkShas })
+        body: JSON.stringify({ action: "finalize-image-upload", projectId: state.projectId, filename: file.name, chunkShas })
       });
       if (!result.url) throw new Error("업로드 응답에 이미지 주소가 없습니다.");
       return result.url;
@@ -1002,14 +1023,20 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "save-test-pc",
+            action: "save-project",
+            id: state.projectId,
+            title: `${state.titleEn} | PROJECT INFO`,
+            overview: {
+              titleEn: state.titleEn,
+              subtitle: state.titleKo,
+              fields: state.items
+            },
             images: state.images,
-            textContent: cleanEditorHtml($("#textContent").innerHTML),
-            tableHtml: getOverviewHtml()
+            descriptionHtml: cleanEditorHtml($("#textContent").innerHTML)
           })
         });
         if (!result.ok) throw new Error(result.error || "저장하지 못했습니다.");
-        notify("저장 완료. Vercel 배포 후 test-pc.html에 반영됩니다.", 5000);
+        notify(`저장 완료. ${state.projectId}.json에 저장했고 배포 후 템플릿에 반영됩니다.`, 6000);
       } catch (error) {
         notify(`저장 실패: ${error.message}`, 6000);
       } finally {

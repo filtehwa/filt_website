@@ -9,6 +9,30 @@ const ENV = {
   repo: 'filt_website',
   branch: 'vercel-deploy'
 };
+const PROJECT_DATA_BRANCH = 'shared-project-template-builder';
+const PUBLIC_ASSET_BASE_URL = process.env.PUBLIC_ASSET_BASE_URL ||
+  `https://raw.githubusercontent.com/filtehwa/filt_website/${PROJECT_DATA_BRANCH}`;
+
+function validateProjectId(value) {
+  if (typeof value !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) || value.length > 64) {
+    throw new Error('프로젝트 ID는 영문 소문자, 숫자, 하이픈만 사용해 주세요.');
+  }
+  return value;
+}
+
+function createEmptyProject(id) {
+  return {
+    id,
+    title: `${id} | PROJECT INFO`,
+    overview: {
+      titleEn: id.toUpperCase().replace(/-/g, ' '),
+      subtitle: '',
+      fields: []
+    },
+    images: [],
+    descriptionHtml: ''
+  };
+}
 
 // --- 토큰 인증 ---
 function makeToken() {
@@ -54,7 +78,9 @@ function ghGet(path) {
         try {
           const parsed = JSON.parse(d);
           if (r.statusCode >= 400) {
-            return rej(new Error(parsed.message || `GitHub API 오류 (${r.statusCode})`));
+            const error = new Error(parsed.message || `GitHub API 오류 (${r.statusCode})`);
+            error.statusCode = r.statusCode;
+            return rej(error);
           }
           res(parsed);
         } catch (e) {
@@ -90,7 +116,9 @@ function ghPut(path, body) {
         try {
           const parsed = JSON.parse(d);
           if (r.statusCode >= 400) {
-            return rej(new Error(parsed.message || `GitHub 업로드 오류 (${r.statusCode})`));
+              const error = new Error(parsed.message || `GitHub 업로드 오류 (${r.statusCode})`);
+              error.statusCode = r.statusCode;
+              return rej(error);
           }
           res(parsed);
         } catch (e) {
@@ -129,7 +157,9 @@ function ghPost(path, body) {
         try {
           const parsed = JSON.parse(d);
           if (r.statusCode >= 400) {
-            return rej(new Error(parsed.message || `GitHub API 오류 (${r.statusCode})`));
+            const error = new Error(parsed.message || `GitHub API 오류 (${r.statusCode})`);
+            error.statusCode = r.statusCode;
+            return rej(error);
           }
           res(parsed);
         } catch (e) {
@@ -342,6 +372,7 @@ module.exports = async function handler(req, res) {
     // Upload each original byte range as a Git blob to avoid Vercel request-body limits.
     if (body.action === 'upload-image-chunk') {
       try {
+        const projectId = body.projectId ? validateProjectId(body.projectId) : null;
         const { base64Data } = body;
         if (typeof base64Data !== 'string' || !base64Data) {
           res.statusCode = 400;
@@ -370,6 +401,7 @@ module.exports = async function handler(req, res) {
     if (body.action === 'finalize-image-upload') {
       try {
         const { filename, chunkShas } = body;
+        const projectId = body.projectId ? validateProjectId(body.projectId) : null;
         if (typeof filename !== 'string' || filename.length > 255 || /[\\/]/.test(filename)) {
           res.statusCode = 400;
           return res.end(JSON.stringify({ error: '이미지 파일명이 올바르지 않습니다.' }));
@@ -406,17 +438,20 @@ module.exports = async function handler(req, res) {
         }
         const rand = crypto.randomBytes(4).toString('hex');
         const cleanName = `upload_${Date.now()}_${rand}.${ext}`;
-        const targetPath = `images/tempin/${cleanName}`;
+        const targetPath = projectId ? `images/${projectId}/${cleanName}` : `images/tempin/${cleanName}`;
+        const targetBranch = projectId ? PROJECT_DATA_BRANCH : ENV.branch;
 
         await ghPut(`/repos/${ENV.owner}/${ENV.repo}/contents/${targetPath}`, {
           message: `upload: ${cleanName} via builder`,
           content: base64Data,
-          branch: ENV.branch
+          branch: targetBranch
         });
 
-        return res.end(JSON.stringify({ ok: true, url: `/${targetPath}` }));
+        const url = projectId ? `${PUBLIC_ASSET_BASE_URL}/${targetPath}` : `/${targetPath}`;
+        return res.end(JSON.stringify({ ok: true, url }));
       } catch (e) {
-        res.statusCode = 500;
+        if (e.message.includes('프로젝트 ID')) res.statusCode = 400;
+        else res.statusCode = 500;
         return res.end(JSON.stringify({ error: e.message }));
       }
     }
@@ -473,6 +508,65 @@ module.exports = async function handler(req, res) {
         return res.end(JSON.stringify({ error: e.message }));
       }
     }
+
+    if (body.action === 'save-project') {
+      try {
+        const id = validateProjectId(body.id);
+        const fields = body.overview?.fields;
+        if (!Array.isArray(body.images) || !Array.isArray(fields) || typeof body.descriptionHtml !== 'string') {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({ error: '프로젝트 이미지, 개요표 또는 설명 데이터가 올바르지 않습니다.' }));
+        }
+        const project = {
+          id,
+          title: typeof body.title === 'string' ? body.title : `${body.overview.titleEn || id} | PROJECT INFO`,
+          overview: {
+            titleEn: String(body.overview.titleEn || ''),
+            subtitle: String(body.overview.subtitle || ''),
+            fields: fields.map(field => ({
+              label: String(field.label || ''),
+              value: String(field.value || ''),
+              ...(Number.isFinite(Number(field.areaM2)) ? { areaM2: Number(field.areaM2) } : {})
+            }))
+          },
+          images: body.images.map(image => {
+            const src = String(image.src || '');
+            const imageClass = String(image.class || '');
+            const fit = String(image.fit || 'auto');
+            const rotation = Number(image.rotation || 0);
+            if (!/^(https?:\/\/|\/)/i.test(src) ||
+                !/^(portrait|landscape|drawing)$/.test(imageClass) ||
+                !['auto', 'contain', 'cover'].includes(fit) ||
+                ![0, 90, 180, 270].includes(rotation)) {
+              throw new Error('이미지 주소 또는 표시 설정이 올바르지 않습니다.');
+            }
+            return { src, class: imageClass, alt: String(image.alt || ''), fit, rotation };
+          }),
+          descriptionHtml: body.descriptionHtml
+        };
+
+        const targetPath = `projects/${id}.json`;
+        let sha;
+        try {
+          const existing = await ghGet(`/repos/${ENV.owner}/${ENV.repo}/contents/${targetPath}?ref=${PROJECT_DATA_BRANCH}`);
+          sha = existing.sha;
+        } catch (error) {
+          if (error.statusCode !== 404) throw error;
+        }
+
+        await ghPut(`/repos/${ENV.owner}/${ENV.repo}/contents/${targetPath}`, {
+          message: `builder: update ${targetPath}`,
+          content: Buffer.from(`${JSON.stringify(project, null, 2)}\n`).toString('base64'),
+          ...(sha ? { sha } : {}),
+          branch: PROJECT_DATA_BRANCH
+        });
+
+        return res.end(JSON.stringify({ ok: true, id, branch: PROJECT_DATA_BRANCH }));
+      } catch (e) {
+        res.statusCode = e.message.includes('프로젝트 ID') || e.message.includes('이미지 주소') ? 400 : 500;
+        return res.end(JSON.stringify({ error: e.message }));
+      }
+    }
   }
 
   if (req.method === 'GET') {
@@ -511,6 +605,26 @@ module.exports = async function handler(req, res) {
         return res.end(JSON.stringify(parsed));
       } catch (e) {
         res.statusCode = 500;
+        return res.end(JSON.stringify({ error: e.message }));
+      }
+    }
+
+    if (action === 'get-project') {
+      try {
+        const id = validateProjectId(url.searchParams.get('id'));
+        let project;
+        let isNew = false;
+        try {
+          const file = await ghGet(`/repos/${ENV.owner}/${ENV.repo}/contents/projects/${id}.json?ref=${PROJECT_DATA_BRANCH}`);
+          project = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8'));
+        } catch (error) {
+          if (error.statusCode !== 404) throw error;
+          project = createEmptyProject(id);
+          isNew = true;
+        }
+        return res.end(JSON.stringify({ ok: true, project, isNew }));
+      } catch (e) {
+        res.statusCode = e.message.includes('프로젝트 ID') ? 400 : 500;
         return res.end(JSON.stringify({ error: e.message }));
       }
     }

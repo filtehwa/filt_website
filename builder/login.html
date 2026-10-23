@@ -27,7 +27,7 @@
         body: JSON.stringify({action: 'login', password: pw})
       });
       if (r.ok) {
-        location.href = '/builder/tempin.html';
+        location.href = '/builder/editor.html?project=tempin';
       } else {
         document.getElementById('loginError').textContent = '비밀번호가 틀렸습니다.';
       }

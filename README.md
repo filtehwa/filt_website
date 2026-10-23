@@ -86,3 +86,21 @@
 이 코드는 테스트 배포 주소를 사용합니다. 현재 테스트 도메인으로 배포된 브랜치에 템플릿이나 데이터를 커밋하면 해당 브랜치를 불러오는 페이지에 반영됩니다. 별도 작업 브랜치에만 커밋한 내용은 해당 브랜치가 배포되거나 배포 브랜치에 반영되기 전까지 테스트 사이트에 나타나지 않습니다.
 
 예시 프로젝트 확인: [Tempin 공유 템플릿 미리보기](https://filtwebsite-verceltest.vercel.app/tempin-template-demo.html)
+
+## 빌더로 공통 템플릿 데이터 편집하기
+
+`shared-project-template-builder` 브랜치에는 위 공통 템플릿에 연결되는 빌더가 있습니다. 기존 `test-pc.html` 저장 방식과 달리, 이 빌더는 `projects/<프로젝트ID>.json`을 저장합니다.
+
+1. Vercel에서 이 브랜치를 Preview 배포하고, 기존 빌더 인증 및 GitHub 쓰기 환경변수가 Preview 환경에도 설정되어 있는지 확인합니다.
+2. 배포 주소의 `/builder/`를 열고 로그인합니다. 기본 화면은 `tempin` 프로젝트를 엽니다.
+3. 상단 프로젝트 ID 입력란에 `yaein-church-interior`처럼 새 ID를 입력하고 **불러오기 / 새로 만들기**를 누릅니다. JSON 파일이 아직 없으면 빈 프로젝트로 시작합니다.
+4. 이미지 추가, 우측 설명 편집, 보조 이미지와 캡션 추가, 개요표 항목 추가/수정/삭제를 합니다. 이미지 업로드는 원본 파일을 `images/<프로젝트ID>/`에 저장합니다.
+5. **저장 / 게시**를 누르면 JSON이 `shared-project-template-builder` 브랜치에 커밋됩니다. 처음 저장할 때는 `projects/<프로젝트ID>.json` 파일이 생성됩니다.
+6. 프로젝트 ID가 들어간 아임웹 코드 위젯을 해당 배포 주소로 연결합니다.
+
+```html
+<div class="filt-project-mount" data-filt-project="yaein-church-interior"></div>
+<script src="https://YOUR-VERCEL-PREVIEW-URL/project-template.js" data-project-id="yaein-church-interior"></script>
+```
+
+빌더 업로드 이미지는 `raw.githubusercontent.com`에서 `shared-project-template-builder` 브랜치 기준으로 불러옵니다. JSON 파일이 만들어진 뒤에는 [새 프로젝트 추가하기](#새-프로젝트-추가하기)의 아임웹 연결 방법과 동일하게 사용할 수 있습니다. 이 빌더 버전은 전용 브랜치에 저장하며, `vercel-deploy` 또는 운영 브랜치에는 자동으로 반영되지 않습니다.

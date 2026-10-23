@@ -7,7 +7,7 @@
     fetch('/api/builder?action=check-auth')
       .then(res => {
         if (res.ok) {
-          location.replace('/builder/tempin.html');
+          location.replace('/builder/editor.html?project=tempin');
         } else {
           location.replace('/builder/login.html');
         }
