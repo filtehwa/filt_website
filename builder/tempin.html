@@ -1,381 +1,530 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FILT Builder - Tempin Office</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
-  <link rel="stylesheet" href="/builder/style.css">
-  <style>
-    .builder-header {
-      position: sticky; top: 0; background: #fff; border-bottom: 1px solid #000;
-      padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 100;
-    }
-    .header-left { display: flex; align-items: center; gap: 16px; }
-    .header-title { font-size: 16px; font-weight: 700; letter-spacing: 0.08em; }
-    .header-badge {
-      font-size: 11px; padding: 2px 8px; border: 1px solid #000; background: #f6f6f6;
-    }
-    .header-actions { display: flex; gap: 10px; align-items: center; }
-    
-    .tab-bar {
-      display: flex; border-bottom: 1px solid #000; background: #fafafa;
-    }
-    .tab-item {
-      padding: 14px 28px; font-size: 13px; font-weight: 500; cursor: pointer;
-      border-right: 1px solid #e0e0e0; transition: background 0.2s;
-    }
-    .tab-item.active {
-      background: #000; color: #fff;
-    }
-    
-    .tab-panel { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
-    .tab-panel.active { display: block; }
-    
-    /* 이미지 테이블 리스트 */
-    .img-card {
-      display: grid; grid-template-columns: 36px 60px 140px 1fr 200px 90px;
-      gap: 12px; align-items: center; padding: 10px 12px;
-      border-bottom: 1px solid #eee; background: #fff;
-    }
-    .img-card:hover { background: #fcfcfc; }
-    .img-card .thumb-preview {
-      width: 56px; height: 42px; object-fit: cover; background: #eee; border: 1px solid #ddd;
-    }
-    .img-card input, .img-card select {
-      padding: 6px 8px; border: 1px solid #ccc; font-family: inherit; font-size: 12px;
-    }
-    .img-card select { width: 100%; }
-    .img-controls { display: flex; gap: 4px; }
-    .btn-icon {
-      padding: 4px 8px; border: 1px solid #bbb; background: #fff; cursor: pointer; font-size: 11px;
-    }
-    .btn-icon:hover { border-color: #000; background: #eee; }
-    .btn-icon.del:hover { background: #ffebee; color: #BD005E; border-color: #BD005E; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FILT Builder - Tempin Office (인라인 편집)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
 
-    .import-banner {
-      background: #fdf6ec; border: 1px solid #faecd8; padding: 14px 18px; margin-bottom: 20px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .import-banner-text { font-size: 13px; color: #8a6d3b; }
-    .import-banner-text strong { color: #66512c; }
+<style>
+/* ==================== 1. 원래 상세페이지(tempin-pc.html) 100% 동일 스타일 ==================== */
+:root {
+  --accent: #BD005E;
+  --bg-color: #fff;
+  --panel-width: 240px;
+  --panel-hide-width: 210px;
+}  
 
-    /* 표 그리드 */
-    .form-grid {
-      display: grid; grid-template-columns: 180px 1fr; gap: 1px;
-      background: #000; border: 1px solid #000; max-width: 760px;
-    }
-    .form-label {
-      background: #f5f5f5; padding: 10px 14px; font-size: 12px; font-weight: 600;
-      display: flex; align-items: center; letter-spacing: 0.05em;
-    }
-    .form-input-wrap { background: #fff; padding: 6px 10px; }
-    .form-input-wrap input, .form-input-wrap textarea {
-      width: 100%; border: none; font-family: inherit; font-size: 13px; outline: none;
-    }
+html, body {
+  font-family: "Suit","Pretendard Variable", "Noto Sans KR", sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.4px;
+  color: #000;
+  background: var(--bg-color);
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
-    /* 본문 텍스트 */
-    .textarea-box {
-      width: 100%; height: 500px; padding: 16px; font-family: monospace;
-      font-size: 13px; line-height: 1.6; border: 1px solid #ccc;
-      box-sizing: border-box; resize: vertical;
-    }
-    
-    .status-toast {
-      position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
-      background: #000; color: #fff; font-size: 13px; border-radius: 4px;
-      display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-  </style>
+.page-container {
+  height: calc(100vh - 46px) !important;
+  margin-top: 46px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 좌측 이미지 구역 */
+.img-section {
+  position: absolute;
+  top: 0; bottom: 0; left: 0px; right: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-color);
+  scroll-snap-type: y proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.img-item-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.img-section img {
+  object-fit: cover;
+  object-position: center !important;
+  display: block;
+  flex-shrink: 0;
+}
+
+img.landscape {
+  width: 100%;
+  height: calc(100vh - 46px);
+}
+
+img.portrait {
+  width: auto;
+  height: calc(100vh - 46px);
+}
+
+img.drawing {
+  width: 100%;
+  min-height: calc(100vh - 46px) !important;
+  object-fit: contain !important;
+}
+
+hr {
+  border: none;
+  border-top: 0.2px solid #000;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  transform: scaleY(0.5);
+}
+
+/* 우측 섹션 */
+.side-section {
+  position: fixed !important;
+  right: 0;
+  top: 46px;
+  width: 430px !important;
+  height: calc(100vh - 46px) !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  background: var(--bg-color);
+  border-left: 0.5px solid #000 !important;
+  z-index: 1000 !important;
+}
+
+.side-section .text-content {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 240px !important; /* 하단 툴바+표 높이 확보 */
+  overflow-y: auto !important;
+  padding: 18px !important;
+  padding-top: 30px !important;
+  background: var(--bg-color);
+  z-index: 2 !important;
+  border-bottom: 0.5px solid #000;
+}
+
+.side-section .text-content p {
+  margin: 0 !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+}
+
+.side-figure {
+  margin: 8px 0 14px 0;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.side-single-img {
+  display: block;
+  width: 300px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.side-caption {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  opacity: 0.75;
+  text-align: left;
+}
+
+/* 표 조작 툴바 */
+.table-ctrl-bar {
+  position: absolute !important;
+  left: 0; right: 0;
+  bottom: 210px;
+  height: 30px;
+  background: #f8f8f8;
+  border-bottom: 0.5px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  z-index: 10;
+  font-size: 11px;
+}
+.table-ctrl-bar span { font-weight: 700; letter-spacing: 0.05em; color: #444; }
+.btn-mini {
+  background: #fff; border: 1px solid #aaa; padding: 2px 8px; font-size: 11px;
+  cursor: pointer; border-radius: 2px;
+}
+.btn-mini:hover { background: #eee; border-color: #000; }
+
+/* 우측 하단 고정 표 */
+.side-section .fixed-table {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 210px !important;
+  overflow-y: auto !important;
+  background: #fff !important;
+  z-index: 2 !important;
+}
+
+.fixed-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.fixed-table th, .fixed-table td {
+  height: 35px !important;
+  padding: 2px 6px;
+  font-size: 10px;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid #000 !important;
+  position: relative;
+}
+
+.fixed-table th {
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  vertical-align: top;
+  background: rgba(0,0,0,0.015);
+}
+
+.fixed-table td {
+  font-weight: 400;
+  text-align: right;
+  vertical-align: bottom;
+  border-right: 0.5px solid #000 !important;
+}
+
+.fixed-table .project-title-cell {
+  height: 70px;
+  padding-top: 5px;
+  text-align: left !important;
+  vertical-align: top !important;    
+  border-right: 0.5px solid #000;
+}
+
+.project-title-en {
+  font-weight: 700; font-size: 14px; line-height: 1.3;
+}
+.project-subtitle {
+  display: block; font-weight: 400; font-size: 13px; margin-top: 2px;
+}
+
+/* 행 삭제 버튼 */
+tr .row-del-btn {
+  display: none;
+  position: absolute; right: 2px; top: 2px;
+  background: #fff; border: 1px solid #BD005E; color: #BD005E;
+  font-size: 9px; cursor: pointer; padding: 1px 4px; line-height: 1;
+}
+tr:hover .row-del-btn {
+  display: block;
+}
+
+.img-section::-webkit-scrollbar,
+.text-content::-webkit-scrollbar,
+.fixed-table::-webkit-scrollbar {
+  width: 0; height: 0; display: none;
+}
+
+/* ==================== 2. 빌더 컨트롤 바 ==================== */
+.builder-topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 46px;
+  background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; z-index: 99999; font-size: 12px;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; font-weight: 600; letter-spacing: 0.1em; }
+.topbar-tag {
+  background: #BD005E; color: #fff; padding: 2px 8px; font-size: 10px; font-weight: 700; border-radius: 2px;
+}
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+.t-btn {
+  background: #222; color: #fff; border: 1px solid #444; padding: 6px 14px; font-size: 11px;
+  cursor: pointer; font-family: inherit; font-weight: 500; letter-spacing: 0.05em; transition: all 0.2s;
+}
+.t-btn:hover { background: #333; border-color: #777; }
+.t-btn.primary { background: #BD005E; border-color: #BD005E; font-weight: 700; }
+.t-btn.primary:hover { background: #d6006b; }
+.t-btn.imweb { background: #2b3d52; border-color: #435b75; }
+.t-btn.imweb:hover { background: #38506d; }
+
+/* 이미지 호버 툴바 오버레이 */
+.img-overlay-bar {
+  position: absolute; top: 16px; left: 16px; display: flex; gap: 6px;
+  background: rgba(0,0,0,0.85); padding: 6px 10px; border-radius: 4px;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 20;
+}
+.img-item-wrapper:hover .img-overlay-bar {
+  opacity: 1; pointer-events: auto;
+}
+
+.img-btn {
+  background: #333; color: #fff; border: 1px solid #555; padding: 4px 8px; font-size: 11px;
+  cursor: pointer; border-radius: 2px;
+}
+.img-btn:hover { background: #555; }
+.img-btn.del { background: #8b0000; border-color: #a00; }
+.img-btn.del:hover { background: #BD005E; }
+.img-badge {
+  color: #aaa; font-size: 11px; display: flex; align-items: center; margin-right: 6px; font-weight: 600;
+}
+
+/* 직접 편집(contenteditable) 강조 테두리 효과 */
+[contenteditable="true"] {
+  outline: none;
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: text;
+}
+[contenteditable="true"]:hover {
+  background: rgba(189, 0, 94, 0.04);
+  box-shadow: 0 0 0 1px rgba(189, 0, 94, 0.3);
+}
+[contenteditable="true"]:focus {
+  background: #fff;
+  box-shadow: 0 0 0 1.5px var(--accent) !important;
+}
+
+.edit-hint-toast {
+  position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.9); color: #fff;
+  padding: 10px 18px; font-size: 12px; border-radius: 4px; z-index: 999999;
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+</style>
 </head>
+
 <body>
 
-  <!-- 상단 바 -->
-  <header class="builder-header">
-    <div class="header-left">
-      <span class="header-title">FILT. BUILDER</span>
-      <span class="header-badge">TEMPIN OFFICE</span>
+  <!-- 상단 빌더 컨트롤 바 -->
+  <header class="builder-topbar">
+    <div class="topbar-left">
+      <span>FILT. BUILDER</span>
+      <span class="topbar-tag">인라인 편집 모드</span>
+      <span style="color:#aaa; font-weight:400;">| &nbsp; TEMPIN OFFICE</span>
     </div>
-    <div class="header-actions">
-      <button class="btn" id="btnPreview" onclick="openPreview()">새 창 미리보기</button>
-      <button class="btn primary" id="btnPublish" onclick="publishProject()">게시 (Vercel 배포)</button>
-      <button class="btn sm" onclick="logout()">로그아웃</button>
+    <div class="topbar-actions">
+      <input type="file" id="globalImageUpload" style="display:none;" onchange="onUploadNewImage(event)">
+      <button class="t-btn" onclick="document.getElementById('globalImageUpload').click()">+ 새 이미지 추가</button>
+      <button class="t-btn imweb" onclick="importAllImwebImages()" title="아임웹 CDN 이미지를 GitHub(/images/tempin/)로 일괄 다운로드 및 주소 변경">아임웹 이미지 GitHub로 이전</button>
+      <button class="t-btn primary" onclick="publishNow()">게시 (Vercel 배포)</button>
+      <button class="t-btn" onclick="window.open('/tempin_office', '_blank')">실제 사이트 보기</button>
     </div>
   </header>
 
-  <!-- 탭 네비게이션 -->
-  <nav class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('images')">1. 이미지 관리 (<span id="imgCount">0</span>)</div>
-    <div class="tab-item" onclick="switchTab('table')">2. 프로젝트 개요 표</div>
-    <div class="tab-item" onclick="switchTab('text')">3. 본문 및 설명</div>
-  </nav>
+  <!-- 본문 화면 (원래 tempin-pc.html과 100% 동일 레이아웃) -->
+  <main class="page-container">
 
-  <!-- 메인 컨텐츠 영역 -->
-  <main>
-    <!-- 탭 1: 이미지 관리 -->
-    <section id="panel-images" class="tab-panel active">
-      <div class="import-banner">
-        <div class="import-banner-text">
-          <strong>아임웹 CDN 이미지 감지:</strong> 아임웹에서 호스팅 중인 이미지를 내 GitHub 저장소(<code>images/tempin/</code>)로 일괄 복사해 독립시킬 수 있습니다.
-        </div>
-        <button class="btn" onclick="importImwebImages()" id="btnImport">GitHub로 일괄 가져오기</button>
+    <!-- 좌측 이미지 구역 (스크롤) -->
+    <div class="img-section" id="imgSection">
+      <!-- JavaScript로 기존 tempin의 26개 이미지 렌더링 -->
+    </div>
+
+    <!-- 우측 구역 (텍스트 + 하단 고정 표) -->
+    <section class="side-section">
+      <!-- 텍스트 영역 (contenteditable) -->
+      <div class="text-content" id="textContentArea" contenteditable="true" title="클릭해서 글씨를 바로 수정하세요">
+        <!-- 원문 텍스트 -->
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h3 style="font-size:14px; margin:0;">이미지 목록 (드래그 순서 or 이동 버튼)</h3>
-        <div style="display:flex; gap:8px;">
-          <input type="file" id="fileUpload" style="display:none;" onchange="handleFileUpload(event)">
-          <button class="btn sm" onclick="document.getElementById('fileUpload').click()">+ 새 이미지 파일 업로드</button>
-          <button class="btn sm" onclick="addNewImageRow()">+ 빈 항목 추가</button>
-        </div>
+      <!-- 표 조작 툴바 -->
+      <div class="table-ctrl-bar">
+        <span>PROJECT SPEC TABLE</span>
+        <button class="btn-mini" onclick="addNewTableRow()">+ 새 항목(행) 추가</button>
       </div>
 
-      <div id="imageListContainer">
-        <!-- 동적 렌더링 -->
+      <!-- 하단 표 (항목 제목 및 내용 모두 인라인 편집 가능) -->
+      <div class="fixed-table" id="fixedTableContainer">
+        <!-- table 요소가 채워짐 -->
       </div>
     </section>
 
-    <!-- 탭 2: 프로젝트 개요 표 -->
-    <section id="panel-table" class="tab-panel">
-      <h3 style="font-size:14px; margin-bottom:16px;">우측 하단 프로젝트 개요 표 정보</h3>
-      <div class="form-grid">
-        <div class="form-label">PROJECT NAME (EN)</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-titleEn"></div>
-
-        <div class="form-label">PROJECT NAME (KO)</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-titleKo"></div>
-
-        <div class="form-label">STATUS</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-status"></div>
-
-        <div class="form-label">YEAR</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-year"></div>
-
-        <div class="form-label">LOCATION</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-location"></div>
-
-        <div class="form-label">PROGRAM</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-program"></div>
-
-        <div class="form-label">FLOORS</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-floors"></div>
-
-        <div class="form-label">TYPE</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-type"></div>
-
-        <div class="form-label">BUILDING AREA</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-buildingArea"></div>
-
-        <div class="form-label">TOTAL AREA</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-totalArea"></div>
-
-        <div class="form-label">CLIENT</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-client"></div>
-
-        <div class="form-label">CONSTRUCTION</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-construction"></div>
-
-        <div class="form-label">PHOTOGRAPHER</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-photographer"></div>
-
-        <div class="form-label">COWORK</div>
-        <div class="form-input-wrap"><input type="text" id="tbl-cowork"></div>
-      </div>
-    </section>
-
-    <!-- 탭 3: 본문 및 설명 -->
-    <section id="panel-text" class="tab-panel">
-      <div style="margin-bottom:12px;">
-        <h3 style="font-size:14px; margin:0 0 6px 0;">우측 설명 텍스트 및 인라인 Figure 편집</h3>
-        <p style="font-size:12px; color:#666; margin:0;">HTML 형식으로 유지됩니다. <code>&lt;br&gt;&lt;br&gt;</code> 단락 구분 및 <code>&lt;figure class="side-figure"&gt;</code> 이미지를 포함합니다.</p>
-      </div>
-      <textarea id="textContentEditor" class="textarea-box"></textarea>
-    </section>
   </main>
 
-  <div id="toast" class="status-toast"></div>
+  <div id="toast" class="edit-hint-toast">
+    💡 <strong>안내:</strong> 화면에 보이는 <strong>글자, 표 제목(TH), 내용(TD)을 직접 클릭하여 바로 수정</strong>할 수 있습니다.
+  </div>
 
   <script>
-    let currentData = {
-      images: [],
-      textContent: '',
-      table: {}
-    };
+    let projectImages = [];
 
-    async function checkAuth() {
+    async function init() {
+      // 1. 인증 확인
       try {
-        const res = await fetch('/api/builder?action=check-auth');
-        if (!res.ok) {
-          location.href = '/builder/login.html';
-        }
+        const auth = await fetch('/api/builder?action=check-auth');
+        if (!auth.ok) { location.href = '/builder/login.html'; return; }
       } catch (e) {
-        location.href = '/builder/login.html';
+        location.href = '/builder/login.html'; return;
       }
-    }
 
-    async function loadData() {
-      showToast('데이터 불러오는 중...');
+      // 2. 템프인 원본 데이터 로드
       try {
         const res = await fetch('/api/builder?action=get-tempin');
-        if (!res.ok) throw new Error('불러오기 실패');
-        currentData = await res.json();
-        renderAll();
-        showToast('로딩 완료', 1500);
+        const data = await res.json();
+        
+        projectImages = data.images || [];
+        renderImages();
+
+        // 텍스트 영역 복원
+        document.getElementById('textContentArea').innerHTML = data.textContent || '';
+
+        // 표 복원 (tableHtml 전체를 넣고, 모든 th와 td에 contenteditable 부여)
+        if (data.tableHtml) {
+          document.getElementById('fixedTableContainer').innerHTML = data.tableHtml;
+        } else {
+          // 기본 템플릿
+          document.getElementById('fixedTableContainer').innerHTML = getDefaultTableHtml();
+        }
+        setupEditableTable();
+
       } catch (e) {
-        showToast('오류: ' + e.message, 3000);
+        alert('데이터 로드 실패: ' + e.message);
       }
     }
 
-    function renderAll() {
-      // 1. 이미지 렌더링
-      const container = document.getElementById('imageListContainer');
-      document.getElementById('imgCount').textContent = currentData.images.length;
+    function setupEditableTable() {
+      const container = document.getElementById('fixedTableContainer');
+      const table = container.querySelector('table');
+      if (!table) return;
+
+      // 모든 th와 td를 contenteditable로 활성화
+      table.querySelectorAll('th, td').forEach(cell => {
+        cell.setAttribute('contenteditable', 'true');
+        cell.setAttribute('spellcheck', 'false');
+      });
+
+      // 각 행에 마우스 올렸을 때 삭제 버튼 제공
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((tr, rIdx) => {
+        // 첫 2개 행(타이틀 행) 제외하고 삭제 버튼 장착
+        if (rIdx >= 2 && !tr.querySelector('.row-del-btn')) {
+          const lastCell = tr.querySelector('td:last-child');
+          if (lastCell) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'row-del-btn';
+            delBtn.title = '이 행 삭제';
+            delBtn.innerText = '✕';
+            delBtn.setAttribute('contenteditable', 'false');
+            delBtn.onclick = (e) => {
+              e.stopPropagation();
+              if (confirm('이 행(항목)을 삭제하시겠습니까?')) {
+                tr.remove();
+              }
+            };
+            lastCell.appendChild(delBtn);
+          }
+        }
+      });
+    }
+
+    // 새로운 행 추가 기능
+    function addNewTableRow() {
+      const table = document.querySelector('#fixedTableContainer table');
+      if (!table) return;
+
+      const tbody = table.querySelector('tbody') || table;
+      const newTr = document.createElement('tr');
+      newTr.innerHTML = `
+        <th contenteditable="true">NEW KEY</th>
+        <td contenteditable="true">VALUE</td>
+        <th contenteditable="true">NEW KEY</th>
+        <td contenteditable="true">VALUE</td>
+      `;
+      tbody.appendChild(newTr);
+      setupEditableTable();
+      showToast('새 행이 추가되었습니다. 항목명과 값을 직접 클릭해서 수정하세요!', 2500);
+    }
+
+    function renderImages() {
+      const container = document.getElementById('imgSection');
       container.innerHTML = '';
 
-      currentData.images.forEach((img, idx) => {
-        const row = document.createElement('div');
-        row.className = 'img-card';
-        row.innerHTML = `
-          <div style="font-weight:600; font-size:11px; color:#888;">#${idx + 1}</div>
-          <img src="${img.src}" class="thumb-preview" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'56\\' height=\\'42\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23eee\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'10\\' fill=\\'%23999\\'>No Img</text></svg>'">
-          <div>
-            <select onchange="updateImg(${idx}, 'class', this.value)">
-              <option value="portrait" ${img.class === 'portrait' ? 'selected' : ''}>portrait (세로)</option>
-              <option value="landscape" ${img.class === 'landscape' ? 'selected' : ''}>landscape (가로)</option>
-              <option value="drawing" ${img.class === 'drawing' ? 'selected' : ''}>drawing (도면)</option>
-            </select>
-          </div>
-          <div>
-            <input type="text" value="${escapeHtml(img.src)}" placeholder="이미지 주소 (URL)" onchange="updateImg(${idx}, 'src', this.value)">
-          </div>
-          <div>
-            <input type="text" value="${escapeHtml(img.alt)}" placeholder="설명 (Alt text)" onchange="updateImg(${idx}, 'alt', this.value)">
-          </div>
-          <div class="img-controls">
-            <button class="btn-icon" onclick="moveImg(${idx}, -1)" title="위로">▲</button>
-            <button class="btn-icon" onclick="moveImg(${idx}, 1)" title="아래로">▼</button>
-            <button class="btn-icon del" onclick="deleteImg(${idx})" title="삭제">✕</button>
-          </div>
+      projectImages.forEach((img, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'img-item-wrapper';
+
+        const imgEl = document.createElement('img');
+        imgEl.src = img.src;
+        imgEl.className = img.class;
+        imgEl.alt = img.alt || '';
+
+        const bar = document.createElement('div');
+        bar.className = 'img-overlay-bar';
+        
+        const isImweb = (img.src || '').includes('imweb.me');
+        bar.innerHTML = `
+          <span class="img-badge">#${idx + 1} ${img.class}</span>
+          ${isImweb ? '<span class="img-badge" style="color:#f39c12;">[아임웹]</span>' : ''}
+          <button class="img-btn" onclick="cycleClass(${idx})">비율전환 (${img.class})</button>
+          <button class="img-btn" onclick="moveImage(${idx}, -1)">▲ 위로</button>
+          <button class="img-btn" onclick="moveImage(${idx}, 1)">▼ 아래로</button>
+          <button class="img-btn" onclick="changeImagePrompt(${idx})">주소변경</button>
+          <button class="img-btn del" onclick="deleteImage(${idx})">✕ 삭제</button>
         `;
-        container.appendChild(row);
+
+        wrapper.appendChild(imgEl);
+        wrapper.appendChild(bar);
+        container.appendChild(wrapper);
+
+        const hr = document.createElement('hr');
+        container.appendChild(hr);
       });
-
-      // 2. 표 렌더링
-      const t = currentData.table || {};
-      document.getElementById('tbl-titleEn').value = t.titleEn || '';
-      document.getElementById('tbl-titleKo').value = t.titleKo || '';
-      document.getElementById('tbl-status').value = t.status || '';
-      document.getElementById('tbl-year').value = t.year || '';
-      document.getElementById('tbl-location').value = t.location || '';
-      document.getElementById('tbl-program').value = t.program || '';
-      document.getElementById('tbl-floors').value = t.floors || '';
-      document.getElementById('tbl-type').value = t.type || '';
-      document.getElementById('tbl-buildingArea').value = t.buildingArea || '';
-      document.getElementById('tbl-totalArea').value = t.totalArea || '';
-      document.getElementById('tbl-client').value = t.client || '';
-      document.getElementById('tbl-construction').value = t.construction || '';
-      document.getElementById('tbl-photographer').value = t.photographer || '';
-      document.getElementById('tbl-cowork').value = t.cowork || '';
-
-      // 3. 본문 텍스트
-      document.getElementById('textContentEditor').value = currentData.textContent || '';
     }
 
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-
-      if (name === 'images') {
-        document.querySelectorAll('.tab-item')[0].classList.add('active');
-        document.getElementById('panel-images').classList.add('active');
-      } else if (name === 'table') {
-        document.querySelectorAll('.tab-item')[1].classList.add('active');
-        document.getElementById('panel-table').classList.add('active');
-      } else if (name === 'text') {
-        document.querySelectorAll('.tab-item')[2].classList.add('active');
-        document.getElementById('panel-text').classList.add('active');
-      }
+    function cycleClass(idx) {
+      const classes = ['portrait', 'landscape', 'drawing'];
+      const curIdx = classes.indexOf(projectImages[idx].class);
+      projectImages[idx].class = classes[(curIdx + 1) % classes.length];
+      renderImages();
     }
 
-    function updateImg(idx, key, val) {
-      currentData.images[idx][key] = val;
-      if (key === 'src') renderAll();
-    }
-
-    function moveImg(idx, dir) {
+    function moveImage(idx, dir) {
       const target = idx + dir;
-      if (target < 0 || target >= currentData.images.length) return;
-      const tmp = currentData.images[idx];
-      currentData.images[idx] = currentData.images[target];
-      currentData.images[target] = tmp;
-      renderAll();
+      if (target < 0 || target >= projectImages.length) return;
+      const tmp = projectImages[idx];
+      projectImages[idx] = projectImages[target];
+      projectImages[target] = tmp;
+      renderImages();
     }
 
-    function deleteImg(idx) {
-      if (!confirm('이 이미지를 삭제하시겠습니까?')) return;
-      currentData.images.splice(idx, 1);
-      renderAll();
+    function deleteImage(idx) {
+      if (!confirm(`이미지 #${idx + 1}을 삭제하시겠습니까?`)) return;
+      projectImages.splice(idx, 1);
+      renderImages();
     }
 
-    function addNewImageRow() {
-      currentData.images.push({
-        src: '',
-        class: 'landscape',
-        alt: '#Tempin Image'
-      });
-      renderAll();
-    }
-
-    // 아임웹 이미지 일괄 가져오기
-    async function importImwebImages() {
-      const imwebUrls = currentData.images
-        .map(i => i.src)
-        .filter(s => s && s.includes('imweb.me'));
-
-      if (imwebUrls.length === 0) {
-        alert('가져올 아임웹 CDN 이미지가 없습니다.');
-        return;
-      }
-
-      if (!confirm(`총 ${imwebUrls.length}개의 아임웹 이미지를 GitHub 저장소(/images/tempin/)로 다운로드하여 이전합니다. 계속하시겠습니까?`)) {
-        return;
-      }
-
-      showToast('아임웹 이미지 가져오는 중... (잠시만 기다려주세요)');
-      try {
-        const res = await fetch('/api/builder', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'import-imweb-images',
-            urls: imwebUrls
-          })
-        });
-        const result = await res.json();
-        if (result.ok) {
-          // 매핑된 URL로 현재 이미지 목록 교체
-          const map = {};
-          result.mapped.forEach(m => map[m.original] = m.newUrl);
-          currentData.images.forEach(img => {
-            if (map[img.src]) img.src = map[img.src];
-          });
-          renderAll();
-          showToast(`완료! ${result.count}개 이미지가 GitHub로 안전하게 복사되었습니다.`, 4000);
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (e) {
-        showToast('가져오기 실패: ' + e.message, 4000);
+    function changeImagePrompt(idx) {
+      const current = projectImages[idx].src;
+      const next = prompt('새 이미지 URL을 입력하세요:', current);
+      if (next && next !== current) {
+        projectImages[idx].src = next.trim();
+        renderImages();
       }
     }
 
-    // 새 파일 로컬에서 직접 업로드
-    async function handleFileUpload(e) {
+    async function onUploadNewImage(e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      showToast('이미지 업로드 중...');
+      showToast('새 이미지를 업로드 중...');
       reader.onload = async () => {
         const base64Data = reader.result.split(',')[1];
         try {
@@ -390,55 +539,78 @@
           });
           const result = await res.json();
           if (result.ok) {
-            currentData.images.push({
+            projectImages.push({
               src: result.url,
               class: 'landscape',
               alt: file.name
             });
-            renderAll();
-            showToast('업로드 완료 및 목록에 추가되었습니다!', 3000);
+            renderImages();
+            showToast('새 이미지가 성공적으로 추가되었습니다!', 3000);
           } else {
             throw new Error(result.error);
           }
         } catch (err) {
-          showToast('업로드 오류: ' + err.message, 3000);
+          showToast('업로드 실패: ' + err.message, 3000);
         }
       };
       reader.readAsDataURL(file);
     }
 
-    function collectFormData() {
-      return {
-        images: currentData.images,
-        textContent: document.getElementById('textContentEditor').value,
-        table: {
-          titleEn: document.getElementById('tbl-titleEn').value,
-          titleKo: document.getElementById('tbl-titleKo').value,
-          status: document.getElementById('tbl-status').value,
-          year: document.getElementById('tbl-year').value,
-          location: document.getElementById('tbl-location').value,
-          program: document.getElementById('tbl-program').value,
-          floors: document.getElementById('tbl-floors').value,
-          type: document.getElementById('tbl-type').value,
-          buildingArea: document.getElementById('tbl-buildingArea').value,
-          totalArea: document.getElementById('tbl-totalArea').value,
-          client: document.getElementById('tbl-client').value,
-          construction: document.getElementById('tbl-construction').value,
-          photographer: document.getElementById('tbl-photographer').value,
-          cowork: document.getElementById('tbl-cowork').value
-        }
-      };
-    }
-
-    async function publishProject() {
-      if (!confirm('Tempin 상세 페이지를 vercel-deploy 브랜치에 저장하고 Vercel에 배포하시겠습니까?')) {
+    // 아임웹 이미지 일괄 이전
+    async function importAllImwebImages() {
+      const imwebUrls = projectImages.map(i => i.src).filter(s => s && s.includes('imweb.me'));
+      if (imwebUrls.length === 0) {
+        alert('현재 아임웹 CDN 이미지가 없습니다 (모두 GitHub 저장소에 보관 중입니다).');
         return;
       }
 
-      const payload = collectFormData();
-      payload.action = 'save-tempin';
+      if (!confirm(`총 ${imwebUrls.length}개의 아임웹 이미지를 다운로드하여 내 GitHub 저장소(/images/tempin/)로 영구 보관합니다. 계속하시겠습니까?`)) {
+        return;
+      }
 
-      showToast('GitHub에 커밋 및 배포 트리거 중...');
+      showToast('아임웹 이미지를 GitHub로 이전 중입니다... 잠시만 기다려주세요.');
+      try {
+        const res = await fetch('/api/builder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'import-imweb-images', urls: imwebUrls })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          const map = {};
+          result.mapped.forEach(m => map[m.original] = m.newUrl);
+          projectImages.forEach(img => {
+            if (map[img.src]) img.src = map[img.src];
+          });
+          renderImages();
+          showToast(`성공! ${result.count}개 이미지가 GitHub로 안전하게 이전되었습니다.`, 4000);
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e) {
+        showToast('이전 실패: ' + e.message, 4000);
+      }
+    }
+
+    // 저장 및 배포
+    async function publishNow() {
+      if (!confirm('화면에서 수정한 내용(이미지, 본문, 표 항목)을 그대로 저장하고 사이트에 배포하시겠습니까?')) return;
+
+      showToast('GitHub에 저장 및 Vercel 배포 트리거 중...');
+
+      // 표 HTML 복사본에서 편집용 버튼 제거 후 순수 HTML 추출
+      const tableClone = document.querySelector('#fixedTableContainer table').cloneNode(true);
+      tableClone.querySelectorAll('.row-del-btn').forEach(btn => btn.remove());
+      tableClone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+      tableClone.querySelectorAll('[spellcheck]').forEach(el => el.removeAttribute('spellcheck'));
+
+      const payload = {
+        action: 'save-tempin',
+        images: projectImages,
+        textContent: document.getElementById('textContentArea').innerHTML,
+        tableHtml: tableClone.outerHTML
+      };
+
       try {
         const res = await fetch('/api/builder', {
           method: 'POST',
@@ -447,7 +619,7 @@
         });
         const result = await res.json();
         if (result.ok) {
-          showToast('게시 완료! 약 30~50초 후 사이트에 반영됩니다.', 5000);
+          showToast('게시 성공! 약 20~30초 후 실제 웹사이트에 적용됩니다.', 5000);
         } else {
           throw new Error(result.error);
         }
@@ -456,37 +628,28 @@
       }
     }
 
-    function openPreview() {
-      window.open('/tempin_office', '_blank');
-    }
-
-    async function logout() {
-      await fetch('/api/builder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'logout' })
-      });
-      location.href = '/builder/login.html';
-    }
-
-    function showToast(msg, duration = 2500) {
+    function showToast(msg, duration = 3000) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
+      t.innerHTML = msg;
       t.style.display = 'block';
-      clearTimeout(window._toastTimer);
-      if (duration > 0) {
-        window._toastTimer = setTimeout(() => {
-          t.style.display = 'none';
-        }, duration);
-      }
+      clearTimeout(window._tTimer);
+      window._tTimer = setTimeout(() => { t.style.display = 'none'; }, duration);
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    function getDefaultTableHtml() {
+      return `<table>
+        <colgroup><col style="width:25%;"><col style="width:25%;"><col style="width:25%;"><col style="width:25%;"></colgroup>
+        <tr><td rowspan="2" colspan="2" class="project-title-cell"><div class="project-title-en">TEMPIN OFFICE</div><div class="project-subtitle">템프인 오피스</div></td><th>STATUS</th><td>BUILT</td></tr>
+        <tr><th>YEAR</th><td>2024–2025</td></tr>
+        <tr><th>LOCATION</th><td>SEOUL, <br>SOUTH KOREA</td><th>PROGRAM</th><td>OFFICE</td></tr>
+        <tr><th>FLOORS</th><td>B1F|4F</td><th>TYPE</th><td>RENOVATION & EXTENSION</td></tr>
+        <tr><th>BUILDING AREA</th><td>56.35㎡</td><th>TOTAL AREA</th><td>252.39㎡</td></tr>
+        <tr><th>CLIENT</th><td>TEMPIN</td><th>CONSTRUCTION</th><td>PS ENGINEERING</td></tr>
+        <tr><th>PHOTOGRAPHER</th><td>JANG MI</td><th>COWORK</th><td>NMG. ARCHITECTS</td></tr>
+      </table>`;
     }
 
-    checkAuth().then(loadData);
+    init();
   </script>
 </body>
 </html>

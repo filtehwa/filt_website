@@ -82,7 +82,7 @@ function ghPut(path, body) {
   });
 }
 
-// --- 외부 URL(아임웹 CDN 등) 버퍼 다운로드 ---
+// --- 외부 URL 버퍼 다운로드 ---
 function fetchBuffer(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
@@ -101,6 +101,7 @@ function fetchBuffer(url) {
 
 // --- HTML 파싱 ---
 function parseHtml(html) {
+  // 1. 이미지 목록
   const imgSection = (html.match(/<div class="img-section">([\s\S]*?)<\/div>/) || [])[1] || '';
   const images = [];
   const imgRe = /<img\s[^>]*src="([^"]*)"[^>]*class="([^"]*)"[^>]*alt="([^"]*)"[^>]*>/g;
@@ -109,31 +110,20 @@ function parseHtml(html) {
     images.push({ src: m[1], class: m[2].trim(), alt: m[3] });
   }
 
+  // 2. 텍스트 영역
   const textContent = (html.match(/<div class="text-content">([\s\S]*?)<\/div>\s*\n?\s*<div class="fixed-table">/) || [])[1] || '';
 
-  const table = {};
-  table.titleEn = (html.match(/class="project-title-en"\s*>([\s\S]*?)<\/div>/) || [])[1]?.trim() || '';
-  table.titleKo = (html.match(/class="project-subtitle"\s*>([\s\S]*?)<\/div>/) || [])[1]?.trim() || '';
-  const rows = [...html.matchAll(/<th>([^<]+)<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)];
-  const keyMap = {
-    'STATUS': 'status', 'YEAR': 'year', 'LOCATION': 'location',
-    'PROGRAM': 'program', 'FLOORS': 'floors', 'TYPE': 'type',
-    'BUILDING AREA': 'buildingArea', 'TOTAL AREA': 'totalArea',
-    'CLIENT': 'client', 'CONSTRUCTION': 'construction',
-    'PHOTOGRAPHER': 'photographer', 'COWORK': 'cowork'
-  };
-  for (const [, th, td] of rows) {
-    const k = keyMap[th.trim()];
-    if (k) table[k] = td.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '').trim();
-  }
+  // 3. 고정 표 전체 HTML
+  const tableHtml = (html.match(/<div class="fixed-table">([\s\S]*?)<\/div>\s*\n?\s*<\/section>/) || [])[1] || '';
 
-  return { images, textContent, table };
+  return { images, textContent, tableHtml };
 }
 
 // --- HTML 재조합 ---
-function rebuildPcHtml(original, { images, textContent, table }) {
+function rebuildPcHtml(original, { images, textContent, tableHtml }) {
   let html = original;
 
+  // 1. img-section 교체
   const imgHtml = images.map(img =>
     `\t<img src="${img.src}" \n\t\t\t  class="${img.class}" alt="${img.alt}"><hr> `
   ).join('\n');
@@ -142,39 +132,27 @@ function rebuildPcHtml(original, { images, textContent, table }) {
     (_, a, __, c) => a + '\n' + imgHtml + '\n  ' + c
   );
 
+  // 2. text-content 교체
   html = html.replace(
     /(<div class="text-content">)([\s\S]*?)(<\/div>\s*\n?\s*<div class="fixed-table">)/,
     (_, a, __, c) => a + textContent + c
   );
 
-  html = html.replace(/(<div class="project-title-en">)[^<]*/, `$1${table.titleEn}`);
-  html = html.replace(/(<div class="project-subtitle">)[^<]*/, `$1${table.titleKo}`);
-  const replace = (th, val) => {
-    const locVal = (val || '').replace(/\n/g, '<br>');
+  // 3. fixed-table 전체 HTML 교체 (동적 항목/제목 수정 반영)
+  if (tableHtml) {
     html = html.replace(
-      new RegExp(`(<th>${th}<\\/th><td[^>]*>)[\\s\\S]*?(<\\/td>)`),
-      (_, a, b) => a + locVal + b
+      /(<div class="fixed-table">)([\s\S]*?)(<\/div>\s*\n?\s*<\/section>)/,
+      (_, a, __, c) => a + '\n' + tableHtml + '\n    ' + c
     );
-  };
-  replace('STATUS', table.status);
-  replace('YEAR', table.year);
-  replace('LOCATION', table.location);
-  replace('PROGRAM', table.program);
-  replace('FLOORS', table.floors);
-  replace('TYPE', table.type);
-  replace('CLIENT', table.client);
-  replace('CONSTRUCTION', table.construction);
-  replace('PHOTOGRAPHER', table.photographer);
-  replace('COWORK', table.cowork);
-  html = html.replace(/(<td id="buildingareaCell">)[^<]*/, `$1${table.buildingArea || ''}`);
-  html = html.replace(/(<td id="totalAreaCell">)[^<]*/, `$1${table.totalArea || ''}`);
+  }
 
   return html;
 }
 
-function rebuildMobileHtml(original, { images, table }) {
+function rebuildMobileHtml(original, { images, tableHtml }) {
   let html = original;
 
+  // 1. img-section 교체
   const imgHtml = images.map(img =>
     `\t<img src="${img.src}" \n\t\t\t  class="${img.class}" alt="${img.alt}"><hr> `
   ).join('\n');
@@ -183,26 +161,13 @@ function rebuildMobileHtml(original, { images, table }) {
     (_, a, __, c) => a + '\n' + imgHtml + '\n  ' + c
   );
 
-  html = html.replace(/(<div class="project-title-en">)[^<]*/, `$1${table.titleEn}`);
-  html = html.replace(/(<div class="project-subtitle">)[^<]*/, `$1${table.titleKo}`);
-  const replace = (th, val) => {
+  // 2. fixed-table 교체
+  if (tableHtml) {
     html = html.replace(
-      new RegExp(`(<th>${th}<\\/th><td[^>]*>)[\\s\\S]*?(<\\/td>)`),
-      (_, a, b) => a + (val || '').replace(/\n/g, '<br>') + b
+      /(<div class="fixed-table">)([\s\S]*?)(<\/div>)/,
+      (_, a, __, c) => a + '\n' + tableHtml + '\n    ' + c
     );
-  };
-  replace('STATUS', table.status);
-  replace('YEAR', table.year);
-  replace('LOCATION', table.location);
-  replace('PROGRAM', table.program);
-  replace('FLOORS', table.floors);
-  replace('TYPE', table.type);
-  replace('CLIENT', table.client);
-  replace('CONSTRUCTION', table.construction);
-  replace('PHOTOGRAPHER', table.photographer);
-  replace('COWORK', table.cowork);
-  html = html.replace(/(<td id="buildingareaCell">)[^<]*/, `$1${table.buildingArea || ''}`);
-  html = html.replace(/(<td id="totalAreaCell">)[^<]*/, `$1${table.totalArea || ''}`);
+  }
 
   return html;
 }
@@ -249,7 +214,7 @@ module.exports = async function handler(req, res) {
       return res.end(JSON.stringify({ error: 'Unauthorized' }));
     }
 
-    // 1. 아임웹 이미지들을 GitHub로 가져오기 (마이그레이션)
+    // 아임웹 이미지 일괄 가져오기
     if (body.action === 'import-imweb-images') {
       try {
         const imageUrls = body.urls || [];
@@ -258,25 +223,19 @@ module.exports = async function handler(req, res) {
         for (const imgUrl of imageUrls) {
           if (!imgUrl.includes('imweb.me')) continue;
           
-          // 파일명 추출 (예: cb1135fa8dcde.jpg)
           const parts = imgUrl.split('/');
           const filename = parts[parts.length - 1];
           const targetPath = `images/tempin/${filename}`;
 
-          // 이미지 다운로드 (아임웹 원본은 건드리지 않음)
           const buffer = await fetchBuffer(imgUrl);
           const base64Content = buffer.toString('base64');
 
-          // 기존 파일 sha 확인 (덮어쓰기 대응)
           let existingSha = null;
           try {
             const check = await ghGet(`/repos/${ENV.owner}/${ENV.repo}/contents/${targetPath}?ref=${ENV.branch}`);
             if (check && check.sha) existingSha = check.sha;
-          } catch (e) {
-            // 없으면 새로 생성
-          }
+          } catch (e) {}
 
-          // GitHub vercel-deploy 브랜치에 저장
           await ghPut(`/repos/${ENV.owner}/${ENV.repo}/contents/${targetPath}`, {
             message: `import: ${filename} from imweb to GitHub`,
             content: base64Content,
@@ -297,7 +256,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 2. 단일 새 이미지 GitHub 직접 업로드
+    // 새 이미지 업로드
     if (body.action === 'upload-image') {
       try {
         const { filename, base64Data } = body;
@@ -324,7 +283,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 3. 템프인 프로젝트 저장 및 Vercel 배포 트리거
+    // 템프인 프로젝트 저장 및 게시 (표 HTML 전체 동적 저장 지원)
     if (body.action === 'save-tempin') {
       try {
         const pcFile = await ghGet(`/repos/${ENV.owner}/${ENV.repo}/contents/tempin-pc.html?ref=${ENV.branch}`);
@@ -337,14 +296,14 @@ module.exports = async function handler(req, res) {
         const newMobile = rebuildMobileHtml(mobileOriginal, body);
 
         await ghPut(`/repos/${ENV.owner}/${ENV.repo}/contents/tempin-pc.html`, {
-          message: 'builder: update tempin-pc.html',
+          message: 'builder: update tempin-pc.html (dynamic table & inline edits)',
           content: Buffer.from(newPc).toString('base64'),
           sha: pcFile.sha,
           branch: ENV.branch
         });
 
         await ghPut(`/repos/${ENV.owner}/${ENV.repo}/contents/tempin-mobile.html`, {
-          message: 'builder: update tempin-mobile.html',
+          message: 'builder: update tempin-mobile.html (dynamic table & inline edits)',
           content: Buffer.from(newMobile).toString('base64'),
           sha: mobileFile.sha,
           branch: ENV.branch
@@ -378,11 +337,7 @@ module.exports = async function handler(req, res) {
         const html = Buffer.from(pcFile.content, 'base64').toString('utf8');
         const parsed = parseHtml(html);
 
-        return res.end(JSON.stringify({
-          ...parsed,
-          pcSha: pcFile.sha,
-          mobileSha: mobileFile.sha
-        }));
+        return res.end(JSON.stringify(parsed));
       } catch (e) {
         res.statusCode = 500;
         return res.end(JSON.stringify({ error: e.message }));
