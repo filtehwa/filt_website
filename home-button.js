@@ -17,7 +17,7 @@
     '  #' + MENU_ROOT_ID + ' .filt-home-button--desktop { display:none; }',
     '  #' + MENU_ROOT_ID + ' .filt-home-button--mobile { display:block; }',
     '}'
-  ].join('\\n');
+  ].join('\n');
 
   function makeButton(id, className) {
     const link = document.createElement('a');
