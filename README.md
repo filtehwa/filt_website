@@ -35,6 +35,8 @@
 - `projects/<프로젝트ID>.json`: 프로젝트별 이미지, 설명, 캡션, 개요표 데이터입니다.
 - `tempin-template-demo.html`: Tempin 데이터를 사용한 단독 미리보기 예시입니다.
 
+이 브랜치는 공통 템플릿과 프로젝트 데이터를 수동으로 관리하는 빌더 없는 버전입니다. 빌더에서 JSON 데이터를 편집하려면 `shared-project-template-builder` 브랜치를 사용하세요.
+
 ### 새 프로젝트 추가하기
 
 1. 프로젝트 ID를 영문 소문자와 하이픈으로 정합니다. 예: `yaein-church-interior`
