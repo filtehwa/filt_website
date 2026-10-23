@@ -70,7 +70,8 @@
     .fixed-table::-webkit-scrollbar { display: none; }
     .img-item-wrapper {
       position: relative;
-      flex: 0 0 100vh;
+      flex: 0 0 calc(100vh - var(--topbar-height));
+      height: calc(100vh - var(--topbar-height));
       width: 100%;
       display: flex;
       align-items: center;
@@ -89,22 +90,31 @@
       border-top: 3px solid var(--accent);
       content: "";
     }
-    .img-item-wrapper img { display: block; max-width: 100%; height: 100%; object-fit: contain; }
+    .img-item-wrapper img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center !important;
+      background: #f5f5f5;
+    }
     .img-item-wrapper img.landscape { width: 100%; object-fit: cover; }
     .img-item-wrapper img.portrait { width: 100%; object-fit: contain; }
+    .img-section.portrait-mode .img-item-wrapper img.landscape { object-fit: contain; }
+    .img-section.portrait-mode .img-item-wrapper img.portrait { object-fit: cover; }
     .img-item-wrapper img.drawing { width: 100%; object-fit: contain; background: #fff; }
-    .img-item-wrapper img[data-fit="contain"] { object-fit: contain !important; }
-    .img-item-wrapper img[data-fit="cover"] { object-fit: cover !important; }
     .img-item-wrapper img[data-rotation="90"],
     .img-item-wrapper img[data-rotation="270"] {
-      width: var(--rotate-width, 100vh);
-      height: var(--rotate-height, 100vw);
+      width: var(--rotate-width, calc(100vh - var(--topbar-height)));
+      height: var(--rotate-height, calc(100vw - var(--panel-width)));
       max-width: none;
-      object-fit: contain;
+      object-fit: contain !important;
     }
     .img-item-wrapper img[data-rotation="90"] { transform: rotate(90deg); }
     .img-item-wrapper img[data-rotation="180"] { transform: rotate(180deg); }
     .img-item-wrapper img[data-rotation="270"] { transform: rotate(270deg); }
+    .img-item-wrapper img[data-fit="contain"] { object-fit: contain !important; }
+    .img-item-wrapper img[data-fit="cover"] { object-fit: cover !important; }
     .img-separator { width: 100%; flex: 0 0 1px; border: 0; border-top: .5px solid #000; margin: 0; }
     .img-overlay {
       position: absolute;
@@ -449,6 +459,7 @@
 
     function renderImages() {
       const gallery = $("#imgSection");
+      updateGalleryImageMode();
       gallery.replaceChildren();
       if (!state.images.length) {
         const empty = document.createElement("div");
@@ -477,10 +488,7 @@
         img.dataset.fit = image.fit;
         img.loading = "lazy";
         img.addEventListener("load", () => {
-          const detectedClass = detectImageClass(image.src, img.naturalWidth, img.naturalHeight);
-          image.class = detectedClass;
-          img.className = detectedClass;
-          label.textContent = `⠿ #${index + 1} ${detectedClass} · ${image.fit.toUpperCase()} · ${image.rotation}°`;
+          label.textContent = `⠿ #${index + 1} ${image.class} · ${image.fit.toUpperCase()} · ${image.rotation}°`;
           updateRotatedImageSize(wrapper, img);
         });
         wrapper.append(img);
@@ -538,6 +546,17 @@
         separator.className = "img-separator";
         gallery.append(separator);
       });
+    }
+
+    function updateGalleryImageMode() {
+      const gallery = $("#imgSection");
+      if (!gallery || !window.innerHeight) return;
+      gallery.classList.toggle("portrait-mode", gallery.clientWidth / window.innerHeight <= 1);
+    }
+
+    window.addEventListener("resize", updateGalleryImageMode);
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(updateGalleryImageMode).observe($("#imgSection"));
     }
 
     document.addEventListener("pointermove", (event) => {
@@ -610,11 +629,14 @@
       notify(`이미지 맞춤을 ${image.fit.toUpperCase()}로 변경했습니다.`);
     }
 
-    function detectImageClass(src, width, height) {
+    async function detectUploadedImageClass(file) {
+      if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name)) return "drawing";
+      const bitmap = await createImageBitmap(file);
       try {
-        if (new URL(src, location.origin).pathname.toLowerCase().endsWith(".svg")) return "drawing";
-      } catch {}
-      return width > height ? "landscape" : "portrait";
+        return bitmap.width > bitmap.height ? "landscape" : "portrait";
+      } finally {
+        bitmap.close();
+      }
     }
 
     function updateRotatedImageSize(wrapper, image) {
@@ -712,8 +734,9 @@
       if (!files.length) return;
       try {
         for (const file of files) {
+          const imageClass = await detectUploadedImageClass(file);
           const src = await uploadImage(file);
-          state.images.push({ src, class: "landscape", alt: file.name });
+          state.images.push({ src, class: imageClass, alt: file.name });
           renderImages();
         }
         notify(`${files.length}개 이미지를 추가했습니다.`);
