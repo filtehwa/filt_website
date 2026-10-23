@@ -360,6 +360,8 @@
 
   <script>
     const API_URL = "/api/builder";
+    const UPLOAD_CHUNK_BYTES = 768 * 1024;
+    const MAX_UPLOAD_BYTES = 90 * 1024 * 1024;
     const state = { images: [], items: [], titleEn: "PROJECT TITLE", titleKo: "" };
     const $ = (selector) => document.querySelector(selector);
     let savedEditorRange = null;
@@ -656,16 +658,48 @@
 
     async function uploadImage(file) {
       if (!file || !file.type.startsWith("image/")) throw new Error("이미지 파일을 선택하세요.");
-      const base64Data = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error("이미지를 읽지 못했습니다."));
-        reader.onload = () => resolve(String(reader.result).split(",")[1]);
-        reader.readAsDataURL(file);
-      });
+      if (!file.size) throw new Error(`${file.name}: 빈 파일은 업로드할 수 없습니다.`);
+      if (file.size > MAX_UPLOAD_BYTES) {
+        throw new Error(`${file.name}: 원본 업로드 한도는 90MB입니다. 파일 크기만 확인해 주세요. 이미지를 자동 축소하지 않습니다.`);
+      }
+
+      const chunkCount = Math.ceil(file.size / UPLOAD_CHUNK_BYTES);
+      const chunkShas = new Array(chunkCount);
+      let nextChunk = 0;
+      let uploadedChunks = 0;
+      const uploadChunk = async () => {
+        while (nextChunk < chunkCount) {
+          const index = nextChunk++;
+          const chunk = file.slice(index * UPLOAD_CHUNK_BYTES, Math.min(file.size, (index + 1) * UPLOAD_CHUNK_BYTES));
+          const base64Data = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error(`${file.name}: ${index + 1}번째 조각을 읽지 못했습니다.`));
+            reader.onload = () => {
+              const encoded = String(reader.result).split(",")[1];
+              if (!encoded) reject(new Error(`${file.name}: ${index + 1}번째 조각 인코딩에 실패했습니다.`));
+              else resolve(encoded);
+            };
+            reader.readAsDataURL(chunk);
+          });
+          const result = await requestJson(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "upload-image-chunk", base64Data })
+          });
+          if (!result.sha) throw new Error(`${file.name}: ${index + 1}번째 조각을 저장하지 못했습니다.`);
+          chunkShas[index] = result.sha;
+          uploadedChunks += 1;
+          if (uploadedChunks % 5 === 0 || uploadedChunks === chunkCount) {
+            notify(`원본 업로드 중: ${file.name} (${uploadedChunks}/${chunkCount})`, 10000);
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(4, chunkCount) }, uploadChunk));
+
       const result = await requestJson(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "upload-image", filename: file.name, base64Data })
+        body: JSON.stringify({ action: "finalize-image-upload", filename: file.name, chunkShas })
       });
       if (!result.url) throw new Error("업로드 응답에 이미지 주소가 없습니다.");
       return result.url;

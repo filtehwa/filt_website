@@ -104,6 +104,45 @@ function ghPut(path, body) {
   });
 }
 
+function ghPost(path, body) {
+  if (!ENV.pat) {
+    return Promise.reject(new Error('GITHUB_PAT 환경변수가 Vercel에 설정되어 있지 않습니다.'));
+  }
+  return new Promise((res, rej) => {
+    const s = JSON.stringify(body);
+    const req = https.request({
+      hostname: 'api.github.com',
+      path,
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${ENV.pat}`,
+        'User-Agent': 'filt-builder/1.0',
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(s)
+      }
+    }, r => {
+      let d = '';
+      r.on('data', c => d += c);
+      r.on('end', () => {
+        try {
+          const parsed = JSON.parse(d);
+          if (r.statusCode >= 400) {
+            return rej(new Error(parsed.message || `GitHub API 오류 (${r.statusCode})`));
+          }
+          res(parsed);
+        } catch (e) {
+          rej(new Error(`GitHub 응답 파싱 실패 (${r.statusCode}): ${d.slice(0, 100)}`));
+        }
+      });
+    });
+    req.on('error', rej);
+    req.write(s);
+    req.end();
+  });
+}
+
 // --- 외부 URL 버퍼 다운로드 ---
 function fetchBuffer(url) {
   return new Promise((resolve, reject) => {
@@ -300,16 +339,71 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 새 이미지 업로드
-    if (body.action === 'upload-image') {
+    // Upload each original byte range as a Git blob to avoid Vercel request-body limits.
+    if (body.action === 'upload-image-chunk') {
       try {
-        const { filename, base64Data } = body;
-        if (!base64Data) {
+        const { base64Data } = body;
+        if (typeof base64Data !== 'string' || !base64Data) {
           res.statusCode = 400;
-          return res.end(JSON.stringify({ error: '이미지 데이터가 없습니다.' }));
+          return res.end(JSON.stringify({ error: '이미지 조각 데이터가 없습니다.' }));
+        }
+        if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64Data)) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({ error: '이미지 조각 형식이 올바르지 않습니다.' }));
+        }
+        if (Buffer.byteLength(base64Data, 'base64') > 786432) {
+          res.statusCode = 413;
+          return res.end(JSON.stringify({ error: '이미지 조각이 너무 큽니다. 다시 시도해 주세요.' }));
         }
 
-        const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        const blob = await ghPost(`/repos/${ENV.owner}/${ENV.repo}/git/blobs`, {
+          content: base64Data,
+          encoding: 'base64'
+        });
+        return res.end(JSON.stringify({ ok: true, sha: blob.sha }));
+      } catch (e) {
+        res.statusCode = 500;
+        return res.end(JSON.stringify({ error: e.message }));
+      }
+    }
+
+    if (body.action === 'finalize-image-upload') {
+      try {
+        const { filename, chunkShas } = body;
+        if (typeof filename !== 'string' || filename.length > 255 || /[\\/]/.test(filename)) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({ error: '이미지 파일명이 올바르지 않습니다.' }));
+        }
+        if (!Array.isArray(chunkShas) || chunkShas.length < 1 || chunkShas.length > 120 ||
+            chunkShas.some(sha => typeof sha !== 'string' || !/^[a-f0-9]{40}$/i.test(sha))) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({ error: '이미지 업로드 조각 목록이 올바르지 않습니다.' }));
+        }
+
+        const blobs = new Array(chunkShas.length);
+        let nextBlob = 0;
+        const readBlobWorker = async () => {
+          while (nextBlob < chunkShas.length) {
+            const index = nextBlob++;
+            const blob = await ghGet(`/repos/${ENV.owner}/${ENV.repo}/git/blobs/${chunkShas[index]}`);
+            if (blob.encoding !== 'base64' || typeof blob.content !== 'string') {
+              throw new Error('GitHub에서 이미지 조각을 읽지 못했습니다.');
+            }
+            blobs[index] = blob.content.replace(/\s/g, '');
+          }
+        };
+        await Promise.all(Array.from({ length: Math.min(8, chunkShas.length) }, readBlobWorker));
+        const base64Data = blobs.join('');
+        if (Buffer.byteLength(base64Data, 'base64') > 90 * 1024 * 1024) {
+          res.statusCode = 413;
+          return res.end(JSON.stringify({ error: '원본 업로드 한도는 90MB입니다.' }));
+        }
+
+        const ext = (filename.split('.').pop() || '').toLowerCase();
+        if (!/^[a-z0-9]{1,10}$/.test(ext)) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({ error: '이미지 파일 확장자를 확인해 주세요.' }));
+        }
         const rand = crypto.randomBytes(4).toString('hex');
         const cleanName = `upload_${Date.now()}_${rand}.${ext}`;
         const targetPath = `images/tempin/${cleanName}`;
