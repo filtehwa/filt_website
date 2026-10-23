@@ -1,163 +1,163 @@
-﻿{
-    "$schema":  "https://openapi.vercel.sh/vercel.json",
-    "rewrites":  [
-                     {
-                         "source":  "/builder",
-                         "destination":  "/builder/index.html"
-                     },
-                     {
-                         "source":  "/builder/",
-                         "destination":  "/builder/index.html"
-                     },
-                     {
-                         "source":  "/",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/home-mobile.html"
-                     },
-                     {
-                         "source":  "/home",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/home-mobile.html"
-                     },
-                     {
-                         "source":  "/office",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/office-mobile.html"
-                     },
-                     {
-                         "source":  "/news",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/news-mobile.html"
-                     },
-                     {
-                         "source":  "/works_list",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/works-list-mobile.html"
-                     },
-                     {
-                         "source":  "/works_gallery",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/works-gallery-mobile.html"
-                     },
-                     {
-                         "source":  "/tempin_office",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/tempin-mobile.html"
-                     },
-                     {
-                         "source":  "/yaeinchurch_healing_center",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/yein-healing-center-mobile.html"
-                     },
-                     {
-                         "source":  "/sejongno_church_annex",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/sejongno-cathedral-mobile.html"
-                     },
-                     {
-                         "source":  "/yeonmujang_SZF",
-                         "has":  [
-                                     {
-                                         "type":  "header",
-                                         "key":  "user-agent",
-                                         "value":  ".*(Android|iPhone|iPad|iPod|Mobile).*"
-                                     }
-                                 ],
-                         "destination":  "/yeonmujang-szf-mobile.html"
-                     },
-                     {
-                         "source":  "/",
-                         "destination":  "/home-pc.html"
-                     },
-                     {
-                         "source":  "/home",
-                         "destination":  "/home-pc.html"
-                     },
-                     {
-                         "source":  "/office",
-                         "destination":  "/office-pc.html"
-                     },
-                     {
-                         "source":  "/news",
-                         "destination":  "/news-pc.html"
-                     },
-                     {
-                         "source":  "/works_list",
-                         "destination":  "/works-list-pc.html"
-                     },
-                     {
-                         "source":  "/works_gallery",
-                         "destination":  "/works-gallery-pc.html"
-                     },
-                     {
-                         "source":  "/tempin_office",
-                         "destination":  "/tempin-pc.html"
-                     },
-                     {
-                         "source":  "/yaeinchurch_healing_center",
-                         "destination":  "/yein-healing-center-pc.html"
-                     },
-                     {
-                         "source":  "/sejongno_church_annex",
-                         "destination":  "/sejongno-cathedral-pc.html"
-                     },
-                     {
-                         "source":  "/yeonmujang_SZF",
-                         "destination":  "/yeonmujang-szf-pc.html"
-                     }
-                 ]
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/builder",
+      "destination": "/builder/index.html"
+    },
+    {
+      "source": "/builder/",
+      "destination": "/builder/index.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/home-mobile.html"
+    },
+    {
+      "source": "/home",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/home-mobile.html"
+    },
+    {
+      "source": "/office",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/office-mobile.html"
+    },
+    {
+      "source": "/news",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/news-mobile.html"
+    },
+    {
+      "source": "/works_list",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/works-list-mobile.html"
+    },
+    {
+      "source": "/works_gallery",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/works-gallery-mobile.html"
+    },
+    {
+      "source": "/tempin_office",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/tempin-mobile.html"
+    },
+    {
+      "source": "/yaeinchurch_healing_center",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/yein-healing-center-mobile.html"
+    },
+    {
+      "source": "/sejongno_church_annex",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/sejongno-cathedral-mobile.html"
+    },
+    {
+      "source": "/yeonmujang_SZF",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Android|iPhone|iPad|iPod|Mobile).*"
+        }
+      ],
+      "destination": "/yeonmujang-szf-mobile.html"
+    },
+    {
+      "source": "/",
+      "destination": "/home-pc.html"
+    },
+    {
+      "source": "/home",
+      "destination": "/home-pc.html"
+    },
+    {
+      "source": "/office",
+      "destination": "/office-pc.html"
+    },
+    {
+      "source": "/news",
+      "destination": "/news-pc.html"
+    },
+    {
+      "source": "/works_list",
+      "destination": "/works-list-pc.html"
+    },
+    {
+      "source": "/works_gallery",
+      "destination": "/works-gallery-pc.html"
+    },
+    {
+      "source": "/tempin_office",
+      "destination": "/tempin-pc.html"
+    },
+    {
+      "source": "/yaeinchurch_healing_center",
+      "destination": "/yein-healing-center-pc.html"
+    },
+    {
+      "source": "/sejongno_church_annex",
+      "destination": "/sejongno-cathedral-pc.html"
+    },
+    {
+      "source": "/yeonmujang_SZF",
+      "destination": "/yeonmujang-szf-pc.html"
+    }
+  ]
 }
