@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FILT Builder</title>
+  <script>
+    fetch('/api/builder?action=check-auth')
+      .then(res => {
+        if (res.ok) {
+          location.replace('/builder/tempin.html');
+        } else {
+          location.replace('/builder/login.html');
+        }
+      })
+      .catch(() => {
+        location.replace('/builder/login.html');
+      });
+  </script>
+</head>
+<body></body>
+</html>

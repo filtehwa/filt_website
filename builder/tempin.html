@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FILT Builder - Tempin Office</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
+  <link rel="stylesheet" href="/builder/style.css">
+  <style>
+    .builder-header {
+      position: sticky; top: 0; background: #fff; border-bottom: 1px solid #000;
+      padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-title { font-size: 16px; font-weight: 700; letter-spacing: 0.08em; }
+    .header-badge {
+      font-size: 11px; padding: 2px 8px; border: 1px solid #000; background: #f6f6f6;
+    }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    
+    .tab-bar {
+      display: flex; border-bottom: 1px solid #000; background: #fafafa;
+    }
+    .tab-item {
+      padding: 14px 28px; font-size: 13px; font-weight: 500; cursor: pointer;
+      border-right: 1px solid #e0e0e0; transition: background 0.2s;
+    }
+    .tab-item.active {
+      background: #000; color: #fff;
+    }
+    
+    .tab-panel { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .tab-panel.active { display: block; }
+    
+    /* 이미지 테이블 리스트 */
+    .img-card {
+      display: grid; grid-template-columns: 36px 60px 140px 1fr 200px 90px;
+      gap: 12px; align-items: center; padding: 10px 12px;
+      border-bottom: 1px solid #eee; background: #fff;
+    }
+    .img-card:hover { background: #fcfcfc; }
+    .img-card .thumb-preview {
+      width: 56px; height: 42px; object-fit: cover; background: #eee; border: 1px solid #ddd;
+    }
+    .img-card input, .img-card select {
+      padding: 6px 8px; border: 1px solid #ccc; font-family: inherit; font-size: 12px;
+    }
+    .img-card select { width: 100%; }
+    .img-controls { display: flex; gap: 4px; }
+    .btn-icon {
+      padding: 4px 8px; border: 1px solid #bbb; background: #fff; cursor: pointer; font-size: 11px;
+    }
+    .btn-icon:hover { border-color: #000; background: #eee; }
+    .btn-icon.del:hover { background: #ffebee; color: #BD005E; border-color: #BD005E; }
+
+    .import-banner {
+      background: #fdf6ec; border: 1px solid #faecd8; padding: 14px 18px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .import-banner-text { font-size: 13px; color: #8a6d3b; }
+    .import-banner-text strong { color: #66512c; }
+
+    /* 표 그리드 */
+    .form-grid {
+      display: grid; grid-template-columns: 180px 1fr; gap: 1px;
+      background: #000; border: 1px solid #000; max-width: 760px;
+    }
+    .form-label {
+      background: #f5f5f5; padding: 10px 14px; font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; letter-spacing: 0.05em;
+    }
+    .form-input-wrap { background: #fff; padding: 6px 10px; }
+    .form-input-wrap input, .form-input-wrap textarea {
+      width: 100%; border: none; font-family: inherit; font-size: 13px; outline: none;
+    }
+
+    /* 본문 텍스트 */
+    .textarea-box {
+      width: 100%; height: 500px; padding: 16px; font-family: monospace;
+      font-size: 13px; line-height: 1.6; border: 1px solid #ccc;
+      box-sizing: border-box; resize: vertical;
+    }
+    
+    .status-toast {
+      position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
+      background: #000; color: #fff; font-size: 13px; border-radius: 4px;
+      display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 바 -->
+  <header class="builder-header">
+    <div class="header-left">
+      <span class="header-title">FILT. BUILDER</span>
+      <span class="header-badge">TEMPIN OFFICE</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="btnPreview" onclick="openPreview()">새 창 미리보기</button>
+      <button class="btn primary" id="btnPublish" onclick="publishProject()">게시 (Vercel 배포)</button>
+      <button class="btn sm" onclick="logout()">로그아웃</button>
+    </div>
+  </header>
+
+  <!-- 탭 네비게이션 -->
+  <nav class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('images')">1. 이미지 관리 (<span id="imgCount">0</span>)</div>
+    <div class="tab-item" onclick="switchTab('table')">2. 프로젝트 개요 표</div>
+    <div class="tab-item" onclick="switchTab('text')">3. 본문 및 설명</div>
+  </nav>
+
+  <!-- 메인 컨텐츠 영역 -->
+  <main>
+    <!-- 탭 1: 이미지 관리 -->
+    <section id="panel-images" class="tab-panel active">
+      <div class="import-banner">
+        <div class="import-banner-text">
+          <strong>아임웹 CDN 이미지 감지:</strong> 아임웹에서 호스팅 중인 이미지를 내 GitHub 저장소(<code>images/tempin/</code>)로 일괄 복사해 독립시킬 수 있습니다.
+        </div>
+        <button class="btn" onclick="importImwebImages()" id="btnImport">GitHub로 일괄 가져오기</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="font-size:14px; margin:0;">이미지 목록 (드래그 순서 or 이동 버튼)</h3>
+        <div style="display:flex; gap:8px;">
+          <input type="file" id="fileUpload" style="display:none;" onchange="handleFileUpload(event)">
+          <button class="btn sm" onclick="document.getElementById('fileUpload').click()">+ 새 이미지 파일 업로드</button>
+          <button class="btn sm" onclick="addNewImageRow()">+ 빈 항목 추가</button>
+        </div>
+      </div>
+
+      <div id="imageListContainer">
+        <!-- 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 탭 2: 프로젝트 개요 표 -->
+    <section id="panel-table" class="tab-panel">
+      <h3 style="font-size:14px; margin-bottom:16px;">우측 하단 프로젝트 개요 표 정보</h3>
+      <div class="form-grid">
+        <div class="form-label">PROJECT NAME (EN)</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-titleEn"></div>
+
+        <div class="form-label">PROJECT NAME (KO)</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-titleKo"></div>
+
+        <div class="form-label">STATUS</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-status"></div>
+
+        <div class="form-label">YEAR</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-year"></div>
+
+        <div class="form-label">LOCATION</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-location"></div>
+
+        <div class="form-label">PROGRAM</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-program"></div>
+
+        <div class="form-label">FLOORS</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-floors"></div>
+
+        <div class="form-label">TYPE</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-type"></div>
+
+        <div class="form-label">BUILDING AREA</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-buildingArea"></div>
+
+        <div class="form-label">TOTAL AREA</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-totalArea"></div>
+
+        <div class="form-label">CLIENT</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-client"></div>
+
+        <div class="form-label">CONSTRUCTION</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-construction"></div>
+
+        <div class="form-label">PHOTOGRAPHER</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-photographer"></div>
+
+        <div class="form-label">COWORK</div>
+        <div class="form-input-wrap"><input type="text" id="tbl-cowork"></div>
+      </div>
+    </section>
+
+    <!-- 탭 3: 본문 및 설명 -->
+    <section id="panel-text" class="tab-panel">
+      <div style="margin-bottom:12px;">
+        <h3 style="font-size:14px; margin:0 0 6px 0;">우측 설명 텍스트 및 인라인 Figure 편집</h3>
+        <p style="font-size:12px; color:#666; margin:0;">HTML 형식으로 유지됩니다. <code>&lt;br&gt;&lt;br&gt;</code> 단락 구분 및 <code>&lt;figure class="side-figure"&gt;</code> 이미지를 포함합니다.</p>
+      </div>
+      <textarea id="textContentEditor" class="textarea-box"></textarea>
+    </section>
+  </main>
+
+  <div id="toast" class="status-toast"></div>
+
+  <script>
+    let currentData = {
+      images: [],
+      textContent: '',
+      table: {}
+    };
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/builder?action=check-auth');
+        if (!res.ok) {
+          location.href = '/builder/login.html';
+        }
+      } catch (e) {
+        location.href = '/builder/login.html';
+      }
+    }
+
+    async function loadData() {
+      showToast('데이터 불러오는 중...');
+      try {
+        const res = await fetch('/api/builder?action=get-tempin');
+        if (!res.ok) throw new Error('불러오기 실패');
+        currentData = await res.json();
+        renderAll();
+        showToast('로딩 완료', 1500);
+      } catch (e) {
+        showToast('오류: ' + e.message, 3000);
+      }
+    }
+
+    function renderAll() {
+      // 1. 이미지 렌더링
+      const container = document.getElementById('imageListContainer');
+      document.getElementById('imgCount').textContent = currentData.images.length;
+      container.innerHTML = '';
+
+      currentData.images.forEach((img, idx) => {
+        const row = document.createElement('div');
+        row.className = 'img-card';
+        row.innerHTML = `
+          <div style="font-weight:600; font-size:11px; color:#888;">#${idx + 1}</div>
+          <img src="${img.src}" class="thumb-preview" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'56\\' height=\\'42\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23eee\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'10\\' fill=\\'%23999\\'>No Img</text></svg>'">
+          <div>
+            <select onchange="updateImg(${idx}, 'class', this.value)">
+              <option value="portrait" ${img.class === 'portrait' ? 'selected' : ''}>portrait (세로)</option>
+              <option value="landscape" ${img.class === 'landscape' ? 'selected' : ''}>landscape (가로)</option>
+              <option value="drawing" ${img.class === 'drawing' ? 'selected' : ''}>drawing (도면)</option>
+            </select>
+          </div>
+          <div>
+            <input type="text" value="${escapeHtml(img.src)}" placeholder="이미지 주소 (URL)" onchange="updateImg(${idx}, 'src', this.value)">
+          </div>
+          <div>
+            <input type="text" value="${escapeHtml(img.alt)}" placeholder="설명 (Alt text)" onchange="updateImg(${idx}, 'alt', this.value)">
+          </div>
+          <div class="img-controls">
+            <button class="btn-icon" onclick="moveImg(${idx}, -1)" title="위로">▲</button>
+            <button class="btn-icon" onclick="moveImg(${idx}, 1)" title="아래로">▼</button>
+            <button class="btn-icon del" onclick="deleteImg(${idx})" title="삭제">✕</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      // 2. 표 렌더링
+      const t = currentData.table || {};
+      document.getElementById('tbl-titleEn').value = t.titleEn || '';
+      document.getElementById('tbl-titleKo').value = t.titleKo || '';
+      document.getElementById('tbl-status').value = t.status || '';
+      document.getElementById('tbl-year').value = t.year || '';
+      document.getElementById('tbl-location').value = t.location || '';
+      document.getElementById('tbl-program').value = t.program || '';
+      document.getElementById('tbl-floors').value = t.floors || '';
+      document.getElementById('tbl-type').value = t.type || '';
+      document.getElementById('tbl-buildingArea').value = t.buildingArea || '';
+      document.getElementById('tbl-totalArea').value = t.totalArea || '';
+      document.getElementById('tbl-client').value = t.client || '';
+      document.getElementById('tbl-construction').value = t.construction || '';
+      document.getElementById('tbl-photographer').value = t.photographer || '';
+      document.getElementById('tbl-cowork').value = t.cowork || '';
+
+      // 3. 본문 텍스트
+      document.getElementById('textContentEditor').value = currentData.textContent || '';
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+
+      if (name === 'images') {
+        document.querySelectorAll('.tab-item')[0].classList.add('active');
+        document.getElementById('panel-images').classList.add('active');
+      } else if (name === 'table') {
+        document.querySelectorAll('.tab-item')[1].classList.add('active');
+        document.getElementById('panel-table').classList.add('active');
+      } else if (name === 'text') {
+        document.querySelectorAll('.tab-item')[2].classList.add('active');
+        document.getElementById('panel-text').classList.add('active');
+      }
+    }
+
+    function updateImg(idx, key, val) {
+      currentData.images[idx][key] = val;
+      if (key === 'src') renderAll();
+    }
+
+    function moveImg(idx, dir) {
+      const target = idx + dir;
+      if (target < 0 || target >= currentData.images.length) return;
+      const tmp = currentData.images[idx];
+      currentData.images[idx] = currentData.images[target];
+      currentData.images[target] = tmp;
+      renderAll();
+    }
+
+    function deleteImg(idx) {
+      if (!confirm('이 이미지를 삭제하시겠습니까?')) return;
+      currentData.images.splice(idx, 1);
+      renderAll();
+    }
+
+    function addNewImageRow() {
+      currentData.images.push({
+        src: '',
+        class: 'landscape',
+        alt: '#Tempin Image'
+      });
+      renderAll();
+    }
+
+    // 아임웹 이미지 일괄 가져오기
+    async function importImwebImages() {
+      const imwebUrls = currentData.images
+        .map(i => i.src)
+        .filter(s => s && s.includes('imweb.me'));
+
+      if (imwebUrls.length === 0) {
+        alert('가져올 아임웹 CDN 이미지가 없습니다.');
+        return;
+      }
+
+      if (!confirm(`총 ${imwebUrls.length}개의 아임웹 이미지를 GitHub 저장소(/images/tempin/)로 다운로드하여 이전합니다. 계속하시겠습니까?`)) {
+        return;
+      }
+
+      showToast('아임웹 이미지 가져오는 중... (잠시만 기다려주세요)');
+      try {
+        const res = await fetch('/api/builder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'import-imweb-images',
+            urls: imwebUrls
+          })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          // 매핑된 URL로 현재 이미지 목록 교체
+          const map = {};
+          result.mapped.forEach(m => map[m.original] = m.newUrl);
+          currentData.images.forEach(img => {
+            if (map[img.src]) img.src = map[img.src];
+          });
+          renderAll();
+          showToast(`완료! ${result.count}개 이미지가 GitHub로 안전하게 복사되었습니다.`, 4000);
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e) {
+        showToast('가져오기 실패: ' + e.message, 4000);
+      }
+    }
+
+    // 새 파일 로컬에서 직접 업로드
+    async function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      showToast('이미지 업로드 중...');
+      reader.onload = async () => {
+        const base64Data = reader.result.split(',')[1];
+        try {
+          const res = await fetch('/api/builder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'upload-image',
+              filename: file.name,
+              base64Data
+            })
+          });
+          const result = await res.json();
+          if (result.ok) {
+            currentData.images.push({
+              src: result.url,
+              class: 'landscape',
+              alt: file.name
+            });
+            renderAll();
+            showToast('업로드 완료 및 목록에 추가되었습니다!', 3000);
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (err) {
+          showToast('업로드 오류: ' + err.message, 3000);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function collectFormData() {
+      return {
+        images: currentData.images,
+        textContent: document.getElementById('textContentEditor').value,
+        table: {
+          titleEn: document.getElementById('tbl-titleEn').value,
+          titleKo: document.getElementById('tbl-titleKo').value,
+          status: document.getElementById('tbl-status').value,
+          year: document.getElementById('tbl-year').value,
+          location: document.getElementById('tbl-location').value,
+          program: document.getElementById('tbl-program').value,
+          floors: document.getElementById('tbl-floors').value,
+          type: document.getElementById('tbl-type').value,
+          buildingArea: document.getElementById('tbl-buildingArea').value,
+          totalArea: document.getElementById('tbl-totalArea').value,
+          client: document.getElementById('tbl-client').value,
+          construction: document.getElementById('tbl-construction').value,
+          photographer: document.getElementById('tbl-photographer').value,
+          cowork: document.getElementById('tbl-cowork').value
+        }
+      };
+    }
+
+    async function publishProject() {
+      if (!confirm('Tempin 상세 페이지를 vercel-deploy 브랜치에 저장하고 Vercel에 배포하시겠습니까?')) {
+        return;
+      }
+
+      const payload = collectFormData();
+      payload.action = 'save-tempin';
+
+      showToast('GitHub에 커밋 및 배포 트리거 중...');
+      try {
+        const res = await fetch('/api/builder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.ok) {
+          showToast('게시 완료! 약 30~50초 후 사이트에 반영됩니다.', 5000);
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e) {
+        showToast('게시 실패: ' + e.message, 4000);
+      }
+    }
+
+    function openPreview() {
+      window.open('/tempin_office', '_blank');
+    }
+
+    async function logout() {
+      await fetch('/api/builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' })
+      });
+      location.href = '/builder/login.html';
+    }
+
+    function showToast(msg, duration = 2500) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      clearTimeout(window._toastTimer);
+      if (duration > 0) {
+        window._toastTimer = setTimeout(() => {
+          t.style.display = 'none';
+        }, duration);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    checkAuth().then(loadData);
+  </script>
+</body>
+</html>
