@@ -93,6 +93,8 @@
     .img-item-wrapper img.landscape { width: 100%; object-fit: cover; }
     .img-item-wrapper img.portrait { width: 100%; object-fit: contain; }
     .img-item-wrapper img.drawing { width: 100%; object-fit: contain; background: #fff; }
+    .img-item-wrapper img[data-fit="contain"] { object-fit: contain !important; }
+    .img-item-wrapper img[data-fit="cover"] { object-fit: cover !important; }
     .img-item-wrapper img[data-rotation="90"],
     .img-item-wrapper img[data-rotation="270"] {
       width: var(--rotate-width, 100vh);
@@ -468,13 +470,15 @@
         img.alt = image.alt || "";
         img.className = image.class || "landscape";
         image.rotation = normalizeRotation(image.rotation);
+        image.fit = normalizeFit(image.fit);
         img.dataset.rotation = String(image.rotation);
+        img.dataset.fit = image.fit;
         img.loading = "lazy";
         img.addEventListener("load", () => {
           const detectedClass = detectImageClass(image.src, img.naturalWidth, img.naturalHeight);
           image.class = detectedClass;
           img.className = detectedClass;
-          label.textContent = `#${index + 1} ${detectedClass} · ${image.rotation}°`;
+          label.textContent = `⠿ #${index + 1} ${detectedClass} · ${image.fit.toUpperCase()} · ${image.rotation}°`;
           updateRotatedImageSize(wrapper, img);
         });
         wrapper.append(img);
@@ -484,7 +488,7 @@
         const label = document.createElement("span");
         label.className = "drag-handle";
         label.title = "이미지를 드래그해 순서를 바꾸세요";
-        label.textContent = `⠿ #${index + 1} ${img.className} · ${image.rotation}°`;
+        label.textContent = `⠿ #${index + 1} ${img.className} · ${image.fit.toUpperCase()} · ${image.rotation}°`;
         label.tabIndex = 0;
         label.setAttribute("role", "button");
         label.setAttribute("aria-label", `이미지 ${index + 1}번을 끌어서 순서 변경`);
@@ -512,6 +516,7 @@
         });
         controls.append(label);
         [
+          ["맞춤: " + image.fit.toUpperCase(), () => cycleImageFit(image)],
           ["회전", () => rotateImage(image)],
           ["URL", () => changeImageUrl(index)],
           ["삭제", () => deleteImage(index)]
@@ -590,6 +595,17 @@
     function normalizeRotation(rotation) {
       const degrees = Number(rotation);
       return [0, 90, 180, 270].includes(degrees) ? degrees : 0;
+    }
+
+    function normalizeFit(fit) {
+      return ["auto", "contain", "cover"].includes(fit) ? fit : "auto";
+    }
+
+    function cycleImageFit(image) {
+      const fits = ["auto", "contain", "cover"];
+      image.fit = fits[(fits.indexOf(normalizeFit(image.fit)) + 1) % fits.length];
+      renderImages();
+      notify(`이미지 맞춤을 ${image.fit.toUpperCase()}로 변경했습니다.`);
     }
 
     function detectImageClass(src, width, height) {

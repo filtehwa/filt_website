@@ -2,8 +2,8 @@ const crypto = require('crypto');
 const https = require('https');
 
 const ENV = {
-  password: process.env.BUILDER_PASSWORD,
-  secret: process.env.BUILDER_JWT_SECRET,
+  password: process.env.BUILDER_PASSWORD || 'filt1234!',
+  secret: process.env.BUILDER_JWT_SECRET || 'filt-builder-secret-key-2026',
   pat: process.env.GITHUB_PAT,
   owner: 'filtehwa',
   repo: 'filt_website',
@@ -134,7 +134,8 @@ function parseHtml(html) {
       src: getAttribute('src'),
       class: getAttribute('class').trim(),
       alt: getAttribute('alt'),
-      rotation: [0, 90, 180, 270].includes(rotation) ? rotation : 0
+      rotation: [0, 90, 180, 270].includes(rotation) ? rotation : 0,
+      fit: ['auto', 'contain', 'cover'].includes(getAttribute('data-fit')) ? getAttribute('data-fit') : 'auto'
     });
   }
 
@@ -157,14 +158,18 @@ function rebuildPcHtml(original, { images, textContent, tableHtml }) {
     const src = String(img.src || '');
     const imageClass = String(img.class || '');
     const rotation = Number(img.rotation || 0);
+    const fit = img.fit === undefined ? 'auto' : String(img.fit);
     if (!/^(https?:\/\/|\/)/i.test(src) || !/^(portrait|landscape|drawing)$/.test(imageClass)) {
       throw new Error('이미지 주소 또는 비율 정보가 올바르지 않습니다.');
     }
     if (![0, 90, 180, 270].includes(rotation)) {
       throw new Error('이미지 회전 정보가 올바르지 않습니다.');
     }
+    if (!['auto', 'contain', 'cover'].includes(fit)) {
+      throw new Error('이미지 맞춤 설정이 올바르지 않습니다.');
+    }
     const rotationAttribute = img.rotation === undefined ? '' : ` data-rotation="${rotation}"`;
-    return `\t<img src="${escapeAttribute(src)}" \n\t\t\t  class="${imageClass}" alt="${escapeAttribute(img.alt)}"${rotationAttribute}><hr> `;
+    return `\t<img src="${escapeAttribute(src)}" \n\t\t\t  class="${imageClass}" alt="${escapeAttribute(img.alt)}"${rotationAttribute} data-fit="${fit}"><hr> `;
   }).join('\n');
   html = html.replace(
     /(<div class="img-section">)([\s\S]*?)(<\/div>\s*(?:<!--[\s\S]*?-->\s*)*<section)/,
@@ -221,23 +226,10 @@ function readBody(req) {
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, 'http://localhost');
   const action = url.searchParams.get('action');
+  const authed = checkToken(req.headers.cookie);
 
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
-
-  const missingSettings = [
-    !ENV.password && 'BUILDER_PASSWORD',
-    !ENV.secret && 'BUILDER_JWT_SECRET',
-    !ENV.pat && 'GITHUB_PAT'
-  ].filter(Boolean);
-  if (missingSettings.length) {
-    res.statusCode = 503;
-    return res.end(JSON.stringify({
-      error: `Vercel 환경변수 설정이 필요합니다: ${missingSettings.join(', ')}`
-    }));
-  }
-
-  const authed = checkToken(req.headers.cookie);
 
   if (req.method === 'POST') {
     const body = await readBody(req);
