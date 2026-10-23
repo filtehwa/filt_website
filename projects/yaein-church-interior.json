@@ -6,19 +6,41 @@
     "subtitle": "예인교회 본당 인테리어",
     "fields": [
       { "label": "STATUS", "value": "BUILT" },
-      { "label": "YEAR", "value": "2025" },
-      { "label": "LOCATION", "value": "SEOUL, SOUTH KOREA" },
+      { "label": "YEAR", "value": "2026" },
+      { "label": "LOCATION", "value": "SUWON, SOUTH KOREA" },
       { "label": "PROGRAM", "value": "CHURCH" }
     ]
   },
   "images": [
-    {
-      "src": "이미지의_직접_URL",
+     {
+      "src": "https://raw.githubusercontent.com/filtehwa/filt_website/vercel-deploy/images/261001%20%ED%95%84%ED%8A%B8%20%EC%88%98%EC%9B%90%20%EC%98%88%EC%9D%B8%EA%B5%90%ED%9A%8C%20%EC%85%80%EB%A0%89%EC%9A%A9-119.jpg"
       "class": "landscape",
-      "alt": "예인교회 본당",
+      "alt": "회합실 문 디테일",
+      "fit": "auto",
+      "rotation": 0
+    },
+      {
+      "src": "https://raw.githubusercontent.com/filtehwa/filt_website/vercel-deploy/images/261001%20%ED%95%84%ED%8A%B8%20%EC%88%98%EC%9B%90%20%EC%98%88%EC%9D%B8%EA%B5%90%ED%9A%8C%20%EC%85%80%EB%A0%89%EC%9A%A9-18.jpg"
+      "class": "landscape",
+      "alt": "3f",
+      "fit": "auto",
+      "rotation": 0
+    },
+      {
+      "src": "https://raw.githubusercontent.com/filtehwa/filt_website/vercel-deploy/images/261001%20%ED%95%84%ED%8A%B8%20%EC%88%98%EC%9B%90%20%EC%98%88%EC%9D%B8%EA%B5%90%ED%9A%8C%20%EC%85%80%EB%A0%89%EC%9A%A9-2.jpg"
+      "class": "landscape",
+      "alt": "3f",
+      "fit": "auto",
+      "rotation": 0
+    },
+      {
+      "src": "https://raw.githubusercontent.com/filtehwa/filt_website/vercel-deploy/images/261001%20%ED%95%84%ED%8A%B8%20%EC%88%98%EC%9B%90%20%EC%98%88%EC%9D%B8%EA%B5%90%ED%9A%8C%20%EC%85%80%EB%A0%89%EC%9A%A9-30.jpg"
+      "class": "portrait",
+      "alt": "strcs2",
       "fit": "auto",
       "rotation": 0
     }
+    
   ],
-  "descriptionHtml": "프로젝트 설명을 여기에 입력하세요."
+  "descriptionHtml": "예인교회 본당 1층에서 4층 현관을 대상으로 한 리모델링 프로젝트,<br><br><figure class=\"side-figure\"><img class=\"side-single-img\" src=\"https://raw.githubusercontent.com/filtehwa/filt_website/vercel-deploy/images/261001%20%ED%95%84%ED%8A%B8%20%EC%88%98%EC%9B%90%20%EC%98%88%EC%9D%B8%EA%B5%90%ED%9A%8C%20%EC%85%80%EB%A0%89%EC%9A%A9-42.jpg\" alt=\"예인교회 본당 공사 전 모습\"><figcaption class=\"side-caption\">공사 전 본당 모습</figcaption></figure><br><br>이미지 뒤에 이어질 설명을 입력하세요"
 }
