@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FILT. Builder | Test Page Editor</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css">
+  <style>
+    :root {
+      --accent: #bd005e;
+      --panel-width: clamp(300px, 28vw, 430px);
+      --topbar-height: 48px;
+      --table-height: 210px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      color: #000;
+      background: #fff;
+      font: 300 12px/1.8 "SUIT", "Pretendard Variable", "Noto Sans KR", sans-serif;
+      letter-spacing: .3px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .builder-topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 10000;
+      height: var(--topbar-height);
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #fff;
+      background: #111;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .brand strong { font-size: 12px; letter-spacing: .12em; }
+    .brand span { color: #aaa; font-size: 11px; }
+    .topbar-actions { display: flex; align-items: center; gap: 7px; }
+    .top-btn, .tool-btn {
+      border: 1px solid #555;
+      color: #fff;
+      background: #252525;
+      padding: 6px 10px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .top-btn:hover, .tool-btn:hover { background: #444; }
+    .top-btn.primary { border-color: var(--accent); background: var(--accent); }
+    .top-btn.primary:hover { background: #d6006b; }
+    .top-btn:disabled { opacity: .55; cursor: wait; }
+
+    .page-container { position: absolute; inset: var(--topbar-height) 0 0; overflow: hidden; }
+    .img-section {
+      position: absolute;
+      inset: 0 var(--panel-width) 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: auto;
+      background: #fff;
+      scrollbar-width: none;
+    }
+    .img-section::-webkit-scrollbar, .text-content::-webkit-scrollbar,
+    .fixed-table::-webkit-scrollbar { display: none; }
+    .img-item-wrapper {
+      position: relative;
+      flex: 0 0 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      cursor: grab;
+    }
+    .img-item-wrapper.is-dragging { opacity: .45; }
+    #imgSection.is-reordering { scroll-snap-type: none; }
+    .img-item-wrapper.is-drag-over::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      border-top: 3px solid var(--accent);
+      content: "";
+    }
+    .img-item-wrapper img { display: block; max-width: 100%; height: 100%; object-fit: contain; }
+    .img-item-wrapper img.landscape { width: 100%; object-fit: cover; }
+    .img-item-wrapper img.portrait { width: 100%; object-fit: contain; }
+    .img-item-wrapper img.drawing { width: 100%; object-fit: contain; background: #fff; }
+    .img-item-wrapper img[data-rotation="90"],
+    .img-item-wrapper img[data-rotation="270"] {
+      width: var(--rotate-width, 100vh);
+      height: var(--rotate-height, 100vw);
+      max-width: none;
+      object-fit: contain;
+    }
+    .img-item-wrapper img[data-rotation="90"] { transform: rotate(90deg); }
+    .img-item-wrapper img[data-rotation="180"] { transform: rotate(180deg); }
+    .img-item-wrapper img[data-rotation="270"] { transform: rotate(270deg); }
+    .img-separator { width: 100%; flex: 0 0 1px; border: 0; border-top: .5px solid #000; margin: 0; }
+    .img-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      padding: 7px;
+      color: #fff;
+      background: rgba(0, 0, 0, .84);
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .img-item-wrapper:hover .img-overlay, .img-item-wrapper:focus-within .img-overlay { opacity: 1; }
+    .img-overlay span { padding: 0 4px; color: #ddd; }
+    .img-overlay .drag-handle { cursor: grab; touch-action: none; user-select: none; }
+    .img-overlay button {
+      border: 1px solid #666;
+      padding: 3px 6px;
+      color: #fff;
+      background: #333;
+    }
+    .img-overlay button:hover { background: #555; }
+    .img-overlay .delete-btn { border-color: #a33; background: #7c1111; }
+    .empty-gallery {
+      width: 100%;
+      min-height: 100%;
+      display: grid;
+      place-content: center;
+      gap: 8px;
+      text-align: center;
+      color: #777;
+      background: #f7f7f7;
+    }
+    .empty-gallery strong { color: #222; font-size: 16px; }
+    .gallery-add { color: #111; border: 1px solid #111; background: #fff; padding: 8px 14px; }
+
+    .side-section {
+      position: fixed;
+      top: var(--topbar-height);
+      right: 0;
+      bottom: 0;
+      width: var(--panel-width);
+      border-left: .5px solid #000;
+      background: #fff;
+    }
+    .text-content {
+      position: absolute;
+      inset: 0 0 calc(var(--table-height) + 34px);
+      overflow: auto;
+      padding: 42px 16px 18px;
+      border-bottom: .5px solid #000;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .text-content:empty::before {
+      content: "여기에 프로젝트 설명을 작성하세요.";
+      color: #888;
+      pointer-events: none;
+    }
+    .text-content:focus { outline: none; }
+    .text-content p { margin: 0 0 1em; }
+    .text-content figure { margin: 14px 0 18px; padding: 0 8px; }
+    .text-content .side-single-img { display: block; width: min(300px, 100%); height: auto; object-fit: contain; }
+    .text-content figcaption { margin-top: 6px; font-size: 9px; line-height: 1.4; color: #555; }
+    .text-content figure:focus-within { outline: 1px dashed var(--accent); }
+    .text-tools {
+      position: absolute;
+      inset: 0 0 auto;
+      min-height: 34px;
+      z-index: 3;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #f5f5f5;
+      border-bottom: .5px solid #aaa;
+    }
+    .tool-btn {
+      padding: 4px 7px;
+      color: #222;
+      background: #fff;
+      border-color: #bbb;
+      font-size: 11px;
+    }
+    .tool-btn:hover { background: #eee; }
+    .tool-separator { height: 20px; margin: 0 2px; border-left: 1px solid #ccc; }
+
+    .table-ctrl-bar {
+      position: absolute;
+      inset: auto 0 var(--table-height);
+      height: 34px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: .5px solid #000;
+      background: #f7f7f7;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+    .table-ctrl-bar button {
+      border: 1px solid #999;
+      padding: 3px 8px;
+      background: #fff;
+    }
+    .table-ctrl-bar button:hover { border-color: #000; }
+    .fixed-table {
+      position: absolute;
+      inset: auto 0 0;
+      height: var(--table-height);
+      overflow: auto;
+      background: #fff;
+    }
+    .fixed-table table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .fixed-table th, .fixed-table td {
+      position: relative;
+      height: 35px;
+      padding: 3px 5px;
+      border-bottom: .5px solid #000;
+      font-size: 10px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .fixed-table th { text-align: left; vertical-align: top; font-weight: 700; }
+    .fixed-table td { text-align: right; vertical-align: bottom; font-weight: 400; border-right: .5px solid #000; }
+    .fixed-table .project-title-cell {
+      height: 70px;
+      padding-top: 5px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .project-title-en { font-size: 14px; line-height: 1.3; font-weight: 700; }
+    .project-subtitle { display: block; margin-top: 2px; font-size: 12px; }
+    .table-edit { outline: none; min-height: 1em; white-space: pre-line; }
+    .table-edit:focus { background: #fff5fa; box-shadow: 0 0 0 1px var(--accent); }
+    .item-delete {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      border: 1px solid var(--accent);
+      padding: 0 3px;
+      color: var(--accent);
+      background: #fff;
+      font-size: 9px;
+      line-height: 1.2;
+      opacity: 0;
+    }
+    tr:hover .item-delete, .item-delete:focus { opacity: 1; }
+    .toast {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 20000;
+      max-width: min(520px, calc(100vw - 32px));
+      padding: 10px 14px;
+      color: #fff;
+      background: rgba(0, 0, 0, .9);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s;
+    }
+    .toast.visible { opacity: 1; }
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 30000;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, .62);
+    }
+    .login-screen.visible { display: grid; }
+    .login-card { width: min(360px, 100%); padding: 24px; background: #fff; }
+    .login-card h1 { margin: 0 0 12px; font-size: 16px; }
+    .login-card p { color: #666; }
+    .login-card input { width: 100%; padding: 10px; border: 1px solid #999; }
+    .login-card button { width: 100%; margin-top: 8px; padding: 10px; color: #fff; border: 0; background: var(--accent); }
+    .login-error { min-height: 20px; color: #b00020; }
+    input[type="file"] { display: none; }
+
+    @media (max-width: 720px) {
+      :root { --panel-width: min(48vw, 360px); --table-height: 190px; }
+      .builder-topbar { padding: 0 8px; }
+      .brand span { display: none; }
+      .topbar-actions { gap: 4px; }
+      .top-btn { padding: 6px; font-size: 10px; }
+      .text-content { padding-right: 10px; padding-left: 10px; }
+      .img-overlay { opacity: 1; }
+    }
+    @media (max-width: 480px) {
+      .builder-topbar { height: auto; min-height: var(--topbar-height); align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; padding: 6px 8px; }
+      .topbar-actions { width: 100%; overflow-x: auto; }
+      .page-container { top: 72px; }
+      .side-section { top: 72px; width: 48vw; }
+      .img-section { right: 48vw; }
+      .text-tools { padding: 3px; }
+      .tool-btn { padding: 3px 4px; font-size: 10px; }
+      .text-content { font-size: 11px; }
+      .fixed-table th, .fixed-table td { padding: 2px; font-size: 8px; }
+      .item-delete { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="builder-topbar">
+    <div class="brand"><strong>FILT. BUILDER</strong><span>TEST-PAGE EDITOR</span></div>
+    <div class="topbar-actions">
+      <input id="mainImageFiles" type="file" accept="image/*" multiple>
+      <input id="sideImageFile" type="file" accept="image/*">
+      <button class="top-btn" id="addMainImage">+ 이미지 추가</button>
+      <button class="top-btn" id="addImageByUrl">이미지 URL</button>
+      <button class="top-btn primary" id="publishButton">저장 / 게시</button>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <div class="img-section" id="imgSection" aria-label="프로젝트 이미지"></div>
+    <section class="side-section" aria-label="프로젝트 정보 편집">
+      <div class="text-tools" aria-label="본문 서식 도구">
+        <button type="button" class="tool-btn" data-command="bold" title="굵게"><strong>B</strong></button>
+        <button type="button" class="tool-btn" data-command="italic" title="기울임"><em>I</em></button>
+        <button type="button" class="tool-btn" data-command="underline" title="밑줄"><u>U</u></button>
+        <span class="tool-separator"></span>
+        <button type="button" class="tool-btn" data-command="insertUnorderedList" title="글머리 기호">• 목록</button>
+        <button type="button" class="tool-btn" id="insertParagraph">문단</button>
+        <span class="tool-separator"></span>
+        <button type="button" class="tool-btn" id="addSideImage">보조 이미지 + 캡션</button>
+      </div>
+      <div class="text-content" id="textContent" contenteditable="true" spellcheck="false" aria-label="프로젝트 설명을 작성하세요"></div>
+      <div class="table-ctrl-bar">
+        <span>PROJECT OVERVIEW</span>
+        <button type="button" id="addOverviewItem">+ 항목 추가</button>
+      </div>
+      <div class="fixed-table" id="fixedTable"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <section class="login-screen" id="loginScreen" aria-label="빌더 로그인">
+    <form class="login-card" id="loginForm">
+      <h1>FILT. BUILDER</h1>
+      <p>편집을 계속하려면 빌더 비밀번호를 입력하세요.</p>
+      <input id="passwordInput" type="password" autocomplete="current-password" placeholder="비밀번호" required>
+      <div class="login-error" id="loginError"></div>
+      <button type="submit">로그인</button>
+    </form>
+  </section>
+
+  <script>
+    const API_URL = "/api/builder";
+    const state = { images: [], items: [], titleEn: "PROJECT TITLE", titleKo: "" };
+    const $ = (selector) => document.querySelector(selector);
+    let savedEditorRange = null;
+    let pointerDrag = null;
+    let dragScrollTimer = null;
+    let dragScrollDirection = 0;
+
+    function notify(message, duration = 3200) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      clearTimeout(notify.timer);
+      notify.timer = setTimeout(() => toast.classList.remove("visible"), duration);
+    }
+
+    async function requestJson(url, options) {
+      const response = await fetch(url, options);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || `요청 실패 (${response.status})`);
+      return result;
+    }
+
+    async function checkLogin() {
+      try {
+        await requestJson(`${API_URL}?action=check-auth`);
+        await loadProject();
+      } catch (error) {
+        if (error.message.includes("401") || error.message.includes("Unauthorized")) {
+          $("#loginScreen").classList.add("visible");
+          $("#passwordInput").focus();
+          return;
+        }
+        notify(`초기화 실패: ${error.message}`, 6000);
+      }
+    }
+
+    $("#loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const errorBox = $("#loginError");
+      errorBox.textContent = "";
+      try {
+        await requestJson(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "login", password: $("#passwordInput").value })
+        });
+        $("#loginScreen").classList.remove("visible");
+        await loadProject();
+      } catch (error) {
+        errorBox.textContent = error.message;
+      }
+    });
+
+    async function loadProject() {
+      const data = await requestJson(`${API_URL}?action=get-test-pc`);
+      state.images = Array.isArray(data.images) ? data.images : [];
+      $("#textContent").innerHTML = data.textContent || "";
+      parseOverview(data.tableHtml || "");
+      renderImages();
+      renderOverview();
+    }
+
+    function parseOverview(tableHtml) {
+      const doc = new DOMParser().parseFromString(tableHtml, "text/html");
+      const table = doc.querySelector("table");
+      state.items = [];
+      state.titleEn = table?.querySelector(".project-title-en")?.textContent.trim() || "PROJECT TITLE";
+      state.titleKo = table?.querySelector(".project-subtitle")?.textContent.trim() || "";
+      if (!table) return;
+
+      table.querySelectorAll("tr").forEach((row) => {
+        const cells = Array.from(row.children);
+        cells.forEach((cell, index) => {
+          if (cell.tagName !== "TH") return;
+          const valueCell = cells.slice(index + 1).find((candidate) => candidate.tagName === "TD");
+          if (!valueCell || valueCell.classList.contains("project-title-cell")) return;
+          const label = cell.textContent.trim();
+          const valueCopy = valueCell.cloneNode(true);
+          valueCopy.querySelectorAll("br").forEach((lineBreak) => lineBreak.replaceWith(document.createTextNode("\n")));
+          const value = valueCopy.textContent.trim();
+          if (label || value) state.items.push({ label, value });
+        });
+      });
+    }
+
+    function renderImages() {
+      const gallery = $("#imgSection");
+      gallery.replaceChildren();
+      if (!state.images.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-gallery";
+        empty.innerHTML = "<strong>프로젝트 이미지가 없습니다.</strong><span>이미지를 추가하면 이 영역에 순서대로 표시됩니다.</span>";
+        const add = document.createElement("button");
+        add.type = "button";
+        add.className = "gallery-add";
+        add.textContent = "+ 이미지 추가";
+        add.addEventListener("click", () => $("#mainImageFiles").click());
+        empty.append(add);
+        gallery.append(empty);
+        return;
+      }
+
+      state.images.forEach((image, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "img-item-wrapper";
+        wrapper.dataset.imageIndex = String(index);
+        const img = document.createElement("img");
+        img.alt = image.alt || "";
+        img.className = image.class || "landscape";
+        image.rotation = normalizeRotation(image.rotation);
+        img.dataset.rotation = String(image.rotation);
+        img.loading = "lazy";
+        img.addEventListener("load", () => {
+          const detectedClass = detectImageClass(image.src, img.naturalWidth, img.naturalHeight);
+          image.class = detectedClass;
+          img.className = detectedClass;
+          label.textContent = `#${index + 1} ${detectedClass} · ${image.rotation}°`;
+          updateRotatedImageSize(wrapper, img);
+        });
+        wrapper.append(img);
+
+        const controls = document.createElement("div");
+        controls.className = "img-overlay";
+        const label = document.createElement("span");
+        label.className = "drag-handle";
+        label.title = "이미지를 드래그해 순서를 바꾸세요";
+        label.textContent = `⠿ #${index + 1} ${img.className} · ${image.rotation}°`;
+        label.tabIndex = 0;
+        label.setAttribute("role", "button");
+        label.setAttribute("aria-label", `이미지 ${index + 1}번을 끌어서 순서 변경`);
+        label.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          pointerDrag = {
+            image,
+            wrapper,
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            active: false
+          };
+        });
+        label.addEventListener("keydown", (event) => {
+          if (!["ArrowUp", "ArrowDown"].includes(event.key)) return;
+          event.preventDefault();
+          const target = index + (event.key === "ArrowUp" ? -1 : 1);
+          if (target < 0 || target >= state.images.length) return;
+          const [moved] = state.images.splice(index, 1);
+          state.images.splice(target, 0, moved);
+          renderImages();
+          $("#imgSection").querySelectorAll(".drag-handle")[target]?.focus();
+        });
+        controls.append(label);
+        [
+          ["회전", () => rotateImage(image)],
+          ["URL", () => changeImageUrl(index)],
+          ["삭제", () => deleteImage(index)]
+        ].forEach(([title, action]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = title;
+          if (title === "삭제") button.className = "delete-btn";
+          button.addEventListener("click", action);
+          controls.append(button);
+        });
+        wrapper.append(controls);
+        img.src = image.src;
+        gallery.append(wrapper);
+        updateRotatedImageSize(wrapper, img);
+        const separator = document.createElement("hr");
+        separator.className = "img-separator";
+        gallery.append(separator);
+      });
+    }
+
+    document.addEventListener("pointermove", (event) => {
+      if (!pointerDrag || event.pointerId !== pointerDrag.pointerId) return;
+      if (!pointerDrag.active && Math.hypot(event.clientX - pointerDrag.startX, event.clientY - pointerDrag.startY) < 8) return;
+      pointerDrag.active = true;
+      pointerDrag.wrapper.classList.add("is-dragging");
+      const gallery = $("#imgSection");
+      gallery.classList.add("is-reordering");
+      const galleryRect = gallery.getBoundingClientRect();
+      dragScrollDirection = event.clientY < galleryRect.top + 64 ? -1 :
+        event.clientY > galleryRect.bottom - 64 ? 1 : 0;
+      if (dragScrollDirection && !dragScrollTimer) {
+        dragScrollTimer = setInterval(() => {
+          gallery.scrollBy({ top: dragScrollDirection * 28 });
+        }, 60);
+      } else if (!dragScrollDirection && dragScrollTimer) {
+        clearInterval(dragScrollTimer);
+        dragScrollTimer = null;
+      }
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".img-item-wrapper");
+      gallery.querySelectorAll(".is-drag-over").forEach((item) => item.classList.remove("is-drag-over"));
+      if (target && target !== pointerDrag.wrapper) target.classList.add("is-drag-over");
+      event.preventDefault();
+    });
+
+    function finishPointerDrag(event) {
+      if (!pointerDrag || event.pointerId !== pointerDrag.pointerId) return;
+      const drag = pointerDrag;
+      pointerDrag = null;
+      const gallery = $("#imgSection");
+      if (dragScrollTimer) clearInterval(dragScrollTimer);
+      dragScrollTimer = null;
+      dragScrollDirection = 0;
+      gallery.classList.remove("is-reordering");
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".img-item-wrapper");
+      gallery.querySelectorAll(".is-dragging, .is-drag-over").forEach((item) => {
+        item.classList.remove("is-dragging", "is-drag-over");
+      });
+      if (!drag.active || !target || target === drag.wrapper) return;
+
+      const targetIndex = Number(target.dataset.imageIndex);
+      const targetImage = state.images[targetIndex];
+      if (!targetImage) return;
+      const insertBefore = event.clientY < target.getBoundingClientRect().top + target.offsetHeight / 2;
+      const [movedImage] = state.images.splice(state.images.indexOf(drag.image), 1);
+      let insertIndex = state.images.indexOf(targetImage);
+      if (!insertBefore) insertIndex += 1;
+      state.images.splice(insertIndex, 0, movedImage);
+      renderImages();
+      notify("이미지 순서를 변경했습니다.");
+    }
+
+    document.addEventListener("pointerup", finishPointerDrag);
+    document.addEventListener("pointercancel", finishPointerDrag);
+
+    function normalizeRotation(rotation) {
+      const degrees = Number(rotation);
+      return [0, 90, 180, 270].includes(degrees) ? degrees : 0;
+    }
+
+    function detectImageClass(src, width, height) {
+      try {
+        if (new URL(src, location.origin).pathname.toLowerCase().endsWith(".svg")) return "drawing";
+      } catch {}
+      return width > height ? "landscape" : "portrait";
+    }
+
+    function updateRotatedImageSize(wrapper, image) {
+      if (!wrapper.clientWidth || !wrapper.clientHeight) return;
+      image.style.setProperty("--rotate-width", `${wrapper.clientHeight}px`);
+      image.style.setProperty("--rotate-height", `${wrapper.clientWidth}px`);
+    }
+
+    function rotateImage(image) {
+      image.rotation = (normalizeRotation(image.rotation) + 90) % 360;
+      renderImages();
+      notify(`이미지를 ${image.rotation}° 회전했습니다.`);
+    }
+
+    function deleteImage(index) {
+      if (!confirm(`이미지 ${index + 1}번을 삭제할까요?`)) return;
+      state.images.splice(index, 1);
+      renderImages();
+    }
+
+    function changeImageUrl(index) {
+      const nextUrl = prompt("이미지 주소를 입력하세요.", state.images[index].src || "");
+      if (nextUrl === null) return;
+      const normalized = nextUrl.trim();
+      if (!isAllowedImageUrl(normalized)) {
+        notify("http(s) 또는 사이트 내부 이미지 주소를 입력하세요.");
+        return;
+      }
+      state.images[index].src = normalized;
+      renderImages();
+    }
+
+    function isAllowedImageUrl(value) {
+      try {
+        const url = new URL(value, location.origin);
+        return ["http:", "https:"].includes(url.protocol);
+      } catch {
+        return false;
+      }
+    }
+
+    async function uploadImage(file) {
+      if (!file || !file.type.startsWith("image/")) throw new Error("이미지 파일을 선택하세요.");
+      const base64Data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("이미지를 읽지 못했습니다."));
+        reader.onload = () => resolve(String(reader.result).split(",")[1]);
+        reader.readAsDataURL(file);
+      });
+      const result = await requestJson(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "upload-image", filename: file.name, base64Data })
+      });
+      if (!result.url) throw new Error("업로드 응답에 이미지 주소가 없습니다.");
+      return result.url;
+    }
+
+    $("#addMainImage").addEventListener("click", () => $("#mainImageFiles").click());
+    $("#mainImageFiles").addEventListener("change", async (event) => {
+      const files = Array.from(event.target.files || []);
+      event.target.value = "";
+      if (!files.length) return;
+      try {
+        for (const file of files) {
+          const src = await uploadImage(file);
+          state.images.push({ src, class: "landscape", alt: file.name });
+          renderImages();
+        }
+        notify(`${files.length}개 이미지를 추가했습니다.`);
+      } catch (error) {
+        notify(`이미지 추가 실패: ${error.message}`, 6000);
+      }
+    });
+    $("#addImageByUrl").addEventListener("click", () => {
+      const src = prompt("추가할 이미지 URL을 입력하세요.");
+      if (src === null) return;
+      const normalized = src.trim();
+      if (!isAllowedImageUrl(normalized)) {
+        notify("http(s) 또는 사이트 내부 이미지 주소를 입력하세요.");
+        return;
+      }
+      state.images.push({ src: normalized, class: "landscape", alt: "" });
+      renderImages();
+    });
+
+    document.querySelectorAll("[data-command]").forEach((button) => {
+      button.addEventListener("mousedown", (event) => event.preventDefault());
+      button.addEventListener("click", () => {
+        $("#textContent").focus();
+        document.execCommand(button.dataset.command, false);
+      });
+    });
+    $("#insertParagraph").addEventListener("mousedown", (event) => event.preventDefault());
+    $("#insertParagraph").addEventListener("click", () => {
+      $("#textContent").focus();
+      document.execCommand("formatBlock", false, "p");
+    });
+    $("#addSideImage").addEventListener("click", () => $("#sideImageFile").click());
+    $("#addSideImage").addEventListener("mousedown", () => {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount && $("#textContent").contains(selection.getRangeAt(0).commonAncestorContainer)) {
+        savedEditorRange = selection.getRangeAt(0).cloneRange();
+      }
+    });
+    $("#sideImageFile").addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      try {
+        const src = await uploadImage(file);
+        insertSideFigure(src, file.name);
+      } catch (error) {
+        notify(`보조 이미지 추가 실패: ${error.message}`, 6000);
+      }
+    });
+
+    function insertSideFigure(src, caption = "") {
+      const figure = document.createElement("figure");
+      figure.className = "side-figure";
+      const image = document.createElement("img");
+      image.className = "side-single-img";
+      image.src = src;
+      image.alt = caption;
+      const figcaption = document.createElement("figcaption");
+      figcaption.className = "side-caption";
+      figcaption.contentEditable = "true";
+      figcaption.textContent = caption || "캡션을 입력하세요.";
+      figure.append(image, figcaption);
+      const selection = window.getSelection();
+      const range = savedEditorRange || (selection && selection.rangeCount ? selection.getRangeAt(0) : null);
+      if (range && $("#textContent").contains(range.commonAncestorContainer)) {
+        range.collapse(false);
+        range.insertNode(figure);
+      } else {
+        $("#textContent").append(figure);
+      }
+      savedEditorRange = null;
+      const spacer = document.createElement("p");
+      spacer.innerHTML = "<br>";
+      figure.after(spacer);
+      figcaption.focus();
+      const captionRange = document.createRange();
+      captionRange.selectNodeContents(figcaption);
+      captionRange.collapse(false);
+      selection?.removeAllRanges();
+      selection?.addRange(captionRange);
+    }
+
+    function renderOverview() {
+      const container = $("#fixedTable");
+      container.replaceChildren();
+      const table = document.createElement("table");
+      const colgroup = document.createElement("colgroup");
+      for (let index = 0; index < 4; index += 1) {
+        const col = document.createElement("col");
+        col.style.width = "25%";
+        colgroup.append(col);
+      }
+      table.append(colgroup);
+
+      const rows = [];
+      rows.push(state.items.slice(0, 1));
+      rows.push(state.items.slice(1, 2));
+      for (let index = 2; index < state.items.length; index += 2) {
+        rows.push(state.items.slice(index, index + 2));
+      }
+      if (rows.length < 2) rows.push([]);
+
+      rows.forEach((items, rowIndex) => {
+        const row = document.createElement("tr");
+        if (rowIndex === 0) {
+          const title = document.createElement("td");
+          title.className = "project-title-cell";
+          title.rowSpan = 2;
+          title.colSpan = 2;
+          const titleEn = document.createElement("div");
+          titleEn.className = "project-title-en table-edit";
+          titleEn.contentEditable = "true";
+          titleEn.textContent = state.titleEn;
+          titleEn.setAttribute("aria-label", "프로젝트 영문 제목");
+          titleEn.addEventListener("input", () => { state.titleEn = titleEn.textContent.trim(); });
+          const titleKo = document.createElement("div");
+          titleKo.className = "project-subtitle table-edit";
+          titleKo.contentEditable = "true";
+          titleKo.textContent = state.titleKo;
+          titleKo.setAttribute("aria-label", "프로젝트 한글 제목");
+          titleKo.addEventListener("input", () => { state.titleKo = titleKo.textContent.trim(); });
+          title.append(titleEn, titleKo);
+          row.append(title);
+        }
+        items.forEach((item) => row.append(...createOverviewPair(item)));
+        table.append(row);
+      });
+      container.append(table);
+    }
+
+    function createOverviewPair(item) {
+      const label = document.createElement("th");
+      label.className = "table-edit";
+      label.contentEditable = "true";
+      label.spellcheck = false;
+      label.textContent = item.label;
+      label.setAttribute("aria-label", "항목명");
+      label.addEventListener("input", () => { item.label = label.textContent.trim(); });
+
+      const value = document.createElement("td");
+      const valueText = document.createElement("span");
+      valueText.className = "table-edit";
+      valueText.contentEditable = "true";
+      valueText.spellcheck = false;
+      valueText.textContent = item.value;
+      valueText.setAttribute("aria-label", "항목 내용");
+      valueText.addEventListener("input", () => { item.value = valueText.innerText.trim(); });
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "item-delete";
+      remove.textContent = "×";
+      remove.title = "이 항목 삭제";
+      remove.setAttribute("aria-label", `${item.label || "프로젝트"} 항목 삭제`);
+      remove.contentEditable = "false";
+      remove.addEventListener("click", () => {
+        state.items.splice(state.items.indexOf(item), 1);
+        renderOverview();
+      });
+      value.append(valueText, remove);
+      return [label, value];
+    }
+
+    $("#addOverviewItem").addEventListener("click", () => {
+      state.items.push({ label: "NEW ITEM", value: "VALUE" });
+      renderOverview();
+      const lastLabel = $("#fixedTable tr:last-child th");
+      lastLabel?.focus();
+      notify("표 항목을 추가했습니다. 이름과 내용을 클릭해 수정하세요.");
+    });
+
+    function getOverviewHtml() {
+      const table = document.createElement("table");
+      const colgroup = document.createElement("colgroup");
+      for (let index = 0; index < 4; index += 1) {
+        const col = document.createElement("col");
+        col.style.width = "25%";
+        colgroup.append(col);
+      }
+      table.append(colgroup);
+      const rows = [state.items.slice(0, 1), state.items.slice(1, 2)];
+      for (let index = 2; index < state.items.length; index += 2) {
+        rows.push(state.items.slice(index, index + 2));
+      }
+      if (rows.length < 2) rows.push([]);
+
+      rows.forEach((items, index) => {
+        const row = document.createElement("tr");
+        if (index === 0) {
+          const title = document.createElement("td");
+          title.className = "project-title-cell";
+          title.rowSpan = 2;
+          title.colSpan = 2;
+          const en = document.createElement("div");
+          en.className = "project-title-en";
+          en.textContent = state.titleEn;
+          const ko = document.createElement("div");
+          ko.className = "project-subtitle";
+          ko.textContent = state.titleKo;
+          title.append(en, ko);
+          row.append(title);
+        }
+        items.forEach((item) => {
+          const th = document.createElement("th");
+          th.textContent = item.label;
+          const td = document.createElement("td");
+          if (item.label === "BUILDING AREA") td.id = "buildingareaCell";
+          if (item.label === "TOTAL AREA") td.id = "totalAreaCell";
+          const value = document.createElement("span");
+          value.textContent = item.value;
+          td.innerHTML = value.innerHTML.replace(/\n/g, "<br>");
+          row.append(th, td);
+        });
+        table.append(row);
+      });
+      return table.outerHTML;
+    }
+
+    const allowedTags = new Set(["A", "B", "BLOCKQUOTE", "BR", "EM", "FIGCAPTION", "FIGURE", "I", "IMG", "LI", "OL", "P", "SPAN", "STRONG", "U", "UL"]);
+    function cleanEditorHtml(html) {
+      const parsed = new DOMParser().parseFromString(html, "text/html");
+      const cleanNode = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.textContent);
+        if (node.nodeType !== Node.ELEMENT_NODE) return document.createDocumentFragment();
+        const element = node;
+        const tag = element.tagName;
+        const children = Array.from(element.childNodes).map(cleanNode);
+        if (!allowedTags.has(tag)) {
+          const fragment = document.createDocumentFragment();
+          children.forEach((child) => fragment.append(child));
+          return fragment;
+        }
+        const safe = document.createElement(tag.toLowerCase());
+        children.forEach((child) => safe.append(child));
+        if (tag === "FIGURE") safe.className = "side-figure";
+        if (tag === "FIGCAPTION") safe.className = "side-caption";
+        if (tag === "IMG") {
+          const src = element.getAttribute("src") || "";
+          if (!isAllowedImageUrl(src)) return document.createDocumentFragment();
+          safe.src = src;
+          safe.alt = element.getAttribute("alt") || "";
+          safe.className = "side-single-img";
+        }
+        if (tag === "A") {
+          const href = element.getAttribute("href") || "";
+          if (isAllowedImageUrl(href)) {
+            safe.href = href;
+            safe.rel = "noopener noreferrer";
+          }
+        }
+        return safe;
+      };
+      const result = document.createElement("div");
+      Array.from(parsed.body.childNodes).map(cleanNode).forEach((node) => result.append(node));
+      return result.innerHTML;
+    }
+
+    $("#publishButton").addEventListener("click", async () => {
+      const button = $("#publishButton");
+      button.disabled = true;
+      try {
+        const result = await requestJson(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "save-test-pc",
+            images: state.images,
+            textContent: cleanEditorHtml($("#textContent").innerHTML),
+            tableHtml: getOverviewHtml()
+          })
+        });
+        if (!result.ok) throw new Error(result.error || "저장하지 못했습니다.");
+        notify("저장 완료. Vercel 배포 후 test-pc.html에 반영됩니다.", 5000);
+      } catch (error) {
+        notify(`저장 실패: ${error.message}`, 6000);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    checkLogin();
+  </script>
+</body>
+</html>

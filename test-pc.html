@@ -1,117 +1,535 @@
-<!-- 상세페이지 코드 위젯: 공통 메뉴/CSS/JS를 이곳에 복사하지 않습니다. -->
-<div class="filt-project-page" data-filt-detail>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tempin Office (TEST) | PROJECT INFO</title>
+
+<!-- SUIT + Pretendard -->
+<link href="https://cdn.jsdelivr.net/npm/suit-font@1.0.0/dist/suit.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+<style>
+/* ------------------------------
+    📌1. 기본 설정
+------------------------------ */
+:root {
+  --accent: #BD005E;
+  --bg-color: #fff;
+  --panel-width: clamp(300px, 28vw, 430px);
+  --panel-hide-width: 210px;
+  --panel-padding: clamp(12px, 1vw, 18px);
+  --body-text-size: clamp(11px, 0.82vw, 12px);
+  --caption-size: clamp(8px, 0.6vw, 8px);
+}  
+	
+html, body {
+  font-family: "Suit","Pretendard Variable", "Noto Sans KR", sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.4px;
+  color: #000;
+  background: var(--bg-color);
+  height: 100vh;
+  margin: 0;
+  overflow: hidden; /* 스크롤바 방지 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ------------------------------
+    📌2. 본문 레이아웃
+ - 좌측(이미지), 우측(텍스트, 표)
+------------------------------ */
+.page-container {
+  height: 100vh !important;
+  overflow: hidden;
+}
+
+/* ========== 중앙 이미지 구역 ========== */
+.img-section {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0px;
+  right: var(--panel-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: left 0.4s ease, right 0.4s ease;
+  transform-origin: center center;
+  z-index: 1;
+  background: var(--bg-color);
+  scroll-snap-type: y proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.img-section img {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  object-fit: contain;
+  object-position: center center !important;
+  flex-shrink: 0;
+  background: #f5f5f5;
+}
+
+.img-section img[data-rotation="90"],
+.img-section img[data-rotation="270"] {
+  width: var(--rotate-width, 100vh);
+  height: var(--rotate-height, calc(100vw - var(--panel-width)));
+  object-fit: contain !important;
+}
+.img-section img[data-rotation="90"] { transform: rotate(90deg); }
+.img-section img[data-rotation="180"] { transform: rotate(180deg); }
+.img-section img[data-rotation="270"] { transform: rotate(270deg); }
+  
+img.landscape {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+}
+  
+img.portrait {
+  width: 100%;
+  height: 100vh;
+  object-fit: contain;
+}
+
+.img-section.portrait-mode img.landscape {
+  object-fit: contain;
+}
+
+.img-section.portrait-mode img.portrait {
+  object-fit: cover;
+}
+
+img.drawing {
+  width: 100%;
+  min-height: 100vh !important;
+  object-fit: contain !important;
+  background: #fff;
+}
+
+hr {
+  border: none;
+  border-top: 0.2px solid #000;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  transform: scaleY(0.5);
+}
+
+/* ========== 우측 구역 ========== */
+.side-section {
+  position: fixed !important;
+  right: 0;
+  top: 0;
+  width: var(--panel-width) !important;
+  height: 100vh !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  background: var(--bg-color);
+  border-left: 0.5px solid #000 !important;
+  z-index: 1000 !important;
+}
+ 
+/* == 뷰 전환 == */
+.view-toolbar {
+  height: 40px;
+  background: var(--bg-color);
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.view-btns {
+  position: absolute; 
+  top: 20px; 
+  right: 40px;
+  z-index: 5000;
+}
+  
+.view-btns button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.view-btns button:focus,
+.view-btns button:active {
+  outline: none;
+  background: none;
+}
+  
+.integrated-view-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  outline: none;
+  transition: opacity 0.2s ease;
+}
+ 
+.icon-back {
+  width: 20px; 
+  height: 20px;
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.integrated-view-btn:hover .icon-back {
+  transform: translateX(-3px);
+  opacity: 0.7;
+}
+  
+.icon-list {
+  width: 18px;
+  height: 18px;
+  display: block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.integrated-view-btn:hover .icon-list {
+  transform: scale(1.1);
+  opacity: 0.7;
+}
+  
+/* 1. 텍스트 섹션 */
+.side-section .text-content {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 210px !important;    /* 하단 표 높이 */
+  overflow-y: auto !important;
+  padding: var(--panel-padding) !important;
+  padding-top: 40px !important;
+  background: var(--bg-color);
+  z-index: 2 !important;
+  border-bottom: 0.5px solid #000;
+}
+
+.side-section .text-content,
+.side-section .text-content * {
+  color: #000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  font-size: var(--body-text-size) !important;
+  line-height: 1.8 !important;
+}
+
+.side-section .text-content p {
+  margin: 0 !important;
+  font-weight: 500 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}  
+  
+/* 2. 캡션 및 이미지 영역 */
+.side-figure {
+  margin: 8px 0 14px 0;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+  
+.side-single-img {
+  display: block;
+  width: min(300px, 100%);
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+  
+.side-caption {
+  margin-top: 6px;
+  font-size: var(--caption-size);
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  opacity: 0.75;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}  
+  
+/* 3. 하단 표 영역 (프로젝트 개요): 화면 맨 바닥에 210px 높이로 고정 */
+.side-section .fixed-table {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 210px !important;
+  overflow-y: auto !important;
+  background: #fff !important;
+  z-index: 2 !important;
+  border-top: none !important;
+}
+
+.fixed-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border-top: 0 !important;
+}
+  
+.fixed-table th, .fixed-table td {
+  height: 35px !important;
+  padding: 2px 5px;
+  font-size: 10px;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid #000 !important;
+}
+
+.fixed-table th {
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  vertical-align: top;
+}
+
+.fixed-table td {
+  font-weight: 400;
+  text-align: right;
+  vertical-align: bottom;
+  border-right: 0.5px solid #000 !important;
+}
+  
+.fixed-table tr:first-child th,
+.fixed-table tr:first-child td {
+  border-top: 0 !important;
+}
+
+/* 프로젝트 타이틀 셀 (2행 높이) */
+.fixed-table .project-title-cell {
+  height: 70px;
+  padding-top: 5px;
+  text-align: left !important;
+  vertical-align: top !important;    
+  border-right: 0.5px solid #000;
+}
+
+.project-title-en {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.project-subtitle {
+  display: block;
+  font-weight: 400;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Chrome, Safari 스크롤바 숨기기 */
+.img-section::-webkit-scrollbar,
+.side-section::-webkit-scrollbar,
+.text-content::-webkit-scrollbar,
+.fixed-table::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+  
+#buildingareaCell, #totalAreaCell {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 공통 메뉴 유지 + 이전 모델의 "꽉 찬 느낌" 보강 */
+#filt-common-menu-v2 .side-panel {
+  left: -210px;
+  width: 240px;
+  background: rgba(255, 255, 255, 0.98);
+  border-right: 1px solid #000;
+  box-shadow: none;
+}
+#filt-common-menu-v2 .side-panel.open {
+  left: 0;
+}
+#filt-common-menu-v2 .logo-btn {
+  width: 240px;
+  height: 410px;
+  transform: translateY(0);
+}
+#filt-common-menu-v2 .logo-btn svg {
+  stroke-width: 5;
+}
+#filt-common-menu-v2 .office-name {
+  top: 330px;
+  left: 20px;
+}
+#filt-common-menu-v2 .office-name p {
+  margin: 0;
+  line-height: 1;
+}
+#filt-common-menu-v2 .panel-menu {
+  top: 420px;
+  left: 20px;
+}
+#filt-common-menu-v2 .panel-menu a {
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+#filt-common-menu-v2 .panel-footer {
+  height: 35px;
+  border-top: 1px solid #000;
+}
+#filt-common-menu-v2 .vert {
+  height: 410px;
+  width: 10px;
+  left: 230px;
+  top: 0;
+}
+#filt-common-menu-v2 .divider-top {
+  top: 410px;
+  width: 240px;
+}
+#filt-common-menu-v2 .filt-home-button--desktop {
+  left: 20px;
+  top: 20px;
+}
+
+body.filt-menu-open .img-section {
+  left: 240px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ✅ 메인 콘텐츠 -->
 <main class="page-container">
+  <!-- 1. 중앙 이미지 섹션 -->
   <div class="img-section">
-	<img src="https://cdn.imweb.me/thumbnail/20251226/cb1135fa8dcde.jpg" 
-			  class="portrait" alt="#01 Tempin Exterior - Daytime View"><hr> 
-	<img src="https://cdn.imweb.me/thumbnail/20251226/5e8f5f4d39c9a.jpg" 
-			  class="portrait" alt="#02 Tempin Exterior - Daytime View"><hr> 
-	<img src="https://cdn.imweb.me/thumbnail/20251226/c89b74aafbf16.jpg" 
-			  class="portrait"  alt="#03 Tempin Exterior - Daytime View"><hr> 
-	<img src="https://cdn.imweb.me/thumbnail/20251226/17f046b3e035c.jpg" 
-			  class="portrait" alt="#04 Tempin Exterior - Daytime View"><hr> 
-	<img src="https://cdn.imweb.me/thumbnail/20251226/aa6d4404472bd.jpg" 
-			  class="landscape" alt="#05 Tempin Office - Interior"><hr> 
-	<img src="https://cdn.imweb.me/thumbnail/20251226/1775fe3ca0217.jpg" 
-			  class="landscape" alt="#06 Tempin Office - Interior"><hr> 
-	<img src="https://cdn.imweb.me/thumbnail/20251226/a5521c1127606.jpg" 
-			  class="landscape" alt="#07 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/5222990a8c499.jpg" 
-			  class="landscape" alt="#08 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/c57be88d18327.jpg" 
-			  class="portrait" alt="#09 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/9e857704e0cc8.jpg" 
-			  class="landscape" alt="#10 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/15ec91b82fed5.jpg" 
-			  class="landscape" alt="#11 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/57a2aefd1f994.jpg" 
-			  class="landscape" alt="#12 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/d95d76b59a8b6.jpg" 
-			  class="landscape" alt="#13 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/9f457b13bf411.jpg" 
-			  class="landscape" alt="#14 Tempin Office - Interior"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/a61cbc90150e5.jpg" 
-			  class="portrait" alt="#15 Tempin Exterior - Night View"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/9ed7654a4931e.jpg" 
-			  class="portrait" alt="#16 Tempin Exterior - Night View"><hr>
-	<img src="https://cdn.imweb.me/thumbnail/20251226/3e19b5f754997.jpg" 
-			  class="portrait" alt="#17 Tempin Exterior - Night View"><hr> 
-	<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%20-B1.svg" 
-     class="drawing" alt="#18 Tempin - B1F Plan"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%201.svg" 
-     class="drawing" alt="#19 Tempin - 1st Floor Plan"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%202.svg" 
-     class="drawing" alt="#20 Tempin - 2nd Floor Plan"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%203.svg" 
-     class="drawing" alt="#21 Tempin - 3rd Floor Plan"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%204.svg" 
-     class="drawing" alt="#22 Tempin - 4th Floor Plan"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Roof.svg" 
-     class="drawing" alt="#23 Tempin - Roof Plan"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Section.svg" 
-     class="drawing" alt="#24 Tempin - Section"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Elev%20A.svg" 
-     class="drawing" alt="#25 Tempin - Elevation A"> <hr> 
-<img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Elev%20B.svg" 
-     class="drawing" alt="#26 Tempin - Elevation B"> <hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/cb1135fa8dcde.jpg" 
+         class="portrait" alt="#01 Tempin Exterior - Daytime View"><hr> 
+    <img src="https://cdn.imweb.me/thumbnail/20251226/5e8f5f4d39c9a.jpg" 
+         class="portrait" alt="#02 Tempin Exterior - Daytime View"><hr> 
+    <img src="https://cdn.imweb.me/thumbnail/20251226/c89b74aafbf16.jpg" 
+         class="portrait" alt="#03 Tempin Exterior - Daytime View"><hr> 
+    <img src="https://cdn.imweb.me/thumbnail/20251226/17f046b3e035c.jpg" 
+         class="portrait" alt="#04 Tempin Exterior - Daytime View"><hr> 
+    <img src="https://cdn.imweb.me/thumbnail/20251226/aa6d4404472bd.jpg" 
+         class="landscape" alt="#05 Tempin Office - Interior"><hr> 
+    <img src="https://cdn.imweb.me/thumbnail/20251226/1775fe3ca0217.jpg" 
+         class="landscape" alt="#06 Tempin Office - Interior"><hr> 
+    <img src="https://cdn.imweb.me/thumbnail/20251226/a5521c1127606.jpg" 
+         class="landscape" alt="#07 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/5222990a8c499.jpg" 
+         class="landscape" alt="#08 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/c57be88d18327.jpg" 
+         class="portrait" alt="#09 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/9e857704e0cc8.jpg" 
+         class="landscape" alt="#10 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/15ec91b82fed5.jpg" 
+         class="landscape" alt="#11 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/57a2aefd1f994.jpg" 
+         class="landscape" alt="#12 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/d95d76b59a8b6.jpg" 
+         class="landscape" alt="#13 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/9f457b13bf411.jpg" 
+         class="landscape" alt="#14 Tempin Office - Interior"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/a61cbc90150e5.jpg" 
+         class="portrait" alt="#15 Tempin Exterior - Night View"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/9ed7654a4931e.jpg" 
+         class="portrait" alt="#16 Tempin Exterior - Night View"><hr>
+    <img src="https://cdn.imweb.me/thumbnail/20251226/3e19b5f754997.jpg" 
+         class="portrait" alt="#17 Tempin Exterior - Night View"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%20-B1.svg" 
+         class="drawing" alt="#18 Tempin - B1F Plan"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%201.svg" 
+         class="drawing" alt="#19 Tempin - 1st Floor Plan"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%202.svg" 
+         class="drawing" alt="#20 Tempin - 2nd Floor Plan"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%203.svg" 
+         class="drawing" alt="#21 Tempin - 3rd Floor Plan"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Floor%204.svg" 
+         class="drawing" alt="#22 Tempin - 4th Floor Plan"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/df5814bbfebcb1c9569597d9c30a7d6ff46df033/PC/260227_TEMPIN_Roof.svg" 
+         class="drawing" alt="#23 Tempin - Roof Plan"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Section.svg" 
+         class="drawing" alt="#24 Tempin - Section"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Elev%20A.svg" 
+         class="drawing" alt="#25 Tempin - Elevation A"><hr> 
+    <img src="https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/9ba04ec4e4f4dde186e29594198ce5e1f8d278d0/PC/260227_TEMPIN_Elev%20B.svg" 
+         class="drawing" alt="#26 Tempin - Elevation B"><hr>
   </div>
 
+  <!-- 우측 섹션 (2. 텍스트 + 3. 프로젝트 개요) -->
   <section class="side-section">
-	<header class="view-toolbar">
-	  <div class="view-btns">
-		<button class="integrated-view-btn" onclick="location.href='/works_list'">
-      <svg class="icon-back" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <polyline points="15 18 9 12 15 6"></polyline>
-    </svg>
-    <svg class="icon-list" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/>
-      <line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/>
-      <line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/>
-      <line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/>
-    </svg>
-		</button>
-	  </div>
-	</header>
+    <header class="view-toolbar">
+      <div class="view-btns">
+        <button class="integrated-view-btn" onclick="location.href='/works_list'">
+          <svg class="icon-back" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <svg class="icon-list" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+            <line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/>
+            <line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/>
+            <line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/>
+            <line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. 우측 텍스트 섹션 -->
     <div class="text-content">
-<br><br>
-이 프로젝트는 일반주거지역의 소형 필지에 위치한 다가구 주택을 오피스로 리노베이션한 작업이다. 1990년에 준공된 기존 건물은 허가도서와 실제 건물의 대부분이 일치하지 않았다. 건물 후면에는 불법으로 증축된 발코니가 매달려 있었고, 발코니와 마당은 폴리카보네이트와 샌드위치 패널로 덧씌워져 있었다. 공간을 최대한 활용하기 위해 덧붙여진 구조물들이었다.
-<br><br>
-	  <figure class="side-figure">
-    <img class="side-single-img"
-         src="https://cdn.imweb.me/thumbnail/20251230/18ee9357fee2c.png"
-         alt="Tempin side image2">
-    <figcaption class="side-caption">      *리노베이션 전 건물 후면 위반건축물    </figcaption>
-  </figure>
-건물의 실제 윤곽과 구조를 파악하기 위해 부수적인 요소들을 모두 철거한 뒤 실측을 진행했다. 그 결과, 수직으로 이동할 수 있는 동선은 불법으로 축조된 발코니의 계단뿐이었다. 실측 과정에서는 건물의 구조 또한 예상과 달랐다. 1층은 철근콘크리트 구조였지만, 2층과 3층은 1층의 구조열과 무관하게 배치된 조적 벽체로 이루어져 있었다. 이 건물에 우선적으로 필요한 것은 적법한 수직 동선을 확보하고, 위반 요소를 모두 덜어내어 건물의 적법한 외형을 다시 형성하는 일이었다.
-<br><br>
-	  <figure class="side-figure">
-      <img class="side-single-img"
-       src="https://cdn.imweb.me/thumbnail/20251230/2529930afb6fc.png"
-       alt="Tempin side image1">
-      <figcaption class="side-caption">      *리노베이션 전 목화부동산 건물</figcaption>
-	  </figure>
-철골 보강은 1층 기존 철근콘크리트 구조열을 따라 이루어졌다. 조적 내력벽이 어긋나 있던 2층과 3층, 그리고 새로 증축된 4층까지 하나의 구조열이 관통한다. 구조적 기능을 더 이상 수행하지 않는 내부의 조적 벽체는 대부분 철거되었지만, 문제는 구조열과 일치하지 않는 조적 외피였다.
-<br><br>
-덧댄 외피는 서로 다른 질서를 중재한다. 개방성을 확보하기 위해 기존 개구부는 구조열에 맞추어 선택적으로 철거하거나 유지하였고, 철거에 따라 지지가 필요한 조적 인방은 다시 보강하였다. 그 위에 적절한 단열 성능을 확보하기 위해 덧붙인 단열재는 스터코로 마감했다. 반복되는 T자 형태의 스터코는 보강된 구조열의 질서를 시각적으로 투영하고, 그 사이의 분절은 외피가 가볍게 덧붙여진 또 하나의 층위임을 드러낸다.
-<br><br>
-작은 건축면적 안에서 내부는 기능을 압축하고 전용면적을 최대한 확보하도록 계획하였다. 횡력에 저항하는 트러스는 건물의 양쪽 코너에 배치되어 계단실과 오피스 공간의 구석에서 X자 형태로 드러난다.
-1층에서는 기존 철근콘크리트 구조와 이를 보강한 철판을 그대로 노출하였다. 기존 건물의 구조가 곧 내부의 마감이 된다. 2층부터 4층에서는 은빛의 철골을 노출하여 기존 건물 속에 새롭게 삽입된 구조를 드러냈다. 바닥과 벽은 무채색의 톤으로 정리하고, 구조와 기본적인 재료만으로 내부를 구성하였다. 절제된 내부에서는 개구부 너머의 외부 풍경이 상대적으로 선명하게 드러난다.
-<br><br>
-이 작은 건물의 외피는 정돈된 질서를 드러내지만, 그 형태를 구축하는 과정은 기존 건물이 지닌 구조적 불일치에서 시작된다. 안에서는 정렬된 구조가 노출되고, 밖에서는 하나의 표면으로 정리된다.
-<br><br>
+      <br><br>
+      이 프로젝트는 일반주거지역의 소형 필지에 위치한 다가구 주택을 오피스로 리노베이션한 작업이다. 1990년에 준공된 기존 건물은 허가도서와 실제 건물의 대부분이 일치하지 않았다. 건물 후면에는 불법으로 증축된 발코니가 매달려 있었고, 발코니와 마당은 폴리카보네이트와 샌드위치 패널로 덧씌워져 있었다. 공간을 최대한 활용하기 위해 덧붙여진 구조물들이었다.
+      <br><br>
+      <figure class="side-figure">
+        <img class="side-single-img"
+             src="https://cdn.imweb.me/thumbnail/20251230/18ee9357fee2c.png"
+             alt="Tempin side image2">
+        <figcaption class="side-caption">      *리노베이션 전 건물 후면 위반건축물    </figcaption>
+      </figure>
+      건물의 실제 윤곽과 구조를 파악하기 위해 부수적인 요소들을 모두 철거한 뒤 실측을 진행했다. 그 결과, 수직으로 이동할 수 있는 동선은 불법으로 축조된 발코니의 계단뿐이었다. 실측 과정에서는 건물의 구조 또한 예상과 달랐다. 1층은 철근콘크리트 구조였지만, 2층과 3층은 1층의 구조열과 무관하게 배치된 조적 벽체로 이루어져 있었다. 이 건물에 우선적으로 필요한 것은 적법한 수직 동선을 확보하고, 위반 요소를 모두 덜어내어 건물의 적법한 외형을 다시 형성하는 일이었다.
+      <br><br>
+      <figure class="side-figure">
+        <img class="side-single-img"
+             src="https://cdn.imweb.me/thumbnail/20251230/2529930afb6fc.png"
+             alt="Tempin side image1">
+        <figcaption class="side-caption">      *리노베이션 전 목화부동산 건물</figcaption>
+      </figure>
+      철골 보강은 1층 기존 철근콘크리트 구조열을 따라 이루어졌다. 조적 내력벽이 어긋나 있던 2층과 3층, 그리고 새로 증축된 4층까지 하나의 구조열이 관통한다. 구조적 기능을 더 이상 수행하지 않는 내부의 조적 벽체는 대부분 철거되었지만, 문제는 구조열과 일치하지 않는 조적 외피였다.
+      <br><br>
+      덧댄 외피는 서로 다른 질서를 중재한다. 개방성을 확보하기 위해 기존 개구부는 구조열에 맞추어 선택적으로 철거하거나 유지하였고, 철거에 따라 지지가 필요한 조적 인방은 다시 보강하였다. 그 위에 적절한 단열 성능을 확보하기 위해 덧붙인 단열재는 스터코로 마감했다. 반복되는 T자 형태의 스터코는 보강된 구조열의 질서를 시각적으로 투영하고, 그 사이의 분절은 외피가 가볍게 덧붙여진 또 하나의 층위임을 드러낸다.
+      <br><br>
+      작은 건축면적 안에서 내부는 기능을 압축하고 전용면적을 최대한 확보하도록 계획하였다. 횡력에 저항하는 트러스는 건물의 양쪽 코너에 배치되어 계단실과 오피스 공간의 구석에서 X자 형태로 드러난다.
+      1층에서는 기존 철근콘크리트 구조와 이를 보강한 철판을 그대로 노출하였다. 기존 건물의 구조가 곧 내부의 마감이 된다. 2층부터 4층에서는 은빛의 철골을 노출하여 기존 건물 속에 새롭게 삽입된 구조를 드러냈다. 바닥과 벽은 무채색의 톤으로 정리하고, 구조와 기본적인 재료만으로 내부를 구성하였다. 절제된 내부에서는 개구부 너머의 외부 풍경이 상대적으로 선명하게 드러난다.
+      <br><br>
+      이 작은 건물의 외피는 정돈된 질서를 드러내지만, 그 형태를 구축하는 과정은 기존 건물이 지닌 구조적 불일치에서 시작된다. 안에서는 정렬된 구조가 노출되고, 밖에서는 하나의 표면으로 정리된다.
+      <br><br>
     </div>
 
+    <!-- 3. 우측 하단 프로젝트 개요 테이블 -->
     <div class="fixed-table">
       <table>
-		 <colgroup>
+        <colgroup>
           <col style="width: 25%;">
           <col style="width: 25%;">
           <col style="width: 25%;">
           <col style="width: 25%;">
-         </colgroup>
+        </colgroup>
         <tr>
           <td rowspan="2" colspan="2" class="project-title-cell">
-			<div class="project-title-en">TEMPIN OFFICE</div>
+            <div class="project-title-en">TEMPIN OFFICE</div>
             <div class="project-subtitle">템프인 오피스</div>
           </td>
           <th>STATUS</th><td>BUILT</td>
@@ -131,7 +549,7 @@
           <th>CLIENT</th><td>TEMPIN</td>
           <th>CONSTRUCTION</th><td>PS ENGINEERING</td>
         </tr>
-		<tr>
+        <tr>
           <th>PHOTOGRAPHER</th><td>JANG MI</td>
           <th>COWORK</th><td>NMG. ARCHITECTS</td>
         </tr>
@@ -139,4 +557,222 @@
     </div>
   </section>
 </main>
-</div>
+
+<!-- ====================== 반응형 모바일 전환 ====================== -->
+<script>
+  const MOBILE_BREAKPOINT = 480;
+  const mobileMedia = window.matchMedia('(max-width: ' + MOBILE_BREAKPOINT + 'px)');
+
+  const redirectToMobileIfNeeded = () => {
+    if (mobileMedia.matches && !window.location.pathname.toLowerCase().endsWith('/test-mobile.html')) {
+      window.location.replace('test-mobile.html');
+    }
+  };
+
+  redirectToMobileIfNeeded();
+  window.addEventListener('resize', redirectToMobileIfNeeded);
+</script>
+
+<!-- ====================== 스크립트 ====================== -->
+<script>
+// 줌인/줌아웃 방지
+document.addEventListener('wheel', function (e) {
+  if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('gesturestart', function (e) {
+  e.preventDefault();
+});
+
+/* ✅ img-section: 세로 무한 캐러셀 */
+const updateSectionImageMode = () => {
+  const scroller = document.querySelector('.img-section');
+  if (!scroller) return;
+
+  const ratio = scroller.clientWidth / scroller.clientHeight;
+  const isPortraitFrame = ratio <= 1;
+  scroller.classList.toggle('portrait-mode', isPortraitFrame);
+};
+
+window.addEventListener('load', () => {
+  const scroller = document.querySelector('.img-section');
+  if (!scroller) return;
+
+  updateSectionImageMode();
+
+  const originalImgs = Array.from(scroller.querySelectorAll('img'));
+  if (originalImgs.length < 2) return;
+
+  const firstClone = originalImgs[0].cloneNode(true);
+  firstClone.dataset.clone = "1";
+
+  const lastClone = originalImgs[originalImgs.length - 1].cloneNode(true);
+  lastClone.dataset.clone = "1";
+
+  const hrForFront = document.createElement('hr');
+  const hrForBack = document.createElement('hr');
+
+  scroller.insertBefore(hrForFront, scroller.firstChild);
+  scroller.insertBefore(lastClone, scroller.firstChild);
+
+  scroller.appendChild(hrForBack);
+  scroller.appendChild(firstClone);
+
+  const allImgs = Array.from(scroller.querySelectorAll('img'));
+  const total = allImgs.length;
+
+  let currentIndex = 1;
+  let isJumping = false;
+  let scrollEndTimer = null;
+
+  const scrollToIndex = (idx, smooth = true) => {
+    const target = allImgs[idx];
+    if (!target) return;
+
+    scroller.scrollTo({
+      top: target.offsetTop,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+  };
+
+  requestAnimationFrame(() => scrollToIndex(currentIndex, false));
+
+  const onScrollEnd = () => {
+    if (isJumping) return;
+
+    const y = scroller.scrollTop;
+    let best = 0, bestDist = Infinity;
+
+    allImgs.forEach((img, i) => {
+      const dist = Math.abs(img.offsetTop - y);
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    });
+
+    currentIndex = best;
+
+    if (currentIndex === 0) {
+      isJumping = true;
+      currentIndex = total - 2;
+      scrollToIndex(currentIndex, false);
+      requestAnimationFrame(() => { isJumping = false; });
+    }
+
+    if (currentIndex === total - 1) {
+      isJumping = true;
+      currentIndex = 1;
+      scrollToIndex(currentIndex, false);
+      requestAnimationFrame(() => { isJumping = false; });
+    }
+  };
+
+  scroller.addEventListener('scroll', () => {
+    if (scrollEndTimer) clearTimeout(scrollEndTimer);
+    scrollEndTimer = setTimeout(onScrollEnd, 90);
+  }, { passive: true });
+
+  const onTap = (clientY) => {
+    if (isJumping) return;
+
+    const rect = scroller.getBoundingClientRect();
+    const ratio = (clientY - rect.top) / rect.height;
+
+    if (ratio <= 0.40) {
+      currentIndex -= 1;
+      scrollToIndex(currentIndex, true);
+    } else {
+      currentIndex += 1;
+      scrollToIndex(currentIndex, true);
+    }
+  };
+
+  scroller.addEventListener('click', (e) => {
+    onTap(e.clientY);
+  });
+
+  scroller.addEventListener('contextmenu', e => e.preventDefault());
+
+  const reAlign = () => {
+    if (isJumping) return;
+    scrollToIndex(currentIndex, false);
+  };
+  window.addEventListener('resize', () => {
+    requestAnimationFrame(reAlign);
+    updateSectionImageMode();
+  });
+});
+
+/* ✅ BUILDING AREA / TOTAL AREA 동시 토글 (㎡ ↔ py) */
+window.addEventListener('load', () => {
+  const M2_PER_PY = 3.305785;
+
+  const a = document.getElementById('buildingareaCell');
+  const b = document.getElementById('totalAreaCell');
+  if (!a || !b) return;
+
+  const cells = [a, b];
+
+  const parseNumber = (txt) => {
+    const m = String(txt).replace(/,/g,'').match(/-?\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : NaN;
+  };
+
+  cells.forEach(el => {
+    if (!el.dataset.m2) {
+      const m2 = parseNumber(el.textContent);
+      if (Number.isFinite(m2)) el.dataset.m2 = String(m2);
+    }
+    if (!el.dataset.unit) el.dataset.unit = "m2";
+  });
+
+  const renderAll = (unit) => {
+    cells.forEach(el => {
+      const m2 = parseFloat(el.dataset.m2);
+      if (!Number.isFinite(m2)) return;
+
+      if (unit === "m2") el.textContent = `${m2.toFixed(2)}㎡`;
+      else el.textContent = `${Math.round(m2 / M2_PER_PY)}py`;
+      el.dataset.unit = unit;
+    });
+  };
+
+  const toggleBoth = () => {
+    const anyPy = cells.some(el => el.dataset.unit === "py");
+    renderAll(anyPy ? "m2" : "py");
+  };
+
+  renderAll("m2");
+
+  cells.forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      toggleBoth();
+    });
+  });
+});
+</script>
+
+<script>
+(() => {
+  const section = document.querySelector('.img-section');
+  if (!section) return;
+
+  const updateRotatedImageSizes = () => {
+    section.querySelectorAll('img[data-rotation="90"], img[data-rotation="270"]').forEach(img => {
+      img.style.setProperty('--rotate-width', `${section.clientHeight}px`);
+      img.style.setProperty('--rotate-height', `${section.clientWidth}px`);
+    });
+  };
+
+  updateRotatedImageSizes();
+  if (window.ResizeObserver) new ResizeObserver(updateRotatedImageSizes).observe(section);
+  window.addEventListener('resize', updateRotatedImageSizes);
+})();
+</script>
+
+<!-- 공통 메뉴 및 홈 버튼 호출 -->
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@common-menu/common-menu-v2.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@common-menu/home-button.js"></script>
+
+</body>
+</html>
