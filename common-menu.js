@@ -14,6 +14,16 @@
     { label: 'NEWS', href: '/news' }
   ];
 
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
   function mount() {
     if (!document.body || document.getElementById(ROOT_ID)) return;
 
@@ -23,15 +33,15 @@
       '#filt-common-menu button, #filt-common-menu a { font-family:inherit; }',
       '#filt-common-menu .fcm-desktop-panel { position:fixed; z-index:999991; top:0; left:0; width:240px; height:100vh; height:100dvh; padding:0; margin:0; background:#fff; border-right:1px solid #000; transform:translateX(-210px); transition:transform .35s ease; }',
       '#filt-common-menu.is-open .fcm-desktop-panel { transform:translateX(0); }',
-      '#filt-common-menu .fcm-edge-toggle { position:absolute; top:0; left:230px; width:10px; height:410px; margin:0; padding:0; border:0; border-radius:0; background:#000; cursor:pointer; appearance:none; -webkit-appearance:none; }',
-      '#filt-common-menu .fcm-edge-toggle:focus-visible, #filt-common-menu .fcm-mobile-toggle:focus-visible, #filt-common-menu a:focus-visible { outline:2px solid var(--fcm-accent); outline-offset:2px; }',
+      '#filt-common-menu .fcm-edge-toggle { position:absolute; z-index:10000; top:0; left:230px; width:10px; height:410px; margin:0; padding:0; border:0; border-radius:0; background:#000; cursor:pointer; appearance:none; -webkit-appearance:none; }',
+      '#filt-common-menu .fcm-edge-toggle:focus-visible, #filt-common-menu .fcm-mobile-toggle:focus-visible, #filt-common-menu a:focus-visible, #filt-common-menu .fcm-logo-button:focus-visible { outline:2px solid var(--fcm-accent); outline-offset:2px; }',
       '#filt-common-menu .fcm-home { position:absolute; top:20px; left:20px; z-index:12; display:block; width:15px; height:15px; border:0; border-radius:50%; background:#000; transition:opacity .3s ease, transform .2s ease; }',
       '#filt-common-menu .fcm-home:hover { opacity:.5; }',
-      '#filt-common-menu .fcm-logo { position:absolute; top:0; left:0; width:240px; height:410px; display:block; }',
-      '#filt-common-menu .fcm-logo svg { display:block; width:100%; height:100%; fill:none; stroke:#000; stroke-width:5; transition:opacity .3s ease; }',
-      '#filt-common-menu .fcm-logo:hover svg { opacity:.7; }',
+      '#filt-common-menu .fcm-logo-button { position:absolute; z-index:11; top:0; left:0; width:240px; height:410px; margin:0; padding:0; border:0; background:none; cursor:pointer; }',
+      '#filt-common-menu .fcm-logo-button svg { display:block; width:100%; height:100%; fill:none; stroke:#000; stroke-width:5; transition:opacity .3s ease; }',
+      '#filt-common-menu .fcm-logo-button:hover svg { opacity:.7; }',
       '#filt-common-menu .fcm-office-name { position:absolute; top:330px; left:20px; width:180px; margin:0; font-size:12px; line-height:1; font-weight:600; letter-spacing:0; }',
-      '#filt-common-menu .fcm-divider { position:absolute; top:410px; left:0; width:240px; height:.5px; background:#000; }',
+      '#filt-common-menu .fcm-divider { position:absolute; z-index:20; top:410px; left:0; width:240px; height:.5px; background:#000; }',
       '#filt-common-menu .fcm-desktop-nav { position:absolute; top:420px; left:20px; z-index:20; display:flex; flex-direction:column; }',
       '#filt-common-menu .fcm-desktop-nav a { display:block; color:#000; text-decoration:none; font-size:12px; font-weight:400; line-height:1.6; transition:color .2s ease, transform .2s ease, font-weight .2s ease; }',
       '#filt-common-menu .fcm-desktop-nav a:hover { color:var(--fcm-accent); font-weight:700; transform:translateX(3px); }',
@@ -76,25 +86,27 @@
     home.href = '/home';
     home.setAttribute('aria-label', '홈으로 이동');
 
-    const logoLink = document.createElement('a');
-    logoLink.className = 'fcm-logo';
-    logoLink.href = '/home';
-    logoLink.setAttribute('aria-label', 'FILT 홈');
+    const logoButton = document.createElement('button');
+    logoButton.className = 'fcm-logo-button';
+    logoButton.type = 'button';
+    logoButton.setAttribute('aria-label', '로고 애니메이션 전환');
+
     const svgNS = 'http://www.w3.org/2000/svg';
     const logoSvg = document.createElementNS(svgNS, 'svg');
     logoSvg.setAttribute('viewBox', '0 0 240 410');
     logoSvg.setAttribute('aria-hidden', 'true');
-    [
+    const panelShape = [
       'M28.2,265.02v54.66', 'M25.78,267.47h19.22', 'M18,289.07h6',
       'M32.4,289.07h9.6', 'M42,289.07h9.6', 'M60,289.07h24',
       'M55.8,289.07v30.6', 'M55.8,264.47v24.6', 'M72,293.27v26.4',
       'M72,264.47v20.4', 'M42,293.27v26.4', 'M67.81,317.17h-14.46'
-    ].forEach(d => {
+    ];
+    panelShape.forEach(d => {
       const path = document.createElementNS(svgNS, 'path');
       path.setAttribute('d', d);
       logoSvg.appendChild(path);
     });
-    logoLink.appendChild(logoSvg);
+    logoButton.appendChild(logoSvg);
 
     const officeName = document.createElement('p');
     officeName.className = 'fcm-office-name';
@@ -109,11 +121,6 @@
     desktopNav.id = 'fcm-desktop-nav';
     desktopNav.setAttribute('aria-label', '주요 메뉴');
 
-    const mobileNav = document.createElement('nav');
-    mobileNav.className = 'fcm-mobile-nav';
-    mobileNav.id = 'fcm-mobile-nav';
-    mobileNav.setAttribute('aria-label', '주요 메뉴');
-
     function addLinks(nav, items) {
       const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
       items.forEach(item => {
@@ -127,14 +134,13 @@
       });
     }
     addLinks(desktopNav, desktopLinks);
-    addLinks(mobileNav, mobileLinks);
 
     const desktopFooter = document.createElement('a');
     desktopFooter.className = 'fcm-footer';
     desktopFooter.href = '/000';
     desktopFooter.textContent = 'ESSAYS AND DRAWINGS';
 
-    desktopPanel.append(edgeToggle, home, logoLink, officeName, divider, desktopNav, desktopFooter);
+    desktopPanel.append(edgeToggle, home, logoButton, officeName, divider, desktopNav, desktopFooter);
 
     const overlay = document.createElement('div');
     overlay.className = 'fcm-overlay';
@@ -143,6 +149,12 @@
     const mobilePanel = document.createElement('aside');
     mobilePanel.className = 'fcm-mobile-panel';
     mobilePanel.setAttribute('aria-label', 'FILT 사이트 메뉴');
+
+    const mobileNav = document.createElement('nav');
+    mobileNav.className = 'fcm-mobile-nav';
+    mobileNav.id = 'fcm-mobile-nav';
+    mobileNav.setAttribute('aria-label', '주요 메뉴');
+    addLinks(mobileNav, mobileLinks);
 
     const mobileFooter = document.createElement('a');
     mobileFooter.className = 'fcm-mobile-footer';
@@ -165,41 +177,81 @@
     (document.head || document.documentElement).appendChild(style);
     document.body.appendChild(root);
 
+    let panelOpen = false;
+    let currentStage = 'panel';
+    const morphShapes = {
+      panel: panelShape,
+      logo: [
+        'M49.37-.25v270.82', 'M85.87,261.57h39', 'M-.13,289.07h69',
+        'M45,301.57h53.87', 'M93.37,327.57h27.5', 'M164.87,299.07h75.13',
+        'M93.37,314.57v75', 'M114.87,270.35v45.23', 'M149.87,382.37v27.63',
+        'M209.87,296.57v42', 'M68.87,258.57v33', 'M239.87,355.57h-125'
+      ]
+    };
+    let morphPromise;
+    function ensureMorphPlugin() {
+      if (window.gsap && window.MorphSVGPlugin) {
+        window.gsap.registerPlugin(window.MorphSVGPlugin);
+        return Promise.resolve(true);
+      }
+      if (!morphPromise) {
+        morphPromise = (async () => {
+          try {
+            if (!window.gsap) await loadScript('https://unpkg.com/gsap@3/dist/gsap.min.js');
+            if (!window.MorphSVGPlugin) await loadScript('https://assets.codepen.io/16327/MorphSVGPlugin3.min.js');
+            if (!window.gsap || !window.MorphSVGPlugin) return false;
+            window.gsap.registerPlugin(window.MorphSVGPlugin);
+            return true;
+          } catch (error) {
+            return false;
+          }
+        })();
+      }
+      return morphPromise;
+    }
+    async function morphTo(stage) {
+      if (!await ensureMorphPlugin()) return;
+      const paths = logoSvg.querySelectorAll('path');
+      const timeline = window.gsap.timeline({ defaults: { duration: .8, ease: 'power2.inOut' } });
+      paths.forEach((path, index) => {
+        timeline.to(path, {
+          morphSVG: { shape: morphShapes[stage][index], shapeIndex: 0 }
+        }, 0);
+      });
+      currentStage = stage;
+    }
+
     const toggles = [edgeToggle, mobileToggle];
-    let previousOverflow = '';
     function setOpen(open) {
+      panelOpen = open;
       root.classList.toggle('is-open', open);
       toggles.forEach(button => {
         button.setAttribute('aria-expanded', String(open));
         button.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
       });
       if (window.matchMedia('(max-width:767px)').matches) {
-        if (open) {
-          previousOverflow = document.body.style.overflow;
-          document.body.style.overflow = 'hidden';
-        } else {
-          document.body.style.overflow = previousOverflow;
-        }
+        document.body.style.overflow = open ? 'hidden' : '';
+      } else if (currentStage !== 'panel') {
+        morphTo('panel');
       }
     }
 
     toggles.forEach(button => button.addEventListener('click', () => {
-      setOpen(!root.classList.contains('is-open'));
+      setOpen(!panelOpen);
     }));
+    logoButton.addEventListener('click', () => {
+      if (!panelOpen) return;
+      morphTo(currentStage === 'panel' ? 'logo' : 'panel');
+    });
     overlay.addEventListener('click', () => setOpen(false));
     [desktopNav, mobileNav].forEach(nav => nav.addEventListener('click', event => {
       if (event.target.closest('a')) setOpen(false);
     }));
-    desktopPanel.addEventListener('click', event => {
-      if (event.target === desktopPanel) setOpen(false);
-    });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && root.classList.contains('is-open')) setOpen(false);
+      if (event.key === 'Escape' && panelOpen) setOpen(false);
     });
     window.addEventListener('resize', () => {
-      if (!window.matchMedia('(max-width:767px)').matches) {
-        document.body.style.overflow = previousOverflow;
-      }
+      if (!window.matchMedia('(max-width:767px)').matches) document.body.style.overflow = '';
     });
   }
 
