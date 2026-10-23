@@ -331,41 +331,8 @@ body::-webkit-scrollbar { display: none; }
   
   
 <body>
-<!-- 📌 상단바 -->
-  <header class="mobile-header">
-	<div class="header-logo" onclick="location.href='/home'">
-	  <svg viewBox="0 0 91.67 76.67">
-        <path d="M14.17,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M10,4.17h27.5" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M0,34.17h8.33" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M20,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M33.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M58.33,34.17h13.33" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M71.67,34.17h20" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M52.5,0v76.67" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M75,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M75,0v28.33" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M33.33,40v36.67" stroke="#000" stroke-width="8.33" fill="none"/>
-        <path d="M69.17,72.5h-20.83" stroke="#000" stroke-width="8.33" fill="none"/>
-	  </svg>
-	</div>
-	<button type="button" class="header-menu-btn" id="openMenuBtn" aria-label="메뉴 열기">
-	  <div class="btn-dot"></div>
-	</button>
-  </header>
-  
-<!-- 📌 우측 메뉴 패널 -->
-  <div class="menu-overlay" id="menuOverlay"></div>
-  <aside class="mobile-menu-panel" id="mobileMenuPanel">
-    <nav class="menu-middle">
-      <a href="/works_list">WORKS</a>
-      <a href="/office">OFFICE</a>
-      <a href="/news">NEWS</a>
-	</nav>
-    <div class="menu-bottom">
-      <a href="">ESSAY & DRAWING</a>
-	</div>
-  </aside>
+<!-- 상단 40px 구분선 공간 유지 -->
+<header class="mobile-header" aria-hidden="true"></header>
 
     <!-- 📌 카테고리 필터 -->
   <nav class="category-filter">
@@ -447,30 +414,6 @@ body::-webkit-scrollbar { display: none; }
   </main>
 
 <script>
-///// 우측 메뉴 패널
-const panel = document.querySelector("#mobileMenuPanel");
-const menuBtn = document.querySelector("#openMenuBtn");
-const overlay = document.querySelector("#menuOverlay"); // 오버레이 추가
-
-// 1. 메뉴 열기
-menuBtn.onclick = () => {
-  panel.classList.add("open");
-  overlay.classList.add("active");
-  document.body.style.overflow = "hidden"; // 본문 스크롤 방지
-};
-  
-// 2. 메뉴 닫기
-const closeMenu = () => {
-  panel.classList.remove("open");
-  overlay.classList.remove("active"); // 배경 숨기기
-  document.body.style.overflow = ""; // 스크롤 복구
-};
-
-// 3. 배경(오버레이) 클릭 시 닫기
-overlay.onclick = closeMenu;
-
-
-
 ///// 카테고리 필터
 const filterButtons = document.querySelectorAll(".filter-btn");
 const items = document.querySelectorAll(".works-item");
@@ -495,6 +438,9 @@ filterButtons.forEach(btn => {
 items.forEach(item => item.style.display = "block");
   
 </script>
+  
+  <script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@4e31b732e40f52866644115d1e460ef4c90cdae9/common-menu-v2.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@652717595b7dbeeaacbd1224996fe9f627407f1f/home-button.js"></script>
   
   </body>
   </html>
