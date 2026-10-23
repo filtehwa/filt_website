@@ -3,17 +3,6 @@
   if (window.__FILT_COMMON_MENU_LOADED) return;
   window.__FILT_COMMON_MENU_LOADED = true;
 
-  const desktopLinks = [
-    { label: 'OFFICE', href: '/office' },
-    { label: 'NEWS', href: '/news' },
-    { label: 'WORKS', href: '/works_list' }
-  ];
-  const mobileLinks = [
-    { label: 'WORKS', href: '/works_list' },
-    { label: 'OFFICE', href: '/office' },
-    { label: 'NEWS', href: '/news' }
-  ];
-
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -27,38 +16,98 @@
   function mount() {
     if (!document.body || document.getElementById(ROOT_ID)) return;
 
+    const root = document.createElement('div');
+    root.id = ROOT_ID;
+
+    const sidebarMarkup = [
+      '  <!-- ✅ 사이드메뉴 -->',
+      '<aside class="side-panel" id="panel">',
+      '  <div class="logo-btn" id="logoBtn">',
+      '    <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">',
+      '      <path id="f-2" class="cls-1" d="M28.2,265.02v54.66"/>',
+      '      <path id="f-1" class="cls-1" d="M25.78,267.47h19.22"/>',
+      '      <path id="f-3" class="cls-1" d="M18,289.07h6"/>',
+      '      <path id="f-4" class="cls-1" d="M32.4,289.07h9.6"/>',
+      '      <path id="i-1" class="cls-1" d="M42,289.07h9.6"/>',
+      '      <path id="t-2" class="cls-1" d="M60,289.07h24"/>',
+      '      <path id="l-2" class="cls-1" d="M55.8,289.07v30.6"/>',
+      '      <path id="l-1" class="cls-1" d="M55.8,264.47v24.6"/>',
+      '      <path id="t-3" class="cls-1" d="M72,293.27v26.4"/>',
+      '      <path id="t-1" class="cls-1" d="M72,264.47v20.4"/>',
+      '      <path id="i-2" class="cls-1" d="M42,293.27v26.4"/>',
+      '      <path id="l-3" class="cls-1" d="M67.81,317.17h-14.46"/>',
+      '    </svg>',
+      '  </div>',
+      '  <div class="office-name" id="officeName"><p>필트아키텍츠<br>건축사사무소</p></div>',
+      '  <div class="vert"></div>',
+      '  <div class="divider-top"></div>',
+      '  <nav class="panel-menu"><ul>',
+      '    <li><a href="/office">OFFICE</a></li>',
+      '    <li><a href="/news">NEWS</a></li>',
+      '    <li><a href="/works_list">WORKS</a></li>',
+      '  </ul></nav>',
+      '  <footer class="panel-footer">',
+      '    <svg width="100%" height="100%" role="img" aria-label="ESSAYS AND DRAWINGS" xmlns="http://www.w3.org/2000/svg">',
+      '      <defs><mask id="footer-text-cutout" x="0" y="0" width="100%" height="100%" style="mask-type:luminance;">',
+      '        <rect width="100%" height="100%" fill="white"/>',
+      '        <text x="20" y="50%" dominant-baseline="central" fill="black" style="font-size:12px;font-weight:200;letter-spacing:.6px;">ESSAYS AND DRAWINGS</text>',
+      '      </mask></defs>',
+      '      <rect width="100%" height="100%" fill="black" mask="url(#footer-text-cutout)"/>',
+      '    </svg>',
+      '  </footer>',
+      '</aside>'
+    ].join('\n');
+
+    const mobileMarkup = [
+      '<button type="button" class="header-menu-btn" id="openMenuBtn" aria-label="메뉴 열기" aria-expanded="false">',
+      '  <div class="btn-dot"></div>',
+      '</button>',
+      '<div class="menu-overlay" id="menuOverlay"></div>',
+      '<aside class="mobile-menu-panel" id="mobileMenuPanel" aria-label="FILT 사이트 메뉴">',
+      '  <nav class="menu-middle" aria-label="주요 메뉴">',
+      '    <a href="/works_list">WORKS</a>',
+      '    <a href="/office">OFFICE</a>',
+      '    <a href="/news">NEWS</a>',
+      '  </nav>',
+      '  <div class="menu-bottom"><a href="/000">ESSAY &amp; DRAWING</a></div>',
+      '</aside>'
+    ].join('\n');
+
+    root.innerHTML = sidebarMarkup + '\n' + mobileMarkup;
+
     const css = [
       '#filt-common-menu, #filt-common-menu * { box-sizing:border-box; }',
-      '#filt-common-menu { --fcm-accent:#BD005E; font-family:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif; letter-spacing:.4px; color:#000; }',
-      '#filt-common-menu button, #filt-common-menu a { font-family:inherit; }',
-      '#filt-common-menu .fcm-desktop-panel { position:fixed; z-index:999991; top:0; left:0; width:240px; height:100vh; height:100dvh; padding:0; margin:0; background:#fff; border-right:1px solid #000; transform:translateX(-210px); transition:transform .35s ease; }',
-      '#filt-common-menu.is-open .fcm-desktop-panel { transform:translateX(0); }',
-      '#filt-common-menu .fcm-edge-toggle { position:absolute; z-index:10000; top:0; left:230px; width:10px; height:410px; margin:0; padding:0; border:0; border-radius:0; background:#000; cursor:pointer; appearance:none; -webkit-appearance:none; }',
-      '#filt-common-menu .fcm-edge-toggle:focus-visible, #filt-common-menu .fcm-mobile-toggle:focus-visible, #filt-common-menu a:focus-visible, #filt-common-menu .fcm-logo-button:focus-visible { outline:2px solid var(--fcm-accent); outline-offset:2px; }',
-      '#filt-common-menu .fcm-home { position:absolute; top:20px; left:20px; z-index:12; display:block; width:15px; height:15px; border:0; border-radius:50%; background:#000; transition:opacity .3s ease, transform .2s ease; }',
-      '#filt-common-menu .fcm-home:hover { opacity:.5; }',
-      '#filt-common-menu .fcm-logo-button { position:absolute; z-index:11; top:0; left:0; width:240px; height:410px; margin:0; padding:0; border:0; background:none; cursor:pointer; }',
-      '#filt-common-menu .fcm-logo-button svg { display:block; width:100%; height:100%; fill:none; stroke:#000; stroke-width:5; transition:opacity .3s ease; }',
-      '#filt-common-menu .fcm-logo-button:hover svg { opacity:.7; }',
-      '#filt-common-menu .fcm-office-name { position:absolute; top:330px; left:20px; width:180px; margin:0; font-size:12px; line-height:1; font-weight:600; letter-spacing:0; }',
-      '#filt-common-menu .fcm-divider { position:absolute; z-index:20; top:410px; left:0; width:240px; height:.5px; background:#000; }',
-      '#filt-common-menu .fcm-desktop-nav { position:absolute; top:420px; left:20px; z-index:20; display:flex; flex-direction:column; }',
-      '#filt-common-menu .fcm-desktop-nav a { display:block; color:#000; text-decoration:none; font-size:12px; font-weight:400; line-height:1.6; transition:color .2s ease, transform .2s ease, font-weight .2s ease; }',
-      '#filt-common-menu .fcm-desktop-nav a:hover { color:var(--fcm-accent); font-weight:700; transform:translateX(3px); }',
-      '#filt-common-menu .fcm-footer { position:absolute; right:0; bottom:0; left:0; height:35px; display:flex; align-items:center; padding:0 20px; border-top:1px solid #000; color:#fff; background:#000; text-decoration:none; font-size:12px; line-height:1; font-weight:200; letter-spacing:.6px; }',
-      '#filt-common-menu .fcm-mobile-toggle, #filt-common-menu .fcm-mobile-panel, #filt-common-menu .fcm-overlay { display:none; }',
+      '#filt-common-menu { font-family:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif; color:#000; letter-spacing:.4px; }',
+      '#filt-common-menu .side-panel, #filt-common-menu .side-panel * { font-family:"Pretendard Variable","Pretendard","Noto Sans KR",sans-serif !important; letter-spacing:.4px; }',
+      '#filt-common-menu .side-panel { position:fixed; top:0; left:-210px; width:240px; height:100vh; height:100dvh; margin:0; padding:0; border-right:1px solid #000; background:rgba(255,255,255,0); z-index:999991; transition:left .35s ease; }',
+      '#filt-common-menu .side-panel.open { left:0; }',
+      '#filt-common-menu .vert { position:absolute; top:0; left:230px; z-index:10000; width:10px; height:410px; background:#000; cursor:pointer; }',
+      '#filt-common-menu .divider-top { position:absolute; top:410px; left:0; z-index:20; width:240px; height:.5px; background:#000; }',
+      '#filt-common-menu .logo-btn { position:absolute; top:0; left:0; z-index:11; width:240px; height:410px; cursor:pointer; background:none; }',
+      '#filt-common-menu .logo-btn svg { width:100%; height:100%; fill:none; stroke:#000; stroke-width:5; transition:transform .3s ease, opacity .3s ease; }',
+      '#filt-common-menu .logo-btn:hover svg { opacity:.7; }',
+      '#filt-common-menu .office-name { position:absolute; top:330px; left:20px; width:180px; color:#000; font-size:12px; font-weight:600; line-height:1; letter-spacing:0; }',
+      '#filt-common-menu .office-name p { margin:0; }',
+      '#filt-common-menu .panel-menu { position:absolute; top:420px; left:20px; z-index:20; }',
+      '#filt-common-menu .panel-menu ul { margin:0; padding:0; list-style:none; }',
+      '#filt-common-menu .panel-menu a { display:block; color:#000; font-size:12px; font-weight:400; line-height:1.6; text-decoration:none !important; transition:all .2s ease; }',
+      '#filt-common-menu .panel-menu a:hover { color:#BD005E; font-weight:700; transform:translateX(3px); }',
+      '#filt-common-menu .panel-footer { position:absolute; bottom:0; left:0; width:100%; height:35px; padding:0; border-top:1px solid #000; background:transparent; }',
+      '#filt-common-menu .panel-footer svg { display:block; width:100%; height:100%; }',
+      '#filt-common-menu .header-menu-btn, #filt-common-menu .mobile-menu-panel, #filt-common-menu .menu-overlay { display:none; }',
       '@media (max-width:767px) {',
-      '  #filt-common-menu .fcm-desktop-panel { display:none; }',
-      '  #filt-common-menu .fcm-mobile-toggle { position:fixed; z-index:999992; top:0; right:0; display:flex; width:40px; height:40px; margin:0; padding:0; align-items:center; justify-content:center; border:0; border-radius:0; background:transparent; cursor:pointer; appearance:none; -webkit-appearance:none; }',
-      '  #filt-common-menu .fcm-mobile-dot { display:block; width:12px; height:12px; flex:0 0 12px; border-radius:50%; background:#000; opacity:1; visibility:visible; }',
-      '  #filt-common-menu .fcm-overlay { position:fixed; z-index:999990; inset:0; display:block; background:rgba(0,0,0,.3); opacity:0; visibility:hidden; transition:opacity .35s ease, visibility .35s ease; }',
-      '  #filt-common-menu.is-open .fcm-overlay { opacity:1; visibility:visible; }',
-      '  #filt-common-menu .fcm-mobile-panel { position:fixed; z-index:999991; top:0; right:0; display:flex; flex-direction:column; width:45%; max-width:82vw; min-width:180px; height:100vh; height:100dvh; border-left:.5px solid #000; background:#fff; transform:translateX(101%); transition:transform .35s ease; }',
-      '  #filt-common-menu.is-open .fcm-mobile-panel { transform:translateX(0); }',
-      '  #filt-common-menu .fcm-mobile-nav { flex:1 1 auto; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; margin-top:150px; padding:5px; border-top:.5px solid #000; border-bottom:.5px solid #000; text-align:left; }',
-      '  #filt-common-menu .fcm-mobile-nav a { display:block; color:#000; text-decoration:none; font-size:1.2rem; font-weight:400; line-height:1.55; transition:color .35s ease; }',
-      '  #filt-common-menu .fcm-mobile-nav a:hover { color:var(--fcm-accent); }',
-      '  #filt-common-menu .fcm-mobile-footer { flex:0 0 50px; display:flex; justify-content:flex-end; align-items:flex-start; padding:5px; color:#fff; background:#000; text-decoration:none; font-size:1.2rem; font-weight:400; }',
+      '  #filt-common-menu .side-panel { display:none; }',
+      '  #filt-common-menu .header-menu-btn { position:fixed; top:0; right:0; z-index:999992; display:flex; width:40px; height:40px; margin:0; padding:0; align-items:center; justify-content:center; border:0; background:transparent; cursor:pointer; appearance:none; -webkit-appearance:none; }',
+      '  #filt-common-menu .btn-dot { display:block; width:12px; height:12px; flex:0 0 12px; border-radius:50%; background:#000; }',
+      '  #filt-common-menu .mobile-menu-panel { position:fixed; top:0; right:-100%; z-index:999991; display:flex; width:45%; max-width:82vw; min-width:180px; height:100vh; height:100dvh; flex-direction:column; border-left:.5px solid #000; background:#fff; transition:right .35s ease; }',
+      '  #filt-common-menu .mobile-menu-panel.open { right:0; }',
+      '  #filt-common-menu .menu-overlay { position:fixed; inset:0; z-index:999990; display:none; background:rgba(0,0,0,.3); }',
+      '  #filt-common-menu .menu-overlay.active { display:block; }',
+      '  #filt-common-menu .menu-middle { flex:1 1 auto; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; margin-top:150px; padding:5px; border-top:.5px solid #000; border-bottom:.5px solid #000; text-align:left; }',
+      '  #filt-common-menu .menu-middle a { display:block; color:#000; font-size:1.2rem; font-weight:400; line-height:1.55; text-decoration:none; transition:color .35s ease; }',
+      '  #filt-common-menu .menu-middle a:hover { color:#BD005E; }',
+      '  #filt-common-menu .menu-bottom { flex:0 0 50px; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-end; padding:5px; background:#000; text-align:right; }',
+      '  #filt-common-menu .menu-bottom a { color:#fff; font-size:1.2rem; font-weight:400; text-decoration:none; }',
       '}',
       '@media (prefers-reduced-motion:reduce) { #filt-common-menu *, #filt-common-menu *::before, #filt-common-menu *::after { transition-duration:.01ms !important; } }'
     ].join('\n');
@@ -66,121 +115,25 @@
     const style = document.createElement('style');
     style.id = ROOT_ID + '-styles';
     style.textContent = css;
-
-    const root = document.createElement('div');
-    root.id = ROOT_ID;
-
-    const desktopPanel = document.createElement('aside');
-    desktopPanel.className = 'fcm-desktop-panel';
-    desktopPanel.setAttribute('aria-label', 'FILT 사이트 메뉴');
-
-    const edgeToggle = document.createElement('button');
-    edgeToggle.className = 'fcm-edge-toggle';
-    edgeToggle.type = 'button';
-    edgeToggle.setAttribute('aria-label', '메뉴 열기');
-    edgeToggle.setAttribute('aria-expanded', 'false');
-    edgeToggle.setAttribute('aria-controls', 'fcm-desktop-nav');
-
-    const home = document.createElement('a');
-    home.className = 'fcm-home';
-    home.href = '/home';
-    home.setAttribute('aria-label', '홈으로 이동');
-
-    const logoButton = document.createElement('button');
-    logoButton.className = 'fcm-logo-button';
-    logoButton.type = 'button';
-    logoButton.setAttribute('aria-label', '로고 애니메이션 전환');
-
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const logoSvg = document.createElementNS(svgNS, 'svg');
-    logoSvg.setAttribute('viewBox', '0 0 240 410');
-    logoSvg.setAttribute('aria-hidden', 'true');
-    const panelShape = [
-      'M28.2,265.02v54.66', 'M25.78,267.47h19.22', 'M18,289.07h6',
-      'M32.4,289.07h9.6', 'M42,289.07h9.6', 'M60,289.07h24',
-      'M55.8,289.07v30.6', 'M55.8,264.47v24.6', 'M72,293.27v26.4',
-      'M72,264.47v20.4', 'M42,293.27v26.4', 'M67.81,317.17h-14.46'
-    ];
-    panelShape.forEach(d => {
-      const path = document.createElementNS(svgNS, 'path');
-      path.setAttribute('d', d);
-      logoSvg.appendChild(path);
-    });
-    logoButton.appendChild(logoSvg);
-
-    const officeName = document.createElement('p');
-    officeName.className = 'fcm-office-name';
-    officeName.append('필트아키텍츠', document.createElement('br'), '건축사사무소');
-
-    const divider = document.createElement('div');
-    divider.className = 'fcm-divider';
-    divider.setAttribute('aria-hidden', 'true');
-
-    const desktopNav = document.createElement('nav');
-    desktopNav.className = 'fcm-desktop-nav';
-    desktopNav.id = 'fcm-desktop-nav';
-    desktopNav.setAttribute('aria-label', '주요 메뉴');
-
-    function addLinks(nav, items) {
-      const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-      items.forEach(item => {
-        const link = document.createElement('a');
-        link.href = item.href;
-        link.textContent = item.label;
-        if (currentPath === item.href || currentPath.startsWith(item.href + '/')) {
-          link.setAttribute('aria-current', 'page');
-        }
-        nav.appendChild(link);
-      });
-    }
-    addLinks(desktopNav, desktopLinks);
-
-    const desktopFooter = document.createElement('a');
-    desktopFooter.className = 'fcm-footer';
-    desktopFooter.href = '/000';
-    desktopFooter.textContent = 'ESSAYS AND DRAWINGS';
-
-    desktopPanel.append(edgeToggle, home, logoButton, officeName, divider, desktopNav, desktopFooter);
-
-    const overlay = document.createElement('div');
-    overlay.className = 'fcm-overlay';
-    overlay.setAttribute('aria-hidden', 'true');
-
-    const mobilePanel = document.createElement('aside');
-    mobilePanel.className = 'fcm-mobile-panel';
-    mobilePanel.setAttribute('aria-label', 'FILT 사이트 메뉴');
-
-    const mobileNav = document.createElement('nav');
-    mobileNav.className = 'fcm-mobile-nav';
-    mobileNav.id = 'fcm-mobile-nav';
-    mobileNav.setAttribute('aria-label', '주요 메뉴');
-    addLinks(mobileNav, mobileLinks);
-
-    const mobileFooter = document.createElement('a');
-    mobileFooter.className = 'fcm-mobile-footer';
-    mobileFooter.href = '/000';
-    mobileFooter.textContent = 'ESSAY & DRAWING';
-    mobilePanel.append(mobileNav, mobileFooter);
-
-    const mobileToggle = document.createElement('button');
-    mobileToggle.className = 'fcm-mobile-toggle';
-    mobileToggle.type = 'button';
-    mobileToggle.setAttribute('aria-label', '메뉴 열기');
-    mobileToggle.setAttribute('aria-expanded', 'false');
-    mobileToggle.setAttribute('aria-controls', 'fcm-mobile-nav');
-    const mobileDot = document.createElement('span');
-    mobileDot.className = 'fcm-mobile-dot';
-    mobileDot.setAttribute('aria-hidden', 'true');
-    mobileToggle.appendChild(mobileDot);
-
-    root.append(overlay, desktopPanel, mobilePanel, mobileToggle);
     (document.head || document.documentElement).appendChild(style);
     document.body.appendChild(root);
 
-    let panelOpen = false;
-    let currentStage = 'panel';
-    const morphShapes = {
-      panel: panelShape,
+    const panel = root.querySelector('#panel');
+    const logoBtn = root.querySelector('#logoBtn');
+    const logo = logoBtn.querySelector('svg');
+    const paths = logo.querySelectorAll('path');
+    const vert = root.querySelector('.vert');
+    const mobilePanel = root.querySelector('#mobileMenuPanel');
+    const mobileButton = root.querySelector('#openMenuBtn');
+    const overlay = root.querySelector('#menuOverlay');
+
+    const shapes = {
+      panel: [
+        'M28.2,265.02v54.66', 'M25.78,267.47h19.22', 'M18,289.07h6',
+        'M32.4,289.07h9.6', 'M42,289.07h9.6', 'M60,289.07h24',
+        'M55.8,289.07v30.6', 'M55.8,264.47v24.6', 'M72,293.27v26.4',
+        'M72,264.47v20.4', 'M42,293.27v26.4', 'M67.81,317.17h-14.46'
+      ],
       logo: [
         'M49.37-.25v270.82', 'M85.87,261.57h39', 'M-.13,289.07h69',
         'M45,301.57h53.87', 'M93.37,327.57h27.5', 'M164.87,299.07h75.13',
@@ -188,7 +141,11 @@
         'M209.87,296.57v42', 'M68.87,258.57v33', 'M239.87,355.57h-125'
       ]
     };
+
+    let currentStage = 'panel';
+    let panelOpen = false;
     let morphPromise;
+
     function ensureMorphPlugin() {
       if (window.gsap && window.MorphSVGPlugin) {
         window.gsap.registerPlugin(window.MorphSVGPlugin);
@@ -209,54 +166,68 @@
       }
       return morphPromise;
     }
-    async function morphTo(stage) {
+
+    async function morphTo(targetStage) {
       if (!await ensureMorphPlugin()) return;
-      const paths = logoSvg.querySelectorAll('path');
-      const timeline = window.gsap.timeline({ defaults: { duration: .8, ease: 'power2.inOut' } });
+      const timeline = window.gsap.timeline({ defaults: { duration:.8, ease:'power2.inOut' } });
+      const newPaths = shapes[targetStage];
       paths.forEach((path, index) => {
-        timeline.to(path, {
-          morphSVG: { shape: morphShapes[stage][index], shapeIndex: 0 }
-        }, 0);
+        timeline.to(path, { morphSVG:{ shape:newPaths[index], map:'position' } }, 0);
       });
-      currentStage = stage;
+      currentStage = targetStage;
     }
 
-    const toggles = [edgeToggle, mobileToggle];
-    function setOpen(open) {
-      panelOpen = open;
-      root.classList.toggle('is-open', open);
-      toggles.forEach(button => {
-        button.setAttribute('aria-expanded', String(open));
-        button.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
-      });
-      if (window.matchMedia('(max-width:767px)').matches) {
-        document.body.style.overflow = open ? 'hidden' : '';
-      } else if (currentStage !== 'panel') {
-        morphTo('panel');
-      }
+    function toggleDesktopPanel() {
+      panelOpen = !panelOpen;
+      panel.classList.toggle('open', panelOpen);
+      morphTo('panel');
     }
 
-    toggles.forEach(button => button.addEventListener('click', () => {
-      setOpen(!panelOpen);
-    }));
-    logoButton.addEventListener('click', () => {
+    vert.addEventListener('click', event => {
+      event.stopPropagation();
+      toggleDesktopPanel();
+    });
+    panel.addEventListener('click', event => {
+      if (event.target.closest('a') || event.target.closest('#logoBtn') || event.target.closest('.vert')) return;
+      toggleDesktopPanel();
+    });
+    logoBtn.addEventListener('click', event => {
+      event.stopPropagation();
       if (!panelOpen) return;
       morphTo(currentStage === 'panel' ? 'logo' : 'panel');
     });
-    overlay.addEventListener('click', () => setOpen(false));
-    [desktopNav, mobileNav].forEach(nav => nav.addEventListener('click', event => {
-      if (event.target.closest('a')) setOpen(false);
-    }));
+
+    mobileButton.addEventListener('click', () => {
+      const open = !mobilePanel.classList.contains('open');
+      mobilePanel.classList.toggle('open', open);
+      overlay.classList.toggle('active', open);
+      mobileButton.setAttribute('aria-expanded', String(open));
+      mobileButton.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    const closeMobileMenu = () => {
+      mobilePanel.classList.remove('open');
+      overlay.classList.remove('active');
+      mobileButton.setAttribute('aria-expanded', 'false');
+      mobileButton.setAttribute('aria-label', '메뉴 열기');
+      document.body.style.overflow = '';
+    };
+    overlay.addEventListener('click', closeMobileMenu);
+    mobilePanel.addEventListener('click', event => {
+      if (event.target.closest('a')) closeMobileMenu();
+    });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && panelOpen) setOpen(false);
+      if (event.key === 'Escape') {
+        if (mobilePanel.classList.contains('open')) closeMobileMenu();
+        else if (panelOpen) toggleDesktopPanel();
+      }
     });
-    window.addEventListener('resize', () => {
-      if (!window.matchMedia('(max-width:767px)').matches) document.body.style.overflow = '';
-    });
+
+    ensureMorphPlugin();
   }
 
   if (document.readyState === 'loading' && !document.body) {
-    document.addEventListener('DOMContentLoaded', mount, { once: true });
+    document.addEventListener('DOMContentLoaded', mount, { once:true });
   } else {
     mount();
   }
