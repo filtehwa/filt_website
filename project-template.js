@@ -232,9 +232,12 @@
     loadScript("https://cdn.jsdelivr.net/gh/filtehwa/filt_website@common-menu/home-button.js");
   };
 
+  const projectDataUrl = new URL(`projects/${encodeURIComponent(projectId)}.json`, templateBase);
+  projectDataUrl.searchParams.set("_", String(Date.now()));
+
   Promise.all([
     templateStylesReady,
-    fetch(new URL(`projects/${encodeURIComponent(projectId)}.json`, templateBase)).then((response) => {
+    fetch(projectDataUrl, { cache: "no-store" }).then((response) => {
       if (!response.ok) throw new Error(`Project data request failed (${response.status}).`);
       return response.json();
     })
