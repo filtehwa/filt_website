@@ -1,0 +1,24 @@
+{
+  "id": "yaein-church-interior",
+  "title": "YAEIN CHURCH INTERIOR | PROJECT INFO",
+  "overview": {
+    "titleEn": "YAEIN CHURCH INTERIOR",
+    "subtitle": "예인교회 본당 인테리어",
+    "fields": [
+      { "label": "STATUS", "value": "BUILT" },
+      { "label": "YEAR", "value": "2025" },
+      { "label": "LOCATION", "value": "SEOUL, SOUTH KOREA" },
+      { "label": "PROGRAM", "value": "CHURCH" }
+    ]
+  },
+  "images": [
+    {
+      "src": "이미지의_직접_URL",
+      "class": "landscape",
+      "alt": "예인교회 본당",
+      "fit": "auto",
+      "rotation": 0
+    }
+  ],
+  "descriptionHtml": "프로젝트 설명을 여기에 입력하세요."
+}
