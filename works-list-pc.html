@@ -60,14 +60,6 @@
   background: var(--bg-color);
 }
  
-.side-panel.open ~ .main .left-container {
-  transform: translateX(var(--panel-hide-width));
-  width: calc(100% - var(--panel-hide-width));
-  transition: margin-left 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
-              width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
-  will-change: transform, width; /* ✅ 브라우저가 미리 계산하도록 */
-}
-
   /* == 리스트 섹션 == */
 .sec { 
   overflow:hidden; 
@@ -236,154 +228,6 @@
 }
    
   
-  /* ------------------------------
-     	📌 3. 좌측 사이드 패널
-		- 로고, 메뉴, 구분선
-     ------------------------------ */
-  /* 사이드 패널 */
-.side-panel {
-  position:fixed; 
-  top:0; 
-  left:-210px;
-  width:240px; 
-  height:100vh;
-  background:#fff; 
-  border-right:1px solid #000;
-  z-index:10;
-  transition:left .35s ease;
-  padding:0; 
-  box-sizing:border-box;
-  cursor:pointer;
-}
-.side-panel.open {left:0;}
-  
-.side-panel,
-.side-panel *{
-  font-family: var(--panel-font) !important;
-  letter-spacing: 0.4px; /* 상세페이지 느낌 */
-}
-
-  
-  /* 홈 버튼 */
-.home-btn {
-  position:absolute; top:20px; left:20px;
-  width:15px; height:15px;
-  border:0px solid #000; border-radius:50%;
-  background-color:#000;
-  cursor:pointer;
-  transition:background-color .3s ease, transform .2s ease; z-index:10000; 
-}
-.home-btn:hover {background-color:#000; opacity:0.5;}
-.home-btn:active {transform:scale(0.9); background-color:#fff;}
-	  
-  /* 구분선 */
-  
-.vert {
-  position: absolute;
-  left: 230px;
-  top: 0;
-  width: 10px;
-  height: 410px;
-  background-color: #000;
-  z-index:10000; 
-}
-  
-.divider-top {
-  position: absolute;
-  top: 410px;
-  left: 0;
-  width: 240px;
-  height: 0.5px;
-  background-color: #000;
-}
-	
-  /* 로고 버튼 */
-.logo-btn {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 240px;
-  height: 410px;
-  cursor: pointer;
-  background: none;
-  z-index: 11; /* 메뉴보다 위에 */
-  }
-.logo-btn svg {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: #000;
-  stroke-width: 5;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-.logo-btn:hover svg {
-  opacity: 0.7;
-  }
-  
-  /*사무소 이름 (텍스트)*/
-.office-name {
-  position: absolute;
-  left: 20px;
-  top: 330px;
-  width: 180px;
-  line-height: 1.0;
-  letter-spacing: 0px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #000;
-}
-
-	/* 메뉴 */
-.panel-menu {
-  position: absolute;
-  top: 420px;
-  left: 20px;
-  z-index: 20;
-}
-.panel-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}	
-.panel-menu a{
-  display:block;
-  font-size:12px;
-  font-weight:400;
-  line-height:1.6;
-  letter-spacing:0.4px;
-  color:#000;
-  text-decoration:none !important;
-  transition: all .2s ease;
-}
-
-.panel-menu a:hover{
-  color: var(--accent);
-  font-weight:700;
-  transform: translateX(3px);
-}
-	
-	/* 하단 구분선 문구 */
-	.panel-footer {
-	  position: absolute;
-	  bottom: 0;
-	  left: 0;
-	  width: 100%;
-	  height: 35px;
-	  background-color: #000;
-	  display: flex;
-	  align-items: center;
-	  padding-left: 20px;
-	  box-sizing: border-box;
-}
-  .panel-subtitle {
-	font-weight: 200;
-	font-size: 12px;
-	letter-spacing: 0.6px;
-	z-index: 21;
-	color: #fff;
-	margin: 0;
-}
-
 /* 썸네일 영역의 경계선과 여백 제거 */
 .preview {
   border: none;
@@ -415,49 +259,6 @@
 </head>
 
 <body>
-
-  <!-- ✅ 사이드메뉴 -->
-  
-<aside class="side-panel" id="panel">
-  <button class="home-btn" onclick="location.href='/home'"></button>
-  <button class="logo-btn" id="logoBtn">
-	  <svg viewBox="0 0 240 410" xmlns="http://www.w3.org/2000/svg">
-      <path d="M28.2,265.02v54.66"/>
-<path d="M25.78,267.47h19.22"/>
-<path d="M18,289.07h6"/>
-<path d="M32.4,289.07h9.6"/>
-<path d="M42,289.07h9.6"/>
-<path d="M60,289.07h24"/>
-<path d="M55.8,289.07v30.6"/>
-<path d="M55.8,264.47v24.6"/>
-<path d="M72,293.27v26.4"/>
-<path d="M72,264.47v20.4"/>
-<path d="M42,293.27v26.4"/>
-<path d="M67.81,317.17h-14.46"/>
-    </svg>
-  </button>
-
-  <div class="office-name" id="officeName">
-    <p>필트아키텍츠<br>건축사사무소</p>
-  </div>
-  
-  <div class="vert"></div>
-  <div class="divider-top"></div>
-  
-  <nav class="panel-menu">
-    <ul>
-      <li><a href="/office">OFFICE</a></li>
-      <li><a href="/news">NEWS</a></li>
-      <li><a href="/works_list">WORKS</a></li>
-    </ul>
-  </nav>
-  
-  <footer class="panel-footer">
-    <p class="panel-subtitle">ESSAYS AND DRAWINGS</p>
-  </footer>
-</aside>
-
-
 <!-- ✅ 메인 콘텐츠 -->
 <main class="main">
   <div class="left-container">
@@ -623,9 +424,6 @@
 </main>
   
   
-<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
-<script src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"></script>
-
 <script>
 /* =========================================================
    ✅ 썸네일 hover 프리뷰 (정상 동작 버전)
@@ -688,115 +486,6 @@ document.querySelectorAll('.item[data-img]').forEach(it => {
   });
 });
 
-/* ✅ 로고 3단계 모핑 (base / panel / logo) */
-window.addEventListener('load', ()=> {
-  const logo = document.querySelector('#logoBtn svg');
-  const paths = logo.querySelectorAll('path');
-  const panel = document.getElementById('panel');
-  const vert = document.querySelector('.vert'); // ✅ vert 요소 직접 선택
-  gsap.registerPlugin(MorphSVGPlugin);
-
-const shapes = {
-  /* base: [
-	    "M221,241v46",
-    "M221.15,243.5h9.85",
-    "M212.5,261.5h5",
-    "M218.5,291.5h2.5",
-    "M220.75,291.5h2.75",
-    "M211,384.5h6.5",
-    "M224.5,384.5h6.5",
-    "M221,330v39",
-    "M221,388v22",
-    "M221,371v17",
-    "M221,295v33",
-    "M231,366.5h-11.25"
-  ],*/
-panel: [
-    "M28.2,265.02v54.66",
-    "M25.78,267.47h19.22",
-    "M18,289.07h6",
-    "M32.4,289.07h9.6",
-    "M42,289.07h9.6",
-    "M60,289.07h24",
-    "M55.8,289.07v30.6",
-    "M55.8,264.47v24.6",
-    "M72,293.27v26.4",
-    "M72,264.47v20.4",
-    "M42,293.27v26.4",
-    "M67.81,317.17h-14.46"
-  ],
-  logo: [	
-    "M49.37-.25v270.82",
-    "M85.87,261.57h39",
-    "M-.13,289.07h69",
-    "M45,301.57h53.87",
-    "M93.37,327.57h27.5",
-    "M164.87,299.07h75.13",
-    "M93.37,314.57v75",
-    "M114.87,270.35v45.23",
-    "M149.87,382.37v27.63",
-    "M209.87,296.57v42",
-    "M68.87,258.57v33",
-    "M239.87,355.57h-125"
-  ]
-};
-
-  let panelOpen = false;
-  let currentStage = "panel";
-
-  const morphTo = (targetStage) => {
-    const tl = gsap.timeline({ defaults:{ duration:0.8, ease:"power2.inOut" }});
-    const newPaths = shapes[targetStage];
-    paths.forEach((p,i)=> tl.to(p, { morphSVG:{ shape:newPaths[i], shapeIndex:0 } }, 0));
-    currentStage = targetStage;
-  };
-
-  /* ----------------------------
-     🟩 vert 또는 panel 클릭 → 열기 / 닫기
-  ----------------------------- */
-  const togglePanel = () => {
-    if (!panelOpen) {
-      // 열기
-      panel.classList.add("open");
-      morphTo("panel");
-      panelOpen = true;
-    } else {
-      // 닫기
-      panel.classList.remove("open");
-      morphTo("panel");
-      panelOpen = false;
-    }
-  };
-
-  vert.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    togglePanel();
-  });
-
-  panel.addEventListener("click", (e)=>{
-    // 메뉴 링크나 로고 클릭은 무시
-    if (e.target.closest("a") || e.target.closest("#logoBtn")) return;
-    togglePanel();
-  });
-
-  /* ----------------------------
-     🟦 로고 클릭 → panel ↔ logo 전환
-     (단, panel이 열려 있을 때만)
-  ----------------------------- */
-  logoBtn.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    if (!panelOpen) return; // 패널이 닫혀 있으면 무시
-
-    if (currentStage === "panel") {
-      morphTo("logo");
-      currentStage = "logo";
-    } else if (currentStage === "logo") {
-      morphTo("panel");
-      currentStage = "panel";
-    }
-  });
-  
-  // 줌인/줌아웃 방지
 document.addEventListener('wheel', function (e) {
   if (e.ctrlKey) e.preventDefault();
 }, { passive: false });
@@ -804,9 +493,10 @@ document.addEventListener('wheel', function (e) {
 document.addEventListener('gesturestart', function (e) {
   e.preventDefault();
 });
-});
-
 </script>
+  
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@4e31b732e40f52866644115d1e460ef4c90cdae9/common-menu-v2.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@652717595b7dbeeaacbd1224996fe9f627407f1f/home-button.js"></script>
   
 </body>
 </html>
