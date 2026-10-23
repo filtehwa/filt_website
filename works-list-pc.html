@@ -58,6 +58,23 @@
   padding-top:120px;
   box-sizing:border-box;
   background: var(--bg-color);
+  transition: transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
+              margin-left 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
+              width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform, width;
+}
+
+/* 사이드패널 열릴 때 왼쪽 컬럼만 x축 이동 + 폭 축소 (오른쪽 프리뷰 고정) */
+body.menu-open .main .left-container,
+body:has(#panel.open) .main .left-container,
+body:has(.side-panel.open) .main .left-container,
+.side-panel.open ~ .main .left-container {
+  transform: translateX(var(--panel-hide-width));
+  width: calc(100% - var(--panel-hide-width));
+  transition: transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
+              margin-left 0.45s cubic-bezier(0.33, 1, 0.68, 1), 
+              width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform, width; /* ✅ 브라우저가 미리 계산하도록 */
 }
  
   /* == 리스트 섹션 == */
@@ -493,6 +510,31 @@ document.addEventListener('wheel', function (e) {
 document.addEventListener('gesturestart', function (e) {
   e.preventDefault();
 });
+
+// 공통 메뉴 패널(#panel) 열림/닫힘 상태 동기화
+(function syncCommonMenuState() {
+  function checkPanelState() {
+    const panel = document.getElementById('panel') || document.querySelector('.side-panel');
+    const isOpen = !!(panel && panel.classList.contains('open'));
+    document.body.classList.toggle('menu-open', isOpen);
+  }
+
+  const observer = new MutationObserver(() => {
+    checkPanelState();
+  });
+
+  const attachObserver = () => {
+    checkPanelState();
+    const commonMenu = document.getElementById('filt-common-menu-v2') || document.body;
+    observer.observe(commonMenu, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachObserver);
+  } else {
+    attachObserver();
+  }
+})();
 </script>
   
 <script src="https://cdn.jsdelivr.net/gh/filtehwa/filt_website@4e31b732e40f52866644115d1e460ef4c90cdae9/common-menu-v2.js"></script>
