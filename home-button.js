@@ -13,7 +13,7 @@
     '#' + MENU_ROOT_ID + ' .filt-home-button:focus-visible { outline:2px solid #BD005E; outline-offset:4px; }',
     '#' + MENU_ROOT_ID + ' .filt-home-button--desktop { position:absolute; top:20px; left:20px; z-index:15; }',
     '#' + MENU_ROOT_ID + ' .filt-home-button--mobile { display:none; position:fixed; top:20px; left:20px; z-index:999993; }',
-    '@media (max-width:767px) {',
+    '@media (max-width:800px) {',
     '  #' + MENU_ROOT_ID + ' .filt-home-button--desktop { display:none; }',
     '  #' + MENU_ROOT_ID + ' .filt-home-button--mobile { display:block; }',
     '}'
