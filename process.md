@@ -1,6 +1,6 @@
 # 프로젝트 상세 공통 템플릿 진행 기록
 
-최종 업데이트: 2026-10-23
+최종 업데이트: 2026-10-26
 
 ## 목표
 
@@ -44,6 +44,38 @@ projects/yaein-church-interior.json
 - 실제 Vercel Preview 환경변수 구성 및 브라우저에서의 빌더 저장 동작은 아직 확인되지 않았습니다.
 
 각 브랜치 작업은 GitHub에 푸시했으며, 브랜치별 커밋은 저장소 기록에서 확인할 수 있습니다.
+
+## Workflow 다이어그램
+
+```mermaid
+flowchart TD
+    Start["새 프로젝트 상세 페이지"]
+
+    Start --> Choice{"데이터 입력 방식"}
+
+    Choice -->|수동 관리| Manual["shared-project-template 브랜치<br/>프로젝트 JSON 직접 작성"]
+    Manual --> ManualImages["이미지를 배포 브랜치의 images/에 업로드"]
+    ManualImages --> ManualCommit["JSON과 이미지 커밋"]
+
+    Choice -->|빌더 사용| Builder["shared-project-template-builder 브랜치<br/>프로젝트 ID로 불러오기/새 프로젝트"]
+    Builder --> Edit["이미지·설명·보조 이미지/캡션·개요표 편집"]
+    Edit --> Upload["원본 이미지를 images/&lt;프로젝트ID&gt;/에 업로드"]
+    Upload --> BuilderSave["프로젝트 JSON을 projects/&lt;프로젝트ID&gt;.json에 저장"]
+
+    ManualCommit --> Release["프로젝트 파일이 제공될 브랜치에 배포"]
+    BuilderSave --> Release
+    Release --> Vercel["Vercel이 템플릿·CSS·프로젝트 JSON 제공"]
+    Vercel --> Imweb["아임웹 페이지의 코드 위젯이<br/>공통 템플릿과 프로젝트 ID를 로드"]
+    Imweb --> Render["project-template.js가 JSON을 가져와<br/>이미지 갤러리·본문·개요표 렌더링"]
+    Render --> Verify["PC/모바일에서 화면과 이미지 확인"]
+    Verify --> Fix{"수정이 필요한가?"}
+    Fix -->|예| Choice
+    Fix -->|아니오| Done["프로젝트 페이지 확인 완료"]
+
+    Main["main 브랜치"] --> Doc["process.md에 진행 상태와 남은 작업 기록"]
+```
+
+**현재 확인 상태:** 예인교회 페이지는 아임웹에서 작동하는 것을 확인했습니다. 빌더 포함 브랜치의 실제 Vercel Preview 저장 흐름, PC/모바일 전수 점검, 운영 도메인 연결은 아직 확인 또는 결정이 남아 있습니다.
 
 ## 아임웹 연결 방법
 
