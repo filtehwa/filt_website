@@ -413,3 +413,174 @@
 body.filt-menu-open .filt-project-mount .img-section {
   left: 240px;
 }
+
+@media (max-width: 767px) {
+  .filt-project-mount {
+    --panel-width: 100vw;
+    --panel-padding: 12px;
+    --body-text-size: 1.35rem;
+    --caption-size: 0.8rem;
+    position: relative !important;
+    width: 100% !important;
+    padding-top: 40px;
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+  }
+
+  .filt-project-mount .page-container {
+    display: flex;
+    flex-direction: column;
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+  }
+
+  .filt-project-mount .img-section {
+    position: relative;
+    inset: auto;
+    left: 0 !important;
+    width: 100%;
+    height: 66.5vh;
+    height: 66.5dvh;
+    flex: 0 0 66.5vh;
+    flex: 0 0 66.5dvh;
+    flex-direction: row;
+    align-items: stretch;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    scroll-snap-stop: always;
+    touch-action: pan-x pan-y;
+  }
+
+  .filt-project-mount .img-section img {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 0 0 100% !important;
+    object-fit: contain !important;
+    scroll-snap-align: start;
+  }
+
+  .filt-project-mount .img-section hr {
+    display: none;
+  }
+
+  .filt-project-mount .img-section img[data-rotation="90"],
+  .filt-project-mount .img-section img[data-rotation="270"] {
+    flex: none !important;
+  }
+
+  .filt-project-mount img.drawing {
+    min-height: 100% !important;
+  }
+
+  .filt-project-mount .side-section {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    flex: 0 0 auto;
+    overflow: visible !important;
+    border: 0 !important;
+  }
+
+  .filt-project-mount .view-toolbar {
+    display: none;
+  }
+
+  .filt-project-mount .side-section .fixed-table {
+    position: relative !important;
+    inset: auto !important;
+    order: 1;
+    width: 100%;
+    height: auto !important;
+    overflow: visible !important;
+    border-top: 0.5px solid #000 !important;
+  }
+
+  .filt-project-mount .fixed-table table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-top: 0 !important;
+    font-size: 1rem;
+    letter-spacing: 0.4px;
+  }
+
+  .filt-project-mount .fixed-table th,
+  .filt-project-mount .fixed-table td {
+    height: 20px !important;
+    padding: 3px 5px;
+    font-size: 1rem;
+    border: 0 !important;
+    box-shadow: inset 0 -0.5px 0 #000;
+    overflow-wrap: anywhere;
+  }
+
+  .filt-project-mount .fixed-table th {
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .filt-project-mount .fixed-table td {
+    text-align: right;
+    vertical-align: bottom;
+  }
+
+  .filt-project-mount .fixed-table .project-title-cell {
+    height: 70px !important;
+    padding-top: 5px;
+    text-align: left !important;
+    vertical-align: top !important;
+    box-shadow: inset -0.5px 0 0 #000, inset 0 -0.5px 0 #000;
+  }
+
+  .filt-project-mount .fixed-table tr:first-child th,
+  .filt-project-mount .fixed-table tr:nth-child(2) th,
+  .filt-project-mount .fixed-table tr:nth-child(n + 3) th {
+    box-shadow: inset -0.5px 0 0 #000, inset 0 -0.5px 0 #000;
+  }
+
+  .filt-project-mount .project-title-en,
+  .filt-project-mount .project-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .filt-project-mount .side-section .text-content {
+    position: relative !important;
+    inset: auto !important;
+    order: 2;
+    overflow: visible !important;
+    padding: 12px !important;
+    border-bottom: 0.5px solid #000;
+    font-size: 1.35rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .filt-project-mount .side-section .text-content,
+  .filt-project-mount .side-section .text-content * {
+    font-size: inherit !important;
+    line-height: inherit !important;
+  }
+
+  .filt-project-mount .side-section .text-content br {
+    display: inline !important;
+  }
+
+  .filt-project-mount .side-section .side-figure {
+    margin: 8px 0 14px;
+    padding: 0;
+  }
+
+  .filt-project-mount .side-section .side-single-img {
+    width: 100%;
+    height: auto;
+  }
+
+  .filt-project-mount .side-section .side-caption {
+    margin-top: 6px;
+    font-size: 0.8rem !important;
+    line-height: 1.25 !important;
+    white-space: normal;
+  }
+}

@@ -168,9 +168,16 @@
     let currentIndex = 1;
     let isJumping = false;
     let endTimer;
+    const isMobileLayout = () => window.matchMedia("(max-width: 767px)").matches;
     const scrollToIndex = (index, smooth = true) => {
       const image = images[index];
-      if (image) section.scrollTo({ top: image.offsetTop, behavior: smooth ? "smooth" : "auto" });
+      if (!image) return;
+      const offset = isMobileLayout() ? image.offsetLeft : image.offsetTop;
+      section.scrollTo({
+        left: isMobileLayout() ? offset : section.scrollLeft,
+        top: isMobileLayout() ? section.scrollTop : offset,
+        behavior: smooth ? "smooth" : "auto"
+      });
     };
     requestAnimationFrame(() => scrollToIndex(currentIndex, false));
     section.addEventListener("scroll", () => {
@@ -180,7 +187,9 @@
         let nearestIndex = 0;
         let nearestDistance = Infinity;
         images.forEach((image, index) => {
-          const distance = Math.abs(image.offsetTop - section.scrollTop);
+          const offset = isMobileLayout() ? image.offsetLeft : image.offsetTop;
+          const scrollPosition = isMobileLayout() ? section.scrollLeft : section.scrollTop;
+          const distance = Math.abs(offset - scrollPosition);
           if (distance < nearestDistance) {
             nearestDistance = distance;
             nearestIndex = index;
@@ -197,7 +206,10 @@
     }, { passive: true });
     section.addEventListener("click", (event) => {
       if (isJumping) return;
-      currentIndex += (event.clientY - section.getBoundingClientRect().top) / section.clientHeight <= 0.4 ? -1 : 1;
+      const previousImage = isMobileLayout()
+        ? (event.clientX - section.getBoundingClientRect().left) / section.clientWidth <= 0.4
+        : (event.clientY - section.getBoundingClientRect().top) / section.clientHeight <= 0.4;
+      currentIndex += previousImage ? -1 : 1;
       scrollToIndex(currentIndex, true);
     });
     section.addEventListener("contextmenu", (event) => event.preventDefault());
@@ -223,7 +235,7 @@
     const text = document.createElement("div");
     text.className = "text-content";
     text.innerHTML = project.descriptionHtml || "";
-    sideSection.append(toolbar, text, createOverview(project.overview));
+    sideSection.append(toolbar, createOverview(project.overview), text);
     main.append(imageSection, sideSection);
     mount.append(main);
     initializeGallery(imageSection);
