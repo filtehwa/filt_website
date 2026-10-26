@@ -1,6 +1,62 @@
 {
   "id": "tempin",
   "title": "Tempin Office (TEST) | PROJECT INFO",
+  "mobile": {
+    "drawings": {
+      "coordinateSrc": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/dff5eec971ef49ca9039211988352973bcd252c7/MOB/North.svg",
+      "scaleSrc": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/90833849bc9fa2553234f6ba90a8e638a65078a0/MOB/scale%20bar_re2.svg",
+      "images": [
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%20-B1.svg",
+          "title": "B1F PLAN",
+          "alt": "Tempin B1F Plan"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/beabfe7c830be1b1fc66ae0f98e81c5569735136/MOB/260227_MOB_TEMPIN_Floor%201.svg",
+          "title": "1F PLAN",
+          "alt": "Tempin 1F Plan"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%202.svg",
+          "title": "2F PLAN",
+          "alt": "Tempin 2F Plan"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%203.svg",
+          "title": "3F PLAN",
+          "alt": "Tempin 3F Plan"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Floor%204.svg",
+          "title": "4F PLAN",
+          "alt": "Tempin 4F Plan"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/0a073f31584087affe42b6b2941b511bf1a5e2e6/MOB/260227_MOB_TEMPIN_Roof.svg",
+          "title": "ROOF PLAN",
+          "alt": "Tempin Roof Plan"
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/223b7f936eba77f7d54a5fe52b3b0b179d1bd6ac/MOB/260227_MOB_TEMPIN_Section.svg",
+          "title": "SECTION",
+          "alt": "Tempin Section",
+          "coordinate": false
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/223b7f936eba77f7d54a5fe52b3b0b179d1bd6ac/MOB/260227_MOB_TEMPIN_Elev%20A.svg",
+          "title": "ELEVATION A",
+          "alt": "Tempin Elevation A",
+          "coordinate": false
+        },
+        {
+          "src": "https://raw.githubusercontent.com/kyong-FILT/Tempin_Office/223b7f936eba77f7d54a5fe52b3b0b179d1bd6ac/MOB/260227_MOB_TEMPIN_Elev%20B.svg",
+          "title": "ELEVATION B",
+          "alt": "Tempin Elevation B",
+          "coordinate": false
+        }
+      ]
+    }
+  },
   "overview": {
     "titleEn": "TEMPIN OFFICE",
     "subtitle": "템프인 오피스",

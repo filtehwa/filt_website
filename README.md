@@ -70,7 +70,33 @@
    "descriptionHtml": "프로젝트 설명입니다.<br><br><figure class=\"side-figure\"><img class=\"side-single-img\" src=\"https://filtwebsite-verceltest.vercel.app/images/yaein-church-interior/detail-01.jpg\" alt=\"본당 천장 상세\"><figcaption class=\"side-caption\">본당 천장 상세</figcaption></figure>"
    ```
 
-7. 데이터 파일과 이미지 파일을 같은 배포 브랜치에 커밋합니다. 배포가 끝나면 JSON 주소를 열어 확인합니다.
+7. 모바일에만 별도 도면 슬라이더가 필요하면 프로젝트 JSON에 `mobile.drawings`를 추가합니다. 도면 정보 이미지는 선택 사항이며, `coordinate: false`는 해당 도면에서 북쪽 방향 이미지를 숨깁니다.
+
+   ```json
+   "mobile": {
+     "drawings": {
+       "coordinateSrc": "https://filtwebsite-verceltest.vercel.app/assets/projects/yaein-church-interior/north.svg",
+       "scaleSrc": "https://filtwebsite-verceltest.vercel.app/assets/projects/yaein-church-interior/scale.svg",
+       "images": [
+         {
+           "src": "https://filtwebsite-verceltest.vercel.app/assets/projects/yaein-church-interior/MOB/1f-plan.svg",
+           "title": "1F PLAN",
+           "alt": "예인교회 1층 평면도"
+         },
+         {
+           "src": "https://filtwebsite-verceltest.vercel.app/assets/projects/yaein-church-interior/MOB/section.svg",
+           "title": "SECTION",
+           "alt": "예인교회 단면도",
+           "coordinate": false
+         }
+       ]
+     }
+   }
+   ```
+
+   이 설정은 모바일에 별도 슬라이더를 표시하고, PC 갤러리는 기존 `images` 배열을 그대로 사용합니다. `mobile.drawings`가 없거나 도면 이미지가 비어 있으면 모바일 도면 영역은 표시되지 않습니다.
+
+8. 데이터 파일과 이미지 파일을 같은 배포 브랜치에 커밋합니다. 배포가 끝나면 JSON 주소를 열어 확인합니다.
 
    ```text
    https://filtwebsite-verceltest.vercel.app/projects/yaein-church-interior.json

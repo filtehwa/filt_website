@@ -140,6 +140,155 @@
     return section;
   };
 
+  const createMobileDrawingSection = (drawingData) => {
+    const drawings = Array.isArray(drawingData?.images)
+      ? drawingData.images.filter((drawing) => drawing?.src)
+      : [];
+    if (!drawings.length) return null;
+
+    const section = document.createElement("section");
+    section.className = "mobile-drawing-section";
+    section.setAttribute("aria-label", "Project drawings");
+
+    const slider = document.createElement("div");
+    slider.className = "mobile-drawing-slider";
+    const slides = document.createElement("div");
+    slides.className = "mobile-drawing-slides";
+    drawings.forEach((drawing) => {
+      const image = document.createElement("img");
+      image.src = drawing.src;
+      image.alt = drawing.alt || drawing.title || "";
+      image.dataset.title = drawing.title || "";
+      image.dataset.coordinate = drawing.coordinate === false ? "off" : "on";
+      image.loading = "lazy";
+      image.draggable = false;
+      slides.append(image);
+    });
+    slider.append(slides);
+
+    const addNavigationButton = (direction, label, handler) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `mobile-drawing-click-zone ${direction}`;
+      button.setAttribute("aria-label", label);
+      button.addEventListener("click", handler);
+      slider.append(button);
+    };
+
+    const coordinateInfo = document.createElement("div");
+    coordinateInfo.className = "mobile-drawing-info-coordinate";
+    const coordinateImage = drawingData.coordinateSrc
+      ? document.createElement("img")
+      : null;
+    if (coordinateImage) {
+      coordinateImage.src = drawingData.coordinateSrc;
+      coordinateImage.alt = "";
+      coordinateImage.setAttribute("aria-hidden", "true");
+      coordinateInfo.append(coordinateImage);
+    }
+
+    const scaleInfo = document.createElement("div");
+    scaleInfo.className = "mobile-drawing-info-scale";
+    const scaleImage = drawingData.scaleSrc
+      ? document.createElement("img")
+      : null;
+    if (scaleImage) {
+      scaleImage.src = drawingData.scaleSrc;
+      scaleImage.alt = "";
+      scaleImage.setAttribute("aria-hidden", "true");
+      scaleInfo.append(scaleImage);
+    }
+
+    const titleInfo = document.createElement("div");
+    titleInfo.className = "mobile-drawing-info-title";
+    const title = document.createElement("span");
+    titleInfo.append(title);
+
+    const info = document.createElement("div");
+    info.className = "mobile-drawing-info";
+    info.append(coordinateInfo, scaleInfo, titleInfo);
+    section.append(slider, info);
+
+    const originalSlides = Array.from(slides.children);
+    if (originalSlides.length > 1) {
+      const firstClone = originalSlides[0].cloneNode(true);
+      const lastClone = originalSlides[originalSlides.length - 1].cloneNode(true);
+      firstClone.dataset.clone = "true";
+      lastClone.dataset.clone = "true";
+      slides.append(firstClone);
+      slides.prepend(lastClone);
+    }
+
+    let currentSlide = originalSlides.length > 1 ? 1 : 0;
+    let transitioning = false;
+    let touchStartX = null;
+    const originalSlideCount = originalSlides.length;
+
+    const updateDrawingOverlays = () => {
+      const index = currentSlide - (originalSlideCount > 1 ? 1 : 0);
+      const normalizedIndex = (index + originalSlideCount) % originalSlideCount;
+      const currentImage = originalSlides[normalizedIndex];
+      title.textContent = currentImage.dataset.title;
+      if (coordinateImage) {
+        coordinateImage.style.display = currentImage.dataset.coordinate === "off" ? "none" : "block";
+      }
+
+      const sliderRect = slider.getBoundingClientRect();
+      const naturalWidth = currentImage.naturalWidth;
+      const naturalHeight = currentImage.naturalHeight;
+      if (!naturalWidth || !naturalHeight || !sliderRect.width || !sliderRect.height) return;
+      const scale = Math.min(sliderRect.width / naturalWidth, sliderRect.height / naturalHeight);
+      [coordinateImage, scaleImage].filter(Boolean).forEach((image) => {
+        image.style.width = `${naturalWidth * scale}px`;
+        image.style.height = `${naturalHeight * scale}px`;
+      });
+    };
+
+    originalSlides.forEach((image) => image.addEventListener("load", updateDrawingOverlays));
+
+    const updateSlide = (animate = true) => {
+      slides.style.transition = animate ? "transform 0.4s ease-out" : "none";
+      slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+      updateDrawingOverlays();
+    };
+    const moveSlide = (direction) => {
+      if (transitioning || originalSlideCount < 2) return;
+      transitioning = true;
+      currentSlide += direction;
+      updateSlide();
+    };
+
+    addNavigationButton("left", "Previous drawing", () => moveSlide(-1));
+    addNavigationButton("right", "Next drawing", () => moveSlide(1));
+    slides.addEventListener("transitionend", () => {
+      transitioning = false;
+      if (currentSlide === originalSlideCount + 1) {
+        currentSlide = 1;
+        updateSlide(false);
+      } else if (currentSlide === 0) {
+        currentSlide = originalSlideCount;
+        updateSlide(false);
+      }
+    });
+    slider.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      touchStartX = event.clientX;
+    });
+    slider.addEventListener("pointerup", (event) => {
+      if (touchStartX === null) return;
+      const deltaX = touchStartX - event.clientX;
+      touchStartX = null;
+      if (Math.abs(deltaX) > 50) {
+        event.preventDefault();
+        moveSlide(deltaX > 0 ? 1 : -1);
+      }
+    });
+    slider.addEventListener("pointercancel", () => { touchStartX = null; });
+    window.addEventListener("resize", updateDrawingOverlays);
+    updateSlide(false);
+    return section;
+  };
+
   const updateRotatedImageSize = (section, image) => {
     if (![90, 270].includes(Number(image.dataset.rotation))) return;
     image.style.setProperty("--rotate-width", `${section.clientHeight}px`);
@@ -237,7 +386,9 @@
     text.innerHTML = project.descriptionHtml || "";
     const overview = createOverview(project.overview);
     sideSection.append(toolbar, overview, text);
+    const mobileDrawingSection = createMobileDrawingSection(project.mobile?.drawings);
     main.append(imageSection, sideSection);
+    if (mobileDrawingSection) main.append(mobileDrawingSection);
     mount.append(main);
     const updateOverviewHeight = () => {
       sideSection.style.setProperty("--overview-height", `${overview.offsetHeight}px`);
