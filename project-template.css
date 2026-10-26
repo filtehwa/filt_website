@@ -419,23 +419,33 @@ body.filt-menu-open .filt-project-mount .img-section {
 }
 
 @media (max-width: 800px) {
-  #filt-common-menu-v2 .filt-home-button--desktop,
   #filt-common-menu-v2 .filt-home-button--mobile {
-    display: none !important;
+    display: block !important;
+    position: fixed !important;
+    top: 8px !important;
+    left: 14px !important;
+    width: 29px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 91.67 76.67'%3E%3Cg fill='none' stroke='%23000' stroke-width='8.33'%3E%3Cpath d='M14.17 0v76.67M10 4.17h27.5M0 34.17h8.33M20 34.17h13.33M33.33 34.17h13.33M58.33 34.17h13.33M71.67 34.17h20M52.5 0v76.67M75 40v36.67M75 0v28.33M33.33 40v36.67M69.17 72.5H48.34'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat !important;
+    box-shadow: none !important;
+    z-index: 999993 !important;
   }
 
   .filt-project-mount {
     --panel-width: 100vw;
     --panel-padding: 12px;
-    --body-text-size: 1.35rem;
-    --caption-size: 0.8rem;
-    --overview-font-size: clamp(9px, 2.5vw, 12px);
-    --overview-title-font-size: clamp(11px, 3vw, 15px);
+    --body-text-size: clamp(14px, 3.7vw, 16px);
+    --caption-size: clamp(9px, 2.4vw, 10px);
+    --overview-font-size: clamp(8px, 2.2vw, 10px);
+    --overview-title-font-size: clamp(9px, 2.5vw, 11px);
     --overview-row-height: clamp(18px, 4.6vw, 24px);
     position: relative !important;
-    width: calc(100% + 30px) !important;
-    max-width: none !important;
-    margin-left: -15px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
     padding-top: 40px;
     height: auto !important;
     min-height: 100dvh;
@@ -509,7 +519,8 @@ body.filt-menu-open .filt-project-mount .img-section {
     position: relative !important;
     inset: auto !important;
     order: 1;
-    width: 100%;
+    width: calc(100% + 30px) !important;
+    margin-left: -15px !important;
     max-height: none;
     height: auto !important;
     overflow: visible !important;
@@ -527,11 +538,13 @@ body.filt-menu-open .filt-project-mount .img-section {
   .filt-project-mount .fixed-table th,
   .filt-project-mount .fixed-table td {
     height: var(--overview-row-height) !important;
-    padding: 3px 5px;
+    padding: 3px 8px;
     font-size: var(--overview-font-size);
+    line-height: 1.25;
     border: 0 !important;
     box-shadow: inset 0 -0.5px 0 #000;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
 
   .filt-project-mount .fixed-table th {
@@ -571,13 +584,13 @@ body.filt-menu-open .filt-project-mount .img-section {
     overflow: visible !important;
     padding: 12px !important;
     border-bottom: 0.5px solid #000;
-    font-size: 1.35rem !important;
+    font-size: var(--body-text-size) !important;
     line-height: 1.5 !important;
   }
 
   .filt-project-mount .side-section .text-content,
   .filt-project-mount .side-section .text-content * {
-    font-size: inherit !important;
+    font-size: var(--body-text-size) !important;
     line-height: inherit !important;
   }
 
@@ -597,7 +610,7 @@ body.filt-menu-open .filt-project-mount .img-section {
 
   .filt-project-mount .side-section .side-caption {
     margin-top: 6px;
-    font-size: 0.8rem !important;
+    font-size: var(--caption-size) !important;
     line-height: 1.25 !important;
     white-space: normal;
   }
