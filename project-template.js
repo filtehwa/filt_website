@@ -168,7 +168,7 @@
     let currentIndex = 1;
     let isJumping = false;
     let endTimer;
-    const isMobileLayout = () => window.matchMedia("(max-width: 767px)").matches;
+    const isMobileLayout = () => window.matchMedia("(max-width: 800px)").matches;
     const scrollToIndex = (index, smooth = true) => {
       const image = images[index];
       if (!image) return;
@@ -235,9 +235,15 @@
     const text = document.createElement("div");
     text.className = "text-content";
     text.innerHTML = project.descriptionHtml || "";
-    sideSection.append(toolbar, createOverview(project.overview), text);
+    const overview = createOverview(project.overview);
+    sideSection.append(toolbar, overview, text);
     main.append(imageSection, sideSection);
     mount.append(main);
+    const updateOverviewHeight = () => {
+      sideSection.style.setProperty("--overview-height", `${overview.offsetHeight}px`);
+    };
+    updateOverviewHeight();
+    if (window.ResizeObserver) new ResizeObserver(updateOverviewHeight).observe(overview);
     initializeGallery(imageSection);
 
     loadScript("https://cdn.jsdelivr.net/gh/filtehwa/filt_website@common-menu/common-menu-v2.js");
