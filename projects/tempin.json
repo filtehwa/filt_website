@@ -78,11 +78,11 @@
         "value": "OFFICE"
       },
       {
-        "label": "FLOORS",
+        "label": "NUMBER OF FLOORS",
         "value": "B1F|4F"
       },
       {
-        "label": "TYPE",
+        "label": "PROJECT TYPE",
         "value": "RENOVATION & EXTENSION"
       },
       {
@@ -91,7 +91,7 @@
         "areaM2": 56.35
       },
       {
-        "label": "TOTAL AREA",
+        "label": "TOTAL FLOOR AREA",
         "value": "252.39㎡",
         "areaM2": 252.39
       },

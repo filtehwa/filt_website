@@ -46,6 +46,10 @@
   margin: 0 !important;
 }
 
+.filt-project-mount .mobile-project-layout {
+  display: none;
+}
+
 /* ========== 중앙 이미지 구역 ========== */
 .filt-project-mount .img-section {
   position: absolute;
@@ -423,6 +427,17 @@ body.filt-menu-open .filt-project-mount .img-section {
 }
 
 @media (max-width: 800px) {
+  .filt-project-mount::before {
+    position: fixed;
+    top: 39.5px;
+    right: 0;
+    left: 0;
+    z-index: 999991;
+    border-bottom: 0.5px solid #000;
+    content: "";
+    pointer-events: none;
+  }
+
   #filt-common-menu-v2 .filt-home-button--mobile {
     display: block !important;
     position: fixed !important;
@@ -441,15 +456,15 @@ body.filt-menu-open .filt-project-mount .img-section {
   .filt-project-mount {
     --panel-width: 100vw;
     --panel-padding: 12px;
-    --body-text-size: clamp(14px, 3.7vw, 16px);
+    --body-text-size: 13.5px;
     --caption-size: clamp(9px, 2.4vw, 10px);
-    --overview-font-size: clamp(8px, 2.2vw, 10px);
-    --overview-title-font-size: clamp(9px, 2.5vw, 11px);
-    --overview-row-height: clamp(18px, 4.6vw, 24px);
+    --overview-font-size: 10px;
+    --overview-title-font-size: 12px;
+    --overview-row-height: 35px;
     position: relative !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
+    width: calc(100% + 8px) !important;
+    max-width: calc(100% + 8px) !important;
+    margin-left: -8px !important;
     padding-top: 40px;
     height: auto !important;
     min-height: 100dvh;
@@ -462,6 +477,14 @@ body.filt-menu-open .filt-project-mount .img-section {
     height: auto !important;
     min-height: 100dvh;
     overflow: visible !important;
+  }
+
+  .filt-project-mount .desktop-project-layout {
+    display: none !important;
+  }
+
+  .filt-project-mount .mobile-project-layout {
+    display: flex;
   }
 
   .filt-project-mount .img-section {
@@ -496,10 +519,6 @@ body.filt-menu-open .filt-project-mount .img-section {
     display: none;
   }
 
-  .filt-project-mount .img-section img.drawing {
-    display: none !important;
-  }
-
   .filt-project-mount .img-section img[data-rotation="90"],
   .filt-project-mount .img-section img[data-rotation="270"] {
     flex: none !important;
@@ -527,12 +546,22 @@ body.filt-menu-open .filt-project-mount .img-section {
     position: relative !important;
     inset: auto !important;
     order: 1;
-    width: calc(100% + 30px) !important;
-    margin-left: -15px !important;
+    width: 100% !important;
+    margin-left: 0 !important;
     max-height: none;
     height: auto !important;
     overflow: visible !important;
     border-top: 0.5px solid #000 !important;
+  }
+
+  .filt-project-mount .fixed-table::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    border-left: 0.5px solid #000;
+    content: "";
+    pointer-events: none;
   }
 
   .filt-project-mount .fixed-table table {
@@ -546,9 +575,9 @@ body.filt-menu-open .filt-project-mount .img-section {
   .filt-project-mount .fixed-table th,
   .filt-project-mount .fixed-table td {
     height: var(--overview-row-height) !important;
-    padding: 3px 8px;
+    padding: 3px 5px;
     font-size: var(--overview-font-size);
-    line-height: 1.25;
+    line-height: 1.6;
     border: 0 !important;
     box-shadow: inset 0 -0.5px 0 #000;
     overflow-wrap: break-word;
@@ -562,32 +591,41 @@ body.filt-menu-open .filt-project-mount .img-section {
 
   .filt-project-mount .fixed-table td {
     text-align: right;
-    vertical-align: top;
+    vertical-align: bottom;
   }
 
   .filt-project-mount .fixed-table tr:first-child > th:nth-of-type(2),
   .filt-project-mount .fixed-table tr:nth-child(2) > th:first-child,
   .filt-project-mount .fixed-table tr:nth-child(n + 3) > th:nth-child(3) {
-    box-shadow: inset 0.5px 0 0 #000, inset 0 -0.5px 0 #000;
+    box-shadow: inset 0 -0.5px 0 #000;
   }
 
   .filt-project-mount .fixed-table .project-title-cell {
     height: calc(var(--overview-row-height) * 2) !important;
-    padding-top: 5px;
+    padding-top: 3px;
     text-align: left !important;
     vertical-align: top !important;
-    box-shadow: inset -0.5px 0 0 #000, inset 0 -0.5px 0 #000;
+    box-shadow: inset 0 -0.5px 0 #000;
   }
 
   .filt-project-mount .fixed-table tr:first-child th,
   .filt-project-mount .fixed-table tr:nth-child(2) th,
   .filt-project-mount .fixed-table tr:nth-child(n + 3) th {
-    box-shadow: inset -0.5px 0 0 #000, inset 0 -0.5px 0 #000;
+    box-shadow: inset 0 -0.5px 0 #000;
   }
 
   .filt-project-mount .project-title-en,
   .filt-project-mount .project-subtitle {
     font-size: var(--overview-title-font-size);
+  }
+
+  .filt-project-mount .project-title-en {
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .filt-project-mount .project-subtitle {
+    line-height: 1.6;
   }
 
   .filt-project-mount .side-section .text-content {
@@ -596,8 +634,8 @@ body.filt-menu-open .filt-project-mount .img-section {
     bottom: auto !important;
     order: 2;
     overflow: visible !important;
-    padding: 12px !important;
-    border-bottom: 0.5px solid #000;
+    padding: 12px 18px 18px !important;
+    border-bottom: 0;
     font-size: var(--body-text-size) !important;
     line-height: 1.5 !important;
   }
@@ -605,7 +643,7 @@ body.filt-menu-open .filt-project-mount .img-section {
   .filt-project-mount .side-section .text-content,
   .filt-project-mount .side-section .text-content * {
     font-size: var(--body-text-size) !important;
-    line-height: inherit !important;
+    line-height: 1.5 !important;
   }
 
   .filt-project-mount .side-section .text-content br {
@@ -693,6 +731,7 @@ body.filt-menu-open .filt-project-mount .img-section {
     grid-template-columns: 10% 50% 40%;
     width: 100%;
     height: 40px;
+    box-sizing: border-box;
     border-top: 0.5px solid #000;
     background: #fff;
   }
@@ -729,7 +768,7 @@ body.filt-menu-open .filt-project-mount .img-section {
   }
 
   .filt-project-mount .mobile-drawing-info-title span {
-    font-size: 1rem;
+    font-size: 10px;
     font-weight: 700;
     line-height: 1;
   }

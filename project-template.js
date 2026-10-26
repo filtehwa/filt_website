@@ -365,6 +365,45 @@
     window.addEventListener("resize", () => requestAnimationFrame(() => scrollToIndex(currentIndex, false)));
   };
 
+  const createToolbar = () => {
+    const toolbar = document.createElement("header");
+    toolbar.className = "view-toolbar";
+    toolbar.innerHTML = '<div class="view-btns"><a class="integrated-view-btn" href="/works_list" aria-label="Back to works list"><svg class="icon-back" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 18 9 12 15 6"></polyline></svg><svg class="icon-list" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/><line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/><line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/><line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/></svg></a></div>';
+    return toolbar;
+  };
+
+  const createSideSection = (project, includeToolbar) => {
+    const sideSection = document.createElement("section");
+    sideSection.className = "side-section";
+    const text = document.createElement("div");
+    text.className = "text-content";
+    text.innerHTML = project.descriptionHtml || "";
+    const overview = createOverview(project.overview);
+    if (includeToolbar) sideSection.append(createToolbar());
+    sideSection.append(overview, text);
+    return { sideSection, overview };
+  };
+
+  const renderDesktop = (project, images) => {
+    const main = document.createElement("main");
+    main.className = "page-container desktop-project-layout";
+    const imageSection = createImageSection(images);
+    const { sideSection, overview } = createSideSection(project, true);
+    main.append(imageSection, sideSection);
+    return { main, imageSection, sideSection, overview };
+  };
+
+  const renderMobile = (project, images) => {
+    const main = document.createElement("main");
+    main.className = "page-container mobile-project-layout";
+    const imageSection = createImageSection(images);
+    const { sideSection, overview } = createSideSection(project, false);
+    main.append(imageSection, sideSection);
+    const drawings = createMobileDrawingSection(project.mobile?.drawings);
+    if (drawings) main.append(drawings);
+    return { main, imageSection, sideSection, overview };
+  };
+
   const render = (project) => {
     if (!project || !Array.isArray(project.images) || !project.overview) {
       throw new Error("Project JSON is missing images or overview data.");
@@ -373,29 +412,25 @@
     mount.classList.add("filt-project-mount");
     mount.replaceChildren();
 
-    const main = document.createElement("main");
-    main.className = "page-container";
-    const imageSection = createImageSection(project.images);
-    const sideSection = document.createElement("section");
-    sideSection.className = "side-section";
-    const toolbar = document.createElement("header");
-    toolbar.className = "view-toolbar";
-    toolbar.innerHTML = '<div class="view-btns"><a class="integrated-view-btn" href="/works_list" aria-label="Back to works list"><svg class="icon-back" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 18 9 12 15 6"></polyline></svg><svg class="icon-list" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><line y1="0.5" x2="18" y2="0.5" stroke="#000" stroke-width="2"/><line y1="6.17" x2="18" y2="6.17" stroke="#000" stroke-width="4"/><line y1="11.83" x2="18" y2="11.83" stroke="#000" stroke-width="2"/><line y1="17.5" x2="18" y2="17.5" stroke="#000" stroke-width="2"/></svg></a></div>';
-    const text = document.createElement("div");
-    text.className = "text-content";
-    text.innerHTML = project.descriptionHtml || "";
-    const overview = createOverview(project.overview);
-    sideSection.append(toolbar, overview, text);
-    const mobileDrawingSection = createMobileDrawingSection(project.mobile?.drawings);
-    main.append(imageSection, sideSection);
-    if (mobileDrawingSection) main.append(mobileDrawingSection);
-    mount.append(main);
-    const updateOverviewHeight = () => {
-      sideSection.style.setProperty("--overview-height", `${overview.offsetHeight}px`);
-    };
-    updateOverviewHeight();
-    if (window.ResizeObserver) new ResizeObserver(updateOverviewHeight).observe(overview);
-    initializeGallery(imageSection);
+    const desktopImages = Array.isArray(project.desktop?.images)
+      ? project.desktop.images
+      : project.images;
+    const mobileImages = Array.isArray(project.mobile?.images)
+      ? project.mobile.images
+      : project.images.filter((image) => image.class !== "drawing");
+    const desktop = renderDesktop(project, desktopImages);
+    const mobile = renderMobile(project, mobileImages);
+    mount.append(desktop.main, mobile.main);
+
+    [desktop, mobile].forEach(({ sideSection, overview }) => {
+      const updateOverviewHeight = () => {
+        sideSection.style.setProperty("--overview-height", `${overview.offsetHeight}px`);
+      };
+      updateOverviewHeight();
+      if (window.ResizeObserver) new ResizeObserver(updateOverviewHeight).observe(overview);
+    });
+    initializeGallery(desktop.imageSection);
+    initializeGallery(mobile.imageSection);
 
     loadScript("https://cdn.jsdelivr.net/gh/filtehwa/filt_website@common-menu/common-menu-v2.js");
     loadScript("https://cdn.jsdelivr.net/gh/filtehwa/filt_website@common-menu/home-button.js");
